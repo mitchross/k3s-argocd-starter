@@ -1,0 +1,17 @@
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: HTTPRoute
+metadata:
+  name: homepage-dashboard
+spec:
+  parentRefs:
+  - name: gateway
+  hostnames:
+  - "homepage.example.com"
+  rules:
+  - matches:
+    - path:
+        type: Prefix
+        value: /
+    backendRefs:
+    - name: homepage-dashboard
+      port: 3000

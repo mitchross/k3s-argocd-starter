@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: homepage-dashboard
+  template:
+    metadata:
+      labels:
+        app: homepage-dashboard
+    spec:
+      containers:
+      - name: homepage-dashboard
+        image: ghcr.io/benphelps/homepage:latest
+        ports:
+        - containerPort: 3000
+        volumeMounts:
+        - name: config
+          mountPath: /app/config
+      volumes:
+      - name: config
+        persistentVolumeClaim:
+          claimName: homepage-config

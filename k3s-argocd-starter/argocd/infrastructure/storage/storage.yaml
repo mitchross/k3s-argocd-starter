@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: networking
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-username/k3s-argocd-starter.git
+    targetRevision: HEAD
+    path: infrastructure/storage
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: storage
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
