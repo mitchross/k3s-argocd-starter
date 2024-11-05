@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/your-username/k3s-argocd-starter.git
+    repoURL: https://github.com/mitchross/k3s-argocd-starter.git
     targetRevision: HEAD
     path: apps
   destination:
