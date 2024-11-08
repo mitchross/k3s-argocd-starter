@@ -12,3 +12,7 @@ spec:
   clusterResourceWhitelist:
   - group: '*'
     kind: '*'
+  # Optional: for namespaced resources
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'
