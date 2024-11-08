@@ -3,5 +3,5 @@ kind: Kustomization
 resources:
 - project.yaml
 - apps/applications.yaml
-- apps/networking/networking.yaml
-- apps/storage/storage.yaml
+- infrastructure/networking/networking.yaml
+- infrastructure/storage/storage.yaml
