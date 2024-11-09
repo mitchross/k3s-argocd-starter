@@ -1,14 +1,13 @@
 configs:
   cm:
-    create: true
-    application.resourceTrackingMethod: "annotation+label"
-  cmp:
-    create: true
-    plugins:
-      kustomize-build-with-helm:
+    configManagementPlugins: |
+      - name: kustomize-with-helm
+        init:
+          command: ["/bin/sh", "-c"]
+          args: ["helm repo add cilium https://helm.cilium.io"]
         generate:
-          command: [ "sh", "-c" ]
-          args: [ "kustomize build --enable-helm" ]
+          command: ["/bin/sh", "-c"]
+          args: ["kustomize build --enable-helm"]
   params:
     server.insecure: true
 
