@@ -1,21 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: infrastructure
+  name: argocd-controller
   namespace: argocd
 spec:
   generators:
-  - git:
-      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
-      revision: HEAD
-      directories:
-      - path: infrastructure/*
-      exclude: 
-      - path: infrastructure/controllers
+  - list:
+      elements:
+      - name: argocd
+        path: infrastructure/controllers/argocd
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{name}}'
       namespace: argocd
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
     spec:
       project: default
       source:
@@ -24,7 +23,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: argocd
       syncPolicy:
         automated:
           prune: true

@@ -5,3 +5,4 @@ resources:
 - project.yaml
 - apps/applications-appset.yaml
 - apps/infrastructure-appset.yaml
+- apps/argocd-appset.yaml
