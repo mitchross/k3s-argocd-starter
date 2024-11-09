@@ -11,4 +11,4 @@ helmCharts:
     releaseName: "cilium"
     includeCRDs: true
     namespace: kube-system
-    valuesFile: values.yaml
+    valuesFile: cilium-values.yaml
