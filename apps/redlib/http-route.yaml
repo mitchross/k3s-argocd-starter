@@ -4,7 +4,8 @@ metadata:
   name: redlib
 spec:
   parentRefs:
-  - name: gateway
+    - name: gateway-internal
+      namespace: gateway
   hostnames:
   - "redlib.example.com"
   rules:
