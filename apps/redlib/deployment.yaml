@@ -25,7 +25,9 @@ spec:
       containers:
       - name: redlib
         image: quay.io/redlib/redlib:latest@sha256:42db7afd24d3e55ceccb38f6e91ecfd44d78f381a04848bb4de67dae1836a3e4
-        imagePullPolicy: Always
+        envFrom:
+        - configMapRef:
+            name: redlib-config
         ports:
         - name: http
           containerPort: 8080

@@ -5,3 +5,4 @@ resources:
 - service.yaml
 - http-route.yaml
 - ns.yaml
+- configmap.yaml
