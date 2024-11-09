@@ -6,73 +6,14 @@ This starter kit provides a basic structure and configuration for deploying appl
 
 - A running Kubernetes cluster (e.g., K3s)
 
-## Setting up Cilium
+## Getting Started
 
-1. Install the Cilium CLI:
+1. Clone this repository:
    ```
-   CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-   CLI_ARCH=$(uname -m)
-   if [ "$CLI_ARCH" = "aarch64" ]; then
-     CLI_ARCH="arm64"
-   fi
-   curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
-   sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-   rm cilium-linux-${CLI_ARCH}.tar.gz
+   git clone https://github.com/your-username/k3s-argocd-starter.git
    ```
 
-   This will download and install the latest version of the Cilium CLI.
-
-2. Set the API server IP and port:
-   ```
-   API_SERVER_IP=192.168.100.176
-   API_SERVER_PORT=6443
-   ```
-
-   Replace `192.168.100.176` with the IP address of your Kubernetes API server and `6443` with the appropriate port.
-
-3. Install Cilium using the Cilium CLI:
-   ```
-   cilium install \
-     --version 1.16.3 \
-     --set k8sServiceHost=${API_SERVER_IP} \
-     --set k8sServicePort=${API_SERVER_PORT} \
-     --set kubeProxyReplacement=true \
-     --helm-set=operator.replicas=1
-   ```
-
-   This command installs Cilium version 1.16.3 with the specified configuration options.
-
-4. Apply the Gateway API CRDs:
-   ```
-   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
-   ```
-
-   This command installs the experimental Gateway API CRDs required for Cilium.
-
-5. Verify that Cilium is running:
-   ```
-   kubectl get pods -n kube-system -l k8s-app=cilium
-   ```
-
-   You should see the Cilium pods in the `kube-system` namespace with a status of `Running`.
-
-6. Apply the Cilium configuration:
-   ```
-   kubectl apply -k infrastructure/networking/cilium
-   ```
-
-   This command applies the Cilium configuration specified in the `infrastructure/networking/cilium` directory.
-
-7. Apply the Gateway API configuration:
-   ```
-   kubectl apply -k infrastructure/networking/gateway
-   ```
-
-   This command applies the Gateway API configuration specified in the `infrastructure/networking/gateway` directory.
-
-## Setting up Argo CD
-
-1. Install Argo CD on your Kubernetes cluster:
+2. Install Argo CD on your Kubernetes cluster:
    ```
    kubectl create namespace argocd
    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -80,7 +21,7 @@ This starter kit provides a basic structure and configuration for deploying appl
 
    This will create a new namespace called `argocd` and deploy the Argo CD components.
 
-2. Access the Argo CD web UI:
+3. Access the Argo CD web UI:
    ```
    kubectl port-forward svc/argocd-server -n argocd 8080:443
    ```
@@ -90,16 +31,43 @@ This starter kit provides a basic structure and configuration for deploying appl
    kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
    ```
 
-3. Apply the Argo CD application and project manifests:
+4. Apply the Argo CD application and project manifests:
    ```
    kubectl apply -k argocd/
    ```
 
    This will create the necessary applications and projects in Argo CD to manage the deployment of applications and infrastructure components.
 
-4. In the Argo CD web UI, synchronize the `networking` application to deploy the networking components.
+## Setting up Cilium
 
-5. Synchronize the other applications in the Argo CD web UI to deploy your applications.
+1. Install Cilium on your Kubernetes cluster:
+   ```
+   kubectl create namespace networking
+   kubectl apply -f infrastructure/networking/cilium/namespace.yaml
+   kubectl apply -f infrastructure/networking/cilium/cilium-values.yaml
+   helm repo add cilium https://helm.cilium.io/
+   helm install cilium cilium/cilium --version 1.13.0 --namespace networking -f infrastructure/networking/cilium/cilium-values.yaml
+   ```
+
+   This will create a new namespace called `networking` and deploy Cilium using the provided configuration.
+
+2. Verify that Cilium is running:
+   ```
+   kubectl get pods -n networking
+   ```
+
+   You should see the Cilium pods in a `Running` state.
+
+3. Apply the Gateway API manifests:
+   ```
+   kubectl apply -k infrastructure/networking/gateway
+   ```
+
+   This will deploy the Gateway API components.
+
+4. In the Argo CD web UI, you should see the applications defined in the `argocd` directory. Click on the "Sync" button for each application to deploy them to your Kubernetes cluster.
+
+5. Once the applications are synced and deployed, you can access them using the hostnames specified in the `http-route.yaml` files.
 
 ## Application Structure
 
@@ -124,5 +92,4 @@ The starter kit has the following directory structure:
 
 - Modify the application manifests in the `apps/` directory to fit your specific requirements.
 - Update the `argocd/` manifests to match your repository URL and branch.
-- Customize the Cilium configuration in `infrastructure/networking/cilium/` based on your networking requirements.
-
+- Customize the Cilium configuration in `infrastructure/networking/cilium/` based on your networking requirements
