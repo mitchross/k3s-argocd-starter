@@ -10,11 +10,11 @@ resources:
   
 helmCharts:
   - name: openebs
-    repo: https://openebs.github.io/charts
+    repo: https://openebs.github.io/openebs    # Updated repo URL
     releaseName: openebs
     namespace: openebs
     includeCRDs: true
-    version: 3.10.0
+    version: 4.1.0                             # Updated to latest version
     valuesFile: values.yaml
 
 configMapGenerator:

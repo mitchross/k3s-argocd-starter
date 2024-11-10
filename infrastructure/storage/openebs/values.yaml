@@ -1,12 +1,17 @@
-# Enable OpenEBS hostpath storage class
-storageClass:
-  hostpath:
-    enabled: true
-    isDefaultClass: false
+# infrastructure/storage/openebs/values.yaml
+# Disable replicated storage for simple local PV setup
+engines:
+  replicated:
+    enabled: false
+    mayastor:
+      enabled: false
 
-# Enable OpenEBS LocalPV device storage class
+# Enable local PV
 localprovisioner:
   enabled: true
-  deviceClass:
+  basePath: "/var/openebs/local"
+
+  hostpathClass:
     enabled: true
     isDefaultClass: false
+    name: openebs-hostpath
