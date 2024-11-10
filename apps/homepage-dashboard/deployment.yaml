@@ -12,11 +12,21 @@ spec:
       labels:
         app: homepage-dashboard
     spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
       containers:
       - name: homepage-dashboard
         image: ghcr.io/benphelps/homepage:latest
         ports:
         - containerPort: 3000
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop: ["ALL"]
         volumeMounts:
         - name: config
           mountPath: /app/config

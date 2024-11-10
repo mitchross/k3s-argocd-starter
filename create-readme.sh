@@ -1,134 +1,174 @@
 #!/bin/bash
 
-cat > README.md <<EOL
-# Kubernetes Starter Kit
+cat << 'EOF' > README.md
+# 🚀 Kubernetes Starter Kit
 
-This starter kit provides a basic structure and configuration for deploying applications and infrastructure components on a Kubernetes cluster using Argo CD for GitOps-style deployment.
+> Modern GitOps deployment structure using Argo CD on Kubernetes
 
-## Prerequisites
+This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles.
 
-- A running Kubernetes cluster (e.g., K3s)
+## 🏗️ Architecture
 
-## Setting up Cilium
+```mermaid
+flowchart TB
+    subgraph GitRepo["🗄️ Git Repository"]
+        apps["📦 Apps Directory"]
+        infra["🔧 Infrastructure Directory"]
+        argocd["⚓ ArgoCD Directory"]
+    end
 
-1. Install the Cilium CLI:
-   \`\`\`
-   CILIUM_CLI_VERSION=\$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-   CLI_ARCH=\$(uname -m)
-   if [ "\$CLI_ARCH" = "aarch64" ]; then
-     CLI_ARCH="arm64"
-   fi
-   curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/\${CILIUM_CLI_VERSION}/cilium-linux-\${CLI_ARCH}.tar.gz
-   sudo tar xzvfC cilium-linux-\${CLI_ARCH}.tar.gz /usr/local/bin
-   rm cilium-linux-\${CLI_ARCH}.tar.gz
-   \`\`\`
+    subgraph K8sCluster["☸️ Kubernetes Cluster"]
+        subgraph InfraLayer["🔋 Infrastructure Layer"]
+            cilium["🌐 Cilium Networking"]
+            gateway["🚪 Gateway API"]
+            openebs["💾 OpenEBS Storage"]
+        end
+        
+        subgraph ArgoCD["🎯 Argo CD"]
+            controller["🎮 Application Controller"]
+            appsets["📚 ApplicationSets"]
+        end
 
-   This will download and install the latest version of the Cilium CLI.
+        subgraph Applications["🎁 Applications"]
+            hello["👋 Hello World App"]
+            homepage["🏠 Homepage Dashboard"]
+            redlib["📱 Redlib"]
+        end
+    end
 
-2. Set the API server IP and port:
-   \`\`\`
-   API_SERVER_IP=192.168.10.11
-   API_SERVER_PORT=6443
-   \`\`\`
+    GitRepo -- "syncs" --> ArgoCD
+    ArgoCD -- "manages" --> InfraLayer
+    ArgoCD -- "deploys" --> Applications
+    cilium -- "provides networking" --> Applications
+    gateway -- "routes traffic" --> Applications
+    openebs -- "provides storage" --> Applications
+```
 
-   Replace \`192.168.10.11\` with the IP address of your Kubernetes API server and \`6443\` with the appropriate port.
+## 📋 Prerequisites
 
-3. Install Cilium using the Cilium CLI:
-   \`\`\`
-   cilium install \\
-     --version 1.16.3 \\
-     --set k8sServiceHost=\${API_SERVER_IP} \\
-     --set k8sServicePort=\${API_SERVER_PORT} \\
-     --set kubeProxyReplacement=true \\
-     --helm-set=operator.replicas=1
-   \`\`\`
+- ☸️ Kubernetes cluster (e.g., K3s)
+- 🎮 kubectl CLI
+- ⚓ Helm
+- 🔄 Git
 
-   This command installs Cilium version 1.16.3 with the specified configuration options.
+## 🚀 Installation
 
-4. Apply the Gateway API CRDs:
-   \`\`\`
-   kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
-   \`\`\`
+### 1. Clone Repository 
+\`\`\`bash
+git clone https://github.com/your-username/k3s-argocd-starter.git
+cd k3s-argocd-starter
+\`\`\`
 
-   This command installs the experimental Gateway API CRDs required for Cilium.
+### 2. Deploy Storage Layer
+\`\`\`bash
+kubectl create namespace openebs
+kubectl apply -k infrastructure/storage/openebs/
+\`\`\`
 
-5. Verify that Cilium is running:
-   \`\`\`
-   kubectl get pods -n kube-system -l k8s-app=cilium
-   \`\`\`
+### 3. Configure Networking
+\`\`\`bash
+kubectl create namespace networking
+kubectl apply -k infrastructure/networking/cilium/
+\`\`\`
 
-   You should see the Cilium pods in the \`kube-system\` namespace with a status of \`Running\`.
+### 4. Install Argo CD
+\`\`\`bash
+kubectl create namespace argocd
+kubectl apply -k infrastructure/controllers/argocd/
+\`\`\`
 
-6. Apply the Cilium configuration:
-   \`\`\`
-   kubectl apply -k infrastructure/networking/cilium
-   \`\`\`
+### 5. Access Argo CD UI
+\`\`\`bash
+kubectl -n argocd port-forward svc/argocd-server 8080:443
+\`\`\`
 
-   This command applies the Cilium configuration specified in the \`infrastructure/networking/cilium\` directory.
+Get initial admin password:
+\`\`\`bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+\`\`\`
 
-7. Apply the Gateway API configuration:
-   \`\`\`
-   kubectl apply -k infrastructure/networking/gateway
-   \`\`\`
+Access UI: https://localhost:8080
+- Username: admin
+- Password: (from command above)
 
-   This command applies the Gateway API configuration specified in the \`infrastructure/networking/gateway\` directory.
+## 📁 Project Structure
 
-## Setting up Argo CD
+### 📦 Applications
+- `hello-world/`: Simple test application
+- `homepage-dashboard/`: Cluster dashboard
+- `redlib/`: Reddit frontend
 
-1. Install Argo CD on your Kubernetes cluster:
-   \`\`\`
-   kubectl create namespace argocd
-   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-   \`\`\`
+### 🔧 Infrastructure
+- `networking/`: Cilium & Gateway API configuration
+- `storage/`: OpenEBS configuration
+- `controllers/`: Argo CD setup
 
-   This will create a new namespace called \`argocd\` and deploy the Argo CD components.
+## 🔒 Security Features
 
-2. Access the Argo CD web UI:
-   \`\`\`
-   kubectl port-forward svc/argocd-server -n argocd 8080:443
-   \`\`\`
+### 1. Container Security
+- Non-root containers
+- Read-only filesystem
+- Minimal capabilities
 
-   Open your web browser and visit \`https://localhost:8080\`. The default username is \`admin\`, and the password can be obtained by running:
-   \`\`\`
-   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-   \`\`\`
+### 2. Network Security
+- Cilium network policies
+- Gateway API ingress control
+- Optional mTLS support
 
-3. Apply the Argo CD application and project manifests:
-   \`\`\`
-   kubectl apply -k argocd/
-   \`\`\`
+### 3. Storage Security
+- Secure persistent volumes
+- Proper permissions
 
-   This will create the necessary applications and projects in Argo CD to manage the deployment of applications and infrastructure components.
+## 🛠️ Configuration
 
-4. In the Argo CD web UI, synchronize the \`networking\` application to deploy the networking components.
+### 1. Domain Settings
+Edit \`apps/*/http-route.yaml\`:
+\`\`\`yaml
+spec:
+  hostnames:
+  - "your-app.your-domain.com"
+\`\`\`
 
-5. Synchronize the other applications in the Argo CD web UI to deploy your applications.
+### 2. Network Configuration
+Edit \`infrastructure/networking/cilium/cilium-values.yaml\`:
+- IP pools
+- Network settings
 
-## Application Structure
+### 3. Storage Configuration
+Edit \`infrastructure/storage/openebs/localpv-storageclass.yaml\`:
+- Storage parameters
+- Capacity settings
 
-The starter kit has the following directory structure:
+## 🔍 Troubleshooting
 
-- \`apps/\`: Contains the Kubernetes manifests for each application.
-  - \`hello-world/\`: A simple "Hello, World!" application.
-  - \`homepage-dashboard/\`: A customizable homepage dashboard application.
-  - \`libreddit/\`: A lightweight Reddit front-end application.
+### 1. Argo CD Status
+\`\`\`bash
+kubectl get applications -n argocd
+\`\`\`
 
-- \`argocd/\`: Contains the Argo CD application and project manifests.
-  - \`apps/\`: Application manifests for deploying applications.
-  - \`infrastructure/\`: Application manifests for deploying infrastructure components.
+### 2. Network Status
+\`\`\`bash
+kubectl get pods -n networking
+cilium status
+\`\`\`
 
-- \`infrastructure/\`: Contains the infrastructure-related manifests.
-  - \`networking/\`: Manifests for networking components.
-    - \`cilium/\`: Manifests for Cilium configuration.
-    - \`gateway/\`: Manifests for the Gateway API configuration.
-  - \`openebs/\`: Manifests for OpenEBS local persistent storage.
+### 3. Gateway Routes
+\`\`\`bash
+kubectl get gateways,httproutes -A
+\`\`\`
 
-## Customization
+## 🤝 Contributing
 
-- Modify the application manifests in the \`apps/\` directory to fit your specific requirements.
-- Update the \`argocd/\` manifests to match your repository URL and branch.
-- Customize the Cilium configuration in \`infrastructure/networking/cilium/\` based on your networking requirements.
+- Submit issues
+- Fork the repository
+- Create pull requests
 
-EOL
+## 📜 License
 
-echo "README.md file generated successfully!"
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+Built for production Kubernetes deployments
+EOF
+
+echo "📄 README.md has been generated"

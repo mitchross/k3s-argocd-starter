@@ -1,95 +1,163 @@
-# Kubernetes Starter Kit
+# 🚀 Kubernetes Starter Kit
 
-This starter kit provides a basic structure and configuration for deploying applications and infrastructure components on a Kubernetes cluster using Argo CD for GitOps-style deployment.
+> Modern GitOps deployment structure using Argo CD on Kubernetes
 
-## Prerequisites
+This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles.
 
-- A running Kubernetes cluster (e.g., K3s)
+## 🏗️ Architecture
 
-## Getting Started
+```mermaid
+flowchart TB
+    subgraph GitRepo["🗄️ Git Repository"]
+        apps["📦 Apps Directory"]
+        infra["🔧 Infrastructure Directory"]
+        argocd["⚓ ArgoCD Directory"]
+    end
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/your-username/k3s-argocd-starter.git
-   ```
+    subgraph K8sCluster["☸️ Kubernetes Cluster"]
+        subgraph InfraLayer["🔋 Infrastructure Layer"]
+            cilium["🌐 Cilium Networking"]
+            gateway["🚪 Gateway API"]
+            openebs["💾 OpenEBS Storage"]
+        end
+        
+        subgraph ArgoCD["🎯 Argo CD"]
+            controller["🎮 Application Controller"]
+            appsets["📚 ApplicationSets"]
+        end
 
-2. Install Argo CD on your Kubernetes cluster:
-   ```
-   kubectl create namespace argocd
-   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-   ```
+        subgraph Applications["🎁 Applications"]
+            hello["👋 Hello World App"]
+            homepage["🏠 Homepage Dashboard"]
+            redlib["📱 Redlib"]
+        end
+    end
 
-   This will create a new namespace called `argocd` and deploy the Argo CD components.
+    GitRepo -- "syncs" --> ArgoCD
+    ArgoCD -- "manages" --> InfraLayer
+    ArgoCD -- "deploys" --> Applications
+    cilium -- "provides networking" --> Applications
+    gateway -- "routes traffic" --> Applications
+    openebs -- "provides storage" --> Applications
+```
 
-3. Access the Argo CD web UI:
-   ```
-   kubectl port-forward svc/argocd-server -n argocd 8080:443
-   ```
+## 📋 Prerequisites
 
-   Open your web browser and visit `https://localhost:8080`. The default username is `admin`, and the password can be obtained by running:
-   ```
-   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-   ```
+- ☸️ Kubernetes cluster (e.g., K3s)
+- 🎮 kubectl CLI
+- ⚓ Helm
+- 🔄 Git
 
-4. Apply the Argo CD application and project manifests:
-   ```
-   kubectl apply -k argocd/
-   ```
+## 🚀 Installation
 
-   This will create the necessary applications and projects in Argo CD to manage the deployment of applications and infrastructure components.
+### 1. Clone Repository 
+\`\`\`bash
+git clone https://github.com/your-username/k3s-argocd-starter.git
+cd k3s-argocd-starter
+\`\`\`
 
-## Setting up Cilium
+### 2. Deploy Storage Layer
+\`\`\`bash
+kubectl create namespace openebs
+kubectl apply -k infrastructure/storage/openebs/
+\`\`\`
 
-1. Install Cilium on your Kubernetes cluster:
-   ```
-   kubectl create namespace networking
-   kubectl apply -f infrastructure/networking/cilium/namespace.yaml
-   kubectl apply -f infrastructure/networking/cilium/cilium-values.yaml
-   helm repo add cilium https://helm.cilium.io/
-   helm install cilium cilium/cilium --version 1.13.0 --namespace networking -f infrastructure/networking/cilium/cilium-values.yaml
-   ```
+### 3. Configure Networking
+\`\`\`bash
+kubectl create namespace networking
+kubectl apply -k infrastructure/networking/cilium/
+\`\`\`
 
-   This will create a new namespace called `networking` and deploy Cilium using the provided configuration.
+### 4. Install Argo CD
+\`\`\`bash
+kubectl create namespace argocd
+kubectl apply -k infrastructure/controllers/argocd/
+\`\`\`
 
-2. Verify that Cilium is running:
-   ```
-   kubectl get pods -n networking
-   ```
+### 5. Access Argo CD UI
+\`\`\`bash
+kubectl -n argocd port-forward svc/argocd-server 8080:443
+\`\`\`
 
-   You should see the Cilium pods in a `Running` state.
+Get initial admin password:
+\`\`\`bash
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+\`\`\`
 
-3. Apply the Gateway API manifests:
-   ```
-   kubectl apply -k infrastructure/networking/gateway
-   ```
+Access UI: https://localhost:8080
+- Username: admin
+- Password: (from command above)
 
-   This will deploy the Gateway API components.
+## 📁 Project Structure
 
-4. In the Argo CD web UI, you should see the applications defined in the `argocd` directory. Click on the "Sync" button for each application to deploy them to your Kubernetes cluster.
+### 📦 Applications
+- `hello-world/`: Simple test application
+- `homepage-dashboard/`: Cluster dashboard
+- `redlib/`: Reddit frontend
 
-5. Once the applications are synced and deployed, you can access them using the hostnames specified in the `http-route.yaml` files.
+### 🔧 Infrastructure
+- `networking/`: Cilium & Gateway API configuration
+- `storage/`: OpenEBS configuration
+- `controllers/`: Argo CD setup
 
-## Application Structure
+## 🔒 Security Features
 
-The starter kit has the following directory structure:
+### 1. Container Security
+- Non-root containers
+- Read-only filesystem
+- Minimal capabilities
 
-- `apps/`: Contains the Kubernetes manifests for each application.
-  - `hello-world/`: A simple "Hello, World!" application.
-  - `homepage-dashboard/`: A customizable homepage dashboard application.
-  - `libreddit/`: A lightweight Reddit front-end application.
+### 2. Network Security
+- Cilium network policies
+- Gateway API ingress control
+- Optional mTLS support
 
-- `argocd/`: Contains the Argo CD application and project manifests.
-  - `apps/`: Application manifests for deploying applications.
-  - `infrastructure/`: Application manifests for deploying infrastructure components.
+### 3. Storage Security
+- Secure persistent volumes
+- Proper permissions
 
-- `infrastructure/`: Contains the infrastructure-related manifests.
-  - `networking/`: Manifests for networking components.
-    - `cilium/`: Manifests for Cilium configuration.
-    - `gateway/`: Manifests for the Gateway API configuration.
-  - `openebs/`: Manifests for OpenEBS local persistent storage.
+## 🛠️ Configuration
 
-## Customization
+### 1. Domain Settings
+Edit \`apps/*/http-route.yaml\`:
+\`\`\`yaml
+spec:
+  hostnames:
+  - "your-app.your-domain.com"
+\`\`\`
 
-- Modify the application manifests in the `apps/` directory to fit your specific requirements.
-- Update the `argocd/` manifests to match your repository URL and branch.
-- Customize the Cilium configuration in `infrastructure/networking/cilium/` based on your networking requirements
+### 2. Network Configuration
+Edit \`infrastructure/networking/cilium/cilium-values.yaml\`:
+- IP pools
+- Network settings
+
+### 3. Storage Configuration
+Edit \`infrastructure/storage/openebs/localpv-storageclass.yaml\`:
+- Storage parameters
+- Capacity settings
+
+## 🔍 Troubleshooting
+
+### 1. Argo CD Status
+\`\`\`bash
+kubectl get applications -n argocd
+\`\`\`
+
+### 2. Network Status
+\`\`\`bash
+kubectl get pods -n networking
+cilium status
+\`\`\`
+
+### 3. Gateway Routes
+\`\`\`bash
+kubectl get gateways,httproutes -A
+\`\`\`
+
+## 🤝 Contributing
+
+- Submit issues
+- Fork the repository
+- Create pull requests
+
+

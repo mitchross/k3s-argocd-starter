@@ -5,7 +5,7 @@ configs:
     kustomize.buildOptions: "--enable-helm"
     # Add plugin configuration
     configManagementPlugins: |
-      - name: kustomized-helm
+      - name: kustomize-with-helm
         init:
           command: ["/bin/sh", "-c"]
           args: ["helm dependency build"]
