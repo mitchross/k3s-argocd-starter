@@ -6,7 +6,7 @@ spec:
   parentRefs:
   - name: gateway
   hostnames:
-  - "hello-world.example.com"
+  - "hello-world.vanillax.xyz"
   rules:
   - matches:
     - path:
