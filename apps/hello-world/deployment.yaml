@@ -18,8 +18,8 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-      - name: hello-world
-        image: gcr.io/google-samples/hello-app:1.0
+      - name: echo-server
+        image: mendhak/http-https-echo
         ports:
         - containerPort: 8080
         securityContext:
