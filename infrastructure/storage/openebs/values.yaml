@@ -1,0 +1,12 @@
+# Enable OpenEBS hostpath storage class
+storageClass:
+  hostpath:
+    enabled: true
+    isDefaultClass: false
+
+# Enable OpenEBS LocalPV device storage class
+localprovisioner:
+  enabled: true
+  deviceClass:
+    enabled: true
+    isDefaultClass: false
