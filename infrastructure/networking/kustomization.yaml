@@ -6,3 +6,4 @@ namespace: networking
 resources:
 - cilium
 - gateway
+- namespace.yaml 
