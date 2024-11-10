@@ -3,15 +3,35 @@ configs:
     create: true
     application.resourceTrackingMethod: "annotation+label"
     kustomize.buildOptions: "--enable-helm"
-    # Add plugin configuration
     configManagementPlugins: |
       - name: kustomize-with-helm
-        init:
-          command: ["/bin/sh", "-c"]
-          args: ["helm dependency build"]
         generate:
-          command: [sh, -c]
-          args: ["helm template --release-name release-name . > all.yaml && kustomize build"]
+          command: ["sh", "-c"]
+          args: ["kustomize build"]
+      - name: kustomize-with-helm-init
+        init:
+          command: ["sh", "-c"]
+          args: ["helm dependency build || true"]
+        generate:
+          command: ["sh", "-c"]
+          args: ["helm template . --name-template release-name --include-crds > helm-template.yaml && kustomize build"]
+
+repoServer:
+  extraContainers:
+    - name: helm
+      image: alpine/helm:3.11.1
+      command: ["/bin/sh", "-c"]
+      args:
+        - "helm repo add stable https://charts.helm.sh/stable && helm repo update && while true; do sleep 100; done"
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+  volumeMounts:
+    - mountPath: /custom-tools
+      name: custom-tools
 
   params:
     server.insecure: true
