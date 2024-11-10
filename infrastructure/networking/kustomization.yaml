@@ -4,6 +4,6 @@ kind: Kustomization
 namespace: networking
 
 resources:
+- namespace.yaml 
 - cilium
 - gateway
-- namespace.yaml 
