@@ -22,7 +22,7 @@ spec:
         targetRevision: HEAD
         path: '{{path}}'
         plugin:
-          name: kustomize-with-helm-init
+          name: kustomize-build-with-helm
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{name}}'
