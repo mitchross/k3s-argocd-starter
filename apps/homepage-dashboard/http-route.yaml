@@ -4,7 +4,8 @@ metadata:
   name: homepage-dashboard
 spec:
   parentRefs:
-  - name: gateway
+    - name: gateway-internal
+      namespace: gateway
   hostnames:
   - "homepage.example.com"
   rules:

@@ -4,7 +4,8 @@ metadata:
   name: hello-world
 spec:
   parentRefs:
-  - name: gateway
+    - name: gateway-internal
+      namespace: gateway
   hostnames:
   - "hello-world.vanillax.xyz"
   rules:
