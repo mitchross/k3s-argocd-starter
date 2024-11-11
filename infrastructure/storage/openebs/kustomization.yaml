@@ -6,7 +6,9 @@ namespace: openebs
 
 resources:
   - namespace.yaml
+  - rbac.yaml
   - localpv-storageclass.yaml
+  
   
 helmCharts:
   - name: openebs
