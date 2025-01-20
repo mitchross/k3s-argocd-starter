@@ -1,17 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: infrastructure-root
+  name: infrastructure-components
   namespace: argocd
 spec:
   generators:
-  - list:
-      elements:
-      - name: infrastructure
-        path: infrastructure
+  - git:
+      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+      revision: HEAD
+      directories:
+      - path: infrastructure/networking/*
+      - path: infrastructure/storage/*
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{path.basename}}'
       namespace: argocd
     spec:
       project: default
@@ -23,8 +25,8 @@ spec:
           name: kustomize-build-with-helm
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{name}}'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
-          selfHeal: true
+          selfHeal: true 
