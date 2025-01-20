@@ -10,7 +10,7 @@ transport-loglevel: debug
 
 
 ingress:
-  - hostname: hello.vanillax.me
+  - hostname: hello.vanillax.xyz
     service: hello_world
     originRequest:
       # Add header logging with log-headers flag
@@ -34,7 +34,7 @@ ingress:
   - hostname: "*.vanillax.me"
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
-      originServerName: "*.vanillax.me"
+      originServerName: "*.vanillax.xyz"
       logHeaders: true
       headers:
         - name: CF-Connecting-IP
@@ -63,7 +63,7 @@ ingress:
   - hostname: vanillax.me
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
-      originServerName: vanillax.me
+      originServerName: vanillax.xyz
       logHeaders: true
       headers:
         - name: CF-Connecting-IP

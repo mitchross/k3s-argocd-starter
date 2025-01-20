@@ -7,6 +7,9 @@ resources:
   - ns.yaml
   - daemon-set.yaml
 
+generatorOptions:
+  disableNameSuffixHash: true
+
 configMapGenerator:
   - name: config
     files:
