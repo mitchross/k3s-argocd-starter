@@ -23,8 +23,10 @@ spec:
           name: kustomize-build-with-helm
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{name}}'
+        namespace: infrastructure
       syncPolicy:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
