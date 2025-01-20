@@ -73,6 +73,12 @@ cilium connectivity test
 # Install ArgoCD with our custom configuration
 k3s kubectl kustomize --enable-helm infrastructure/controllers/argocd | k3s kubectl apply -f -
 
+#let argo manage argo
+kubectl apply -f argocd/apps/argocd-appset.yaml 
+
+#let argo manage infrastructure
+kubectl apply -f argocd/apps/infrastructure-appset.yaml 
+
 
 ---
 
