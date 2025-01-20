@@ -61,6 +61,8 @@ cilium install \
 # Verify installation
 cilium status
 
+cilium upgrade -f cilium-values.yaml
+
 # Apply custom configuration
 kubectl apply -k infrastructure/networking/cilium/
 

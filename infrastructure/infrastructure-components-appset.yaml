@@ -26,7 +26,15 @@ spec:
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'
+      # Override namespace for special cases
+      ignoreDifferences:
+      - group: "*"
+        kind: "*"
+        jsonPointers:
+        - /metadata/namespace
       syncPolicy:
         automated:
           prune: true
-          selfHeal: true 
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=false  # Don't auto-create namespaces 
