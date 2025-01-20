@@ -14,6 +14,9 @@ configMapGenerator:
   - name: config
     files:
       - config.yaml
+    options:
+      annotations:
+        argocd.argoproj.io/sync-wave: "-2"
 
 # The secret will be created manually via kubectl
 # ... existing code ...
