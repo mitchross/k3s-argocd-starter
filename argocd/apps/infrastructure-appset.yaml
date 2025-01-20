@@ -5,15 +5,15 @@ metadata:
   namespace: argocd
 spec:
   generators:
-  - list:
-      elements:
-      - name: networking
-        path: infrastructure/networking
-      - name: storage
-        path: infrastructure/storage
+  - git:
+      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+      revision: HEAD
+      directories:
+      - path: infrastructure/networking/*
+      - path: infrastructure/storage/*
   template:
     metadata:
-      name: '{{name}}'
+      name: '{{path.basename}}'
       namespace: argocd
     spec:
       project: default
@@ -25,7 +25,7 @@ spec:
           name: kustomize-build-with-helm
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{name}}'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
