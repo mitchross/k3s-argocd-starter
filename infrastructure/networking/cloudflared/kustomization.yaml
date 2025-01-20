@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: cloudflared
+
+resources:
+  - ns.yaml
+  - daemon-set.yaml
+
+configMapGenerator:
+  - name: config
+    files:
+      - config.yaml
+
+# The secret will be created manually via kubectl
+# ... existing code ...
+  

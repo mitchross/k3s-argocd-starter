@@ -1,7 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
-namespace: storage
+commonLabels:
+  vanillax.me: storage
+  app.kubernetes.io/managed-by: argocd
 
 resources:
-- openebs
+  - project.yaml
+  - application-set.yaml
