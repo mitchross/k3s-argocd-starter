@@ -2,7 +2,6 @@ configs:
   cm:
     create: true
     application.resourceTrackingMethod: "annotation+label"
-    kustomize.buildOptions: "--enable-helm"
   cmp:
     create: true
     plugins:
@@ -15,44 +14,8 @@ configs:
 
 crds:
   install: true
+  # -- Keep CRDs on chart uninstall
   keep: false
-
-repoServer:
-  extraContainers:
-    - name: kustomize-build-with-helm
-      command:
-        - argocd-cmp-server
-      image: '{{ default .Values.global.image.repository .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}'
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 999
-        allowPrivilegeEscalation: false
-        readOnlyRootFilesystem: true
-        seccompProfile:
-          type: RuntimeDefault
-        capabilities:
-          drop: [ "ALL" ]
-      volumeMounts:
-        - name: plugins
-          mountPath: /home/argocd/cmp-server/plugins
-        - name: cmp-kustomize-build-with-helm
-          mountPath: /home/argocd/cmp-server/config/plugin.yaml
-          subPath: kustomize-build-with-helm.yaml
-        - mountPath: /tmp
-          name: cmp-tmp
-  volumes:
-    - name: cmp-kustomize-build-with-helm
-      configMap:
-        name: argocd-cmp-cm
-    - name: cmp-tmp
-      emptyDir: { }
-  resources:
-    requests:
-      cpu: 100m
-      memory: 256Mi
-    limits:
-      cpu: 4000m
-      memory: 1024Mi
 
 controller:
   resources:
@@ -90,6 +53,45 @@ server:
       cpu: 4000m
       memory: 256Mi
 
+repoServer:
+  containerSecurityContext:
+    readOnlyRootFilesystem: true
+  volumes:
+    - name: cmp-kustomize-build-with-helm
+      configMap:
+        name: argocd-cmp-cm
+    - name: cmp-tmp
+      emptyDir: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 4000m
+      memory: 1024Mi
+  extraContainers:
+    - name: kustomize-build-with-helm
+      command:
+        - argocd-cmp-server
+      image: '{{ default .Values.global.image.repository .Values.repoServer.image.repository }}:{{ default (include "argo-cd.defaultTag" .) .Values.repoServer.image.tag }}'
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop: [ "ALL" ]
+      volumeMounts:
+        - name: plugins
+          mountPath: /home/argocd/cmp-server/plugins
+        - name: cmp-kustomize-build-with-helm
+          mountPath: /home/argocd/cmp-server/config/plugin.yaml
+          subPath: kustomize-build-with-helm.yaml
+        - mountPath: /tmp
+          name: cmp-tmp
+
 applicationSet:
   resources:
     requests:
@@ -98,3 +100,13 @@ applicationSet:
     limits:
       cpu: 1000m
       memory: 512Mi
+
+notifications:
+  enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 1000m
+      memory: 128Mi

@@ -6,158 +6,79 @@ This starter kit provides a production-ready foundation for deploying applicatio
 
 ## 🏗️ Architecture
 
-```mermaid
-flowchart TB
-    subgraph GitRepo["🗄️ Git Repository"]
-        apps["📦 Apps Directory"]
-        infra["🔧 Infrastructure Directory"]
-        argocd["⚓ ArgoCD Directory"]
-    end
+## 🏃 Getting Started
 
-    subgraph K8sCluster["☸️ Kubernetes Cluster"]
-        subgraph InfraLayer["🔋 Infrastructure Layer"]
-            cilium["🌐 Cilium Networking"]
-            gateway["🚪 Gateway API"]
-            openebs["💾 OpenEBS Storage"]
-        end
-        
-        subgraph ArgoCD["🎯 Argo CD"]
-            controller["🎮 Application Controller"]
-            appsets["📚 ApplicationSets"]
-        end
+### 1. System Dependencies
+```bash
+# Install required system packages
+sudo apt install zfsutils-linux nfs-kernel-server cifs-utils open-iscsi
+sudo apt install --reinstall zfs-dkms
 
-        subgraph Applications["🎁 Applications"]
-            hello["👋 Hello World App"]
-            homepage["🏠 Homepage Dashboard"]
-            redlib["📱 Redlib"]
-        end
-    end
-
-    GitRepo -- "syncs" --> ArgoCD
-    ArgoCD -- "manages" --> InfraLayer
-    ArgoCD -- "deploys" --> Applications
-    cilium -- "provides networking" --> Applications
-    gateway -- "routes traffic" --> Applications
-    openebs -- "provides storage" --> Applications
+# Install 1Password CLI (follow instructions at https://1password.com/downloads/command-line/)
 ```
 
-## 📋 Prerequisites
+### 2. Install K3s 🎯
+```bash
+export SETUP_NODEIP=192.168.100.176
+export SETUP_CLUSTERTOKEN=randomtokensecret1234
 
-- ☸️ Kubernetes cluster (e.g., K3s)
-- 🎮 kubectl CLI
-- ⚓ Helm
-- 🔄 Git
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \
+  INSTALL_K3S_EXEC="--node-ip $SETUP_NODEIP \
+  --disable=flannel,local-storage,metrics-server,servicelb,traefik \
+  --flannel-backend='none' \
+  --disable-network-policy \
+  --disable-cloud-controller \
+  --disable-kube-proxy" \
+  K3S_TOKEN=$SETUP_CLUSTERTOKEN \
+  K3S_KUBECONFIG_MODE=644 sh -s -
 
-## 🚀 Installation
+# Setup kubeconfig
+mkdir -p $HOME/.kube
+sudo cp -i /etc/rancher/k3s/k3s.yaml $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+chmod 600 $HOME/.kube/config
+```
 
-### 1. Clone Repository 
-\`\`\`bash
-git clone https://github.com/your-username/k3s-argocd-starter.git
-cd k3s-argocd-starter
-\`\`\`
+### 3. Install Cilium 🔄
+```bash
+# Install Cilium CLI
+-Replace ARCH with arm64 or amd64. 
+CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
+CLI_ARCH=arm64
+curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
+sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+rm cilium-linux-${CLI_ARCH}.tar.gz
 
-### 2. Deploy Storage Layer
-\`\`\`bash
-kubectl create namespace openebs
-kubectl apply -k infrastructure/storage/openebs/
-\`\`\`
+# Install Cilium
+cilium install \
+  --version 1.16.5 \
+  --set k8sServiceHost=${API_SERVER_IP} \
+  --set k8sServicePort=6443 \
+  --set kubeProxyReplacement=true \
+  --helm-set=operator.replicas=1
 
-### 3. Configure Networking
-\`\`\`bash
-kubectl create namespace networking
-kubectl apply -k infrastructure/networking/cilium/
-\`\`\`
-
-### 4. Install Argo CD
-\`\`\`bash
-kubectl create namespace argocd
-kubectl apply -k infrastructure/controllers/argocd/
-\`\`\`
-
-### 5. Access Argo CD UI
-\`\`\`bash
-kubectl -n argocd port-forward svc/argocd-server 8080:443
-\`\`\`
-
-Get initial admin password:
-\`\`\`bash
-kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
-\`\`\`
-
-Access UI: https://localhost:8080
-- Username: admin
-- Password: (from command above)
-
-## 📁 Project Structure
-
-### 📦 Applications
-- `hello-world/`: Simple test application
-- `homepage-dashboard/`: Cluster dashboard
-- `redlib/`: Reddit frontend
-
-### 🔧 Infrastructure
-- `networking/`: Cilium & Gateway API configuration
-- `storage/`: OpenEBS configuration
-- `controllers/`: Argo CD setup
-
-## 🔒 Security Features
-
-### 1. Container Security
-- Non-root containers
-- Read-only filesystem
-- Minimal capabilities
-
-### 2. Network Security
-- Cilium network policies
-- Gateway API ingress control
-- Optional mTLS support
-
-### 3. Storage Security
-- Secure persistent volumes
-- Proper permissions
-
-## 🛠️ Configuration
-
-### 1. Domain Settings
-Edit \`apps/*/http-route.yaml\`:
-\`\`\`yaml
-spec:
-  hostnames:
-  - "your-app.your-domain.com"
-\`\`\`
-
-### 2. Network Configuration
-Edit \`infrastructure/networking/cilium/cilium-values.yaml\`:
-- IP pools
-- Network settings
-
-### 3. Storage Configuration
-Edit \`infrastructure/storage/openebs/localpv-storageclass.yaml\`:
-- Storage parameters
-- Capacity settings
-
-## 🔍 Troubleshooting
-
-### 1. Argo CD Status
-\`\`\`bash
-kubectl get applications -n argocd
-\`\`\`
-
-### 2. Network Status
-\`\`\`bash
-kubectl get pods -n networking
+# Verify installation
 cilium status
-\`\`\`
 
-### 3. Gateway Routes
-\`\`\`bash
-kubectl get gateways,httproutes -A
-\`\`\`
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
+cd to /infra/network/cilium
+cilium upgrade -f values.yaml
 
-## 🤝 Contributing
+```
 
-- Submit issues
-- Fork the repository
-- Create pull requests
+### 4. Install CoreDNS 🔍 (Optional)
+CoreDNS can be installed in two ways:
 
-
+#### Option A: Use K3s Built-in CoreDNS ( RECOMMENDED)
+```bash
+# Remove the --disable coredns flag from K3s installation
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \
+  INSTALL_K3S_EXEC="--node-ip $SETUP_NODEIP \
+  --disable=flannel,local-storage,metrics-server,servicelb,traefik \
+  --flannel-backend='none' \
+  --disable-network-policy \
+  --disable-cloud-controller \
+  --disable-kube-proxy" \
+  K3S_TOKEN=$SETUP_CLUSTERTOKEN \
+  K3S_KUBECONFIG_MODE=644 sh -s -
+```

@@ -8,7 +8,7 @@ kubeProxyReplacement: true
 enableEnvoyConfig: false
 
  # Talos specific
-k8sServiceHost: 192.168.100.175
+k8sServiceHost: 192.168.100.176
 k8sServicePort: 6443
 securityContext:
   capabilities:
