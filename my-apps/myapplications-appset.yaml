@@ -1,22 +1,23 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: infrastructure-components
+  name: applications
   annotations:
-    argocd.argoproj.io/sync-wave: "-2"
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   generators:
     - git:
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         revision: HEAD
         directories:
-          - path: infrastructure/networking/*
-          - path: infrastructure/storage/*
+          - path: my-apps/*
+          - exclude: true
+            path: my-apps/applications-appset.yaml
   template:
     metadata:
-      name: 'infra-{{path.basename}}'
+      name: 'app-{{path.basename}}'
       labels:
-        type: infrastructure
+        type: application
     spec:
       project: default
       source:
@@ -25,7 +26,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.segment.1}}'  # Uses networking or storage as namespace
+        namespace: applications
       syncPolicy:
         automated:
           prune: true
