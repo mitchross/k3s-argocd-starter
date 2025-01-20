@@ -1,5 +1,7 @@
 🚀 Kubernetes Starter Kit
 
+WORK IN PROGRESS ITS ALL BROKE DONT USE
+
 > Modern GitOps deployment structure using Argo CD on Kubernetes
 
 This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles.
@@ -100,8 +102,9 @@ k3s kubectl kustomize --enable-helm infrastructure/controllers/argocd | k3s kube
 # Wait for ArgoCD pods to be ready
 k3s kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
 
-# Apply the root application which manages everything
-k3s kubectl apply -f root-argocd-app.yml
+k3s kubectl apply -f infrastructure-components-appset.yaml -n argocd
+k3s kubectl apply -f applications-appset.yaml -n argocd
+
 ```
 
 This will set up the complete GitOps structure:
