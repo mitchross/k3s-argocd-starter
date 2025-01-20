@@ -6,6 +6,24 @@ This starter kit provides a production-ready foundation for deploying applicatio
 
 ## 🏗️ Architecture
 
+This repository follows a three-level GitOps structure:
+
+```
+/
+├── root-argocd-app.yml     (Level 1 - Root App of Apps)
+├── appsets/                (Level 2 - ApplicationSets)
+│   ├── infrastructure-appset.yaml
+│   └── apps-appset.yaml    (future application deployments)
+└── apps/                   (Level 3 - Actual manifests)
+    ├── infrastructure/
+    │   ├── networking/
+    │   │   ├── cilium/
+    │   │   ├── cloudflared/
+    │   │   └── gateway/
+    │   └── storage/
+    └── applications/       (future application deployments)
+```
+
 ## 🏃 Getting Started
 
 ### 1. System Dependencies
@@ -50,9 +68,9 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz
 
 # Install Gateway API CRDs first
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
+k3s kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
 
-# Install Cilium using values from infrastructure/networking/cilium/cilium-values.yaml
+# Install Cilium using values from apps/infrastructure/networking/cilium/cilium-values.yaml
 cilium install \
   --version 1.16.5 \
   --set kubeProxyReplacement=true \
@@ -61,56 +79,49 @@ cilium install \
 # Verify installation
 cilium status
 
-cilium upgrade -f cilium-values.yaml
-
 # Apply custom configuration
-kubectl apply -k infrastructure/networking/cilium/
+k3s kubectl apply -k apps/infrastructure/networking/cilium/
 
 # Verify Cilium is running properly
 cilium connectivity test
 ```
 
-### 4. Install ArgoCD 🎯
+### 4. Install ArgoCD and Setup GitOps 🎯
 
-# Install ArgoCD with our custom configuration
-k3s kubectl kustomize --enable-helm infrastructure/controllers/argocd | k3s kubectl apply -f -
+```bash
+# Install ArgoCD with custom configuration
+k3s kubectl kustomize --enable-helm apps/infrastructure/controllers/argocd | k3s kubectl apply -f -
 
-#let argo manage argo
-kubectl apply -f argocd/apps/argocd-appset.yaml 
+# Wait for ArgoCD pods to be ready
+k3s kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
 
-#let argo manage infrastructure
-kubectl apply -f argocd/apps/infrastructure-appset.yaml 
+# Apply the root application which manages everything
+k3s kubectl apply -f root-argocd-app.yml
+```
 
+This will set up the complete GitOps structure:
+1. Root application manages ApplicationSets
+2. Infrastructure ApplicationSet manages core components
+3. Future application deployments will be managed separately
 
----
+## ☁️ External Services Setup
 
-External services
+### Cloudflare Setup
+Required Tokens:
+1. DNS API Token 🔑 (for cert-manager DNS01 challenges)
+   # Navigate to Cloudflare Dashboard:
+   # 1. Profile > API Tokens
+   # 2. Create Token
+   # 3. Use "Edit zone DNS" template
+   # 4. Configure permissions:
+   #    - Zone - DNS - Edit
+   #    - Zone - Zone - Read
+   # 5. Set zone resources to your domain
 
-☁️ Cloudflare Setup
-Required Tokens
-DNS API Token 🔑
-Used by cert-manager for DNS01 challenges
-Permissions needed:
+2. Tunnel Token 🌐 (for cloudflared)
+   - Created automatically when setting up the tunnel below
 
-Zone - DNS - Edit
-Zone - Zone - Read
-Tunnel Token 🌐
-
-Used by cloudflared for tunnel authentication
-Created automatically when setting up the tunnel
-Setup Steps
-Create DNS API Token 🔧
-
-# Navigate to Cloudflare Dashboard:
-# 1. Profile > API Tokens
-# 2. Create Token
-# 3. Use "Edit zone DNS" template
-# 4. Configure permissions:
-#    - Zone - DNS - Edit
-#    - Zone - Zone - Read
-# 5. Set zone resources to your domain
-Create Cloudflare Tunnel 🚇
-
+```bash
 # Install cloudflared
 brew install cloudflare/cloudflare/cloudflared  # macOS
 # or
@@ -125,18 +136,14 @@ cloudflared tunnel create k3s-cluster
 
 # Get tunnel credentials and create Kubernetes secret
 cloudflared tunnel token --cred-file tunnel-creds.json k3s-cluster
-kubectl create namespace cloudflared
-kubectl create secret generic tunnel-credentials \
+k3s kubectl create namespace cloudflared
+k3s kubectl create secret generic tunnel-credentials \
   --namespace=cloudflared \
   --from-file=credentials.json=tunnel-creds.json
 
 # Clean up credentials file
 rm tunnel-creds.json
 
-Configure DNS Records 📡
-
-# Get tunnel ID
+# Configure DNS
 TUNNEL_ID=$(cloudflared tunnel list | grep k3s-cluster | awk '{print $1}')
-
-# Create DNS record
 cloudflared tunnel route dns $TUNNEL_ID "*.yourdomain.com"
