@@ -14,16 +14,7 @@ helmCharts:
     namespace: cert-manager
     valuesFile: values.yaml
 
-vars:
-  - name: CLOUDFLARE_EMAIL
-    objref:
-      kind: Secret
-      name: cloudflare-api-token
-      apiVersion: v1
-    fieldref:
-      fieldpath: data.email
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"
 
-namespace: cert-manager
