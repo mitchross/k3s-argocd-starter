@@ -1,3 +1,4 @@
+# my-apps/myapplications-appset.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -12,10 +13,11 @@ spec:
         directories:
           - path: my-apps/*
           - exclude: true
-            path: my-apps/applications-appset.yaml
+            path: my-apps/myapplications-appset.yaml
   template:
     metadata:
-      name: 'app-{{path.basename}}'
+      # Changed from 'app-{{path.basename}}' to just '{{path.basename}}'
+      name: '{{path.basename}}'
       labels:
         type: application
     spec:
