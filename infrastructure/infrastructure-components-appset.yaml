@@ -1,3 +1,4 @@
+# infrastructure-components-appset.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -14,7 +15,8 @@ spec:
           - path: infrastructure/storage/*
   template:
     metadata:
-      name: 'infra-{{path.basename}}'
+      # Changed from 'infra-{{path.basename}}' to just '{{path.basename}}'
+      name: '{{path.basename}}'
       labels:
         type: infrastructure
     spec:
@@ -25,7 +27,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.segment.1}}'  # Uses networking or storage as namespace
+        namespace: '{{path.segment.1}}'
       syncPolicy:
         automated:
           prune: true
