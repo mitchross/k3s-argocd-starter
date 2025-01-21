@@ -7,7 +7,11 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: $(CLOUDFLARE_EMAIL)
+    email:
+      valueFrom:
+        secretKeyRef:
+          name: cloudflare-email
+          key: email
     privateKeySecretRef:
       name: cloudflare-key
     solvers:
