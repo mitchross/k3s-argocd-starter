@@ -115,20 +115,35 @@ This will set up the complete GitOps structure:
 ## ☁️ External Services Setup
 
 ### Cloudflare Setup
-Required Tokens:
-1. DNS API Token 🔑 (for cert-manager DNS01 challenges)
-   # Navigate to Cloudflare Dashboard:
-   # 1. Profile > API Tokens
-   # 2. Create Token
-   # 3. Use "Edit zone DNS" template
-   # 4. Configure permissions:
-   #    - Zone - DNS - Edit
-   #    - Zone - Zone - Read
-   # 5. Set zone resources to your domain
 
-2. Tunnel Token 🌐 (for cloudflared)
-   - Created automatically when setting up the tunnel below
+You'll need to create two secrets for Cloudflare integration:
+1. DNS API Token for cert-manager (DNS validation)
+2. Tunnel credentials for cloudflared (Tunnel connectivity)
 
+#### 1. Create DNS API Token 🔑
+```bash
+# Navigate to Cloudflare Dashboard:
+# 1. Profile > API Tokens
+# 2. Create Token
+# 3. Use "Edit zone DNS" template
+# 4. Configure permissions:
+#    - Zone - DNS - Edit
+#    - Zone - Zone - Read
+# 5. Set zone resources to your domain
+
+# Set your credentials as environment variables
+export CLOUDFLARE_API_TOKEN="your-api-token-here"
+export CLOUDFLARE_EMAIL="your-cloudflare-email"
+
+# Create the secret for cert-manager
+kubectl create secret generic cloudflare-api-token \
+  --namespace cert-manager \
+  --from-literal=api-token=$CLOUDFLARE_API_TOKEN \
+  --from-literal=email=$CLOUDFLARE_EMAIL \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+
+#### 2. Setup Cloudflare Tunnel 🌐
 ```bash
 # Install cloudflared
 brew install cloudflare/cloudflare/cloudflared  # macOS
@@ -136,22 +151,37 @@ brew install cloudflare/cloudflare/cloudflared  # macOS
 wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
 sudo dpkg -i cloudflared-linux-amd64.deb
 
-# Login to Cloudflare
+# Login to Cloudflare (this will open a browser)
 cloudflared tunnel login
 
-# Create tunnel
-cloudflared tunnel create k3s-cluster
+# Set your domain
+export DOMAIN="yourdomain.com"
+
+# Create tunnel and store its name
+export TUNNEL_NAME="k3s-cluster"
+cloudflared tunnel create $TUNNEL_NAME
+
+# Create namespace for cloudflared
+kubectl create namespace cloudflared
 
 # Get tunnel credentials and create Kubernetes secret
-cloudflared tunnel token --cred-file tunnel-creds.json k3s-cluster
-k3s kubectl create namespace cloudflared
-k3s kubectl create secret generic tunnel-credentials \
+cloudflared tunnel token --cred-file tunnel-creds.json $TUNNEL_NAME
+kubectl create secret generic tunnel-credentials \
   --namespace=cloudflared \
   --from-file=credentials.json=tunnel-creds.json
 
 # Clean up credentials file
 rm tunnel-creds.json
 
-# Configure DNS
-TUNNEL_ID=$(cloudflared tunnel list | grep k3s-cluster | awk '{print $1}')
-cloudflared tunnel route dns $TUNNEL_ID "*.yourdomain.com"
+# Configure DNS (*.yourdomain.com will point to your tunnel)
+TUNNEL_ID=$(cloudflared tunnel list | grep $TUNNEL_NAME | awk '{print $1}')
+cloudflared tunnel route dns $TUNNEL_ID "*.$DOMAIN"
+
+# Verify your tunnel
+cloudflared tunnel list
+```
+
+After completing these steps, you'll have:
+1. A cert-manager secret with your Cloudflare API token and email
+2. A cloudflared secret with your tunnel credentials
+3. DNS routing configured for your domain through the tunnel
