@@ -1,3 +1,4 @@
+# kustomization.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -14,19 +15,14 @@ helmCharts:
     namespace: cert-manager
     valuesFile: values.yaml
 
-replacements:
-  - source:
+vars:
+  - name: CLOUDFLARE_EMAIL
+    objref:
       kind: Secret
       name: cloudflare-api-token
-      fieldPath: data.email
-    targets:
-      - select:
-          kind: ClusterIssuer
-          name: cloudflare-cluster-issuer
-        fieldPaths:
-          - spec.acme.email
-        options:
-          decode: true
+      apiVersion: v1
+    fieldref:
+      fieldpath: data.email
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"

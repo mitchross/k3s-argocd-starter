@@ -7,7 +7,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: "${CLOUDFLARE_EMAIL}"  # This will be replaced by kustomize
+    email: $(CLOUDFLARE_EMAIL)
     privateKeySecretRef:
       name: cloudflare-key
     solvers:
