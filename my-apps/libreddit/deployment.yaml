@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: redlib
-  namespace: redlib
+  name: libreddit
+  namespace: libreddit
   labels:
-    app.kubernetes.io/name: redlib
+    app.kubernetes.io/name: libreddit
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: redlib
+      app.kubernetes.io/name: libreddit
   replicas: 1
   strategy:
     type: RollingUpdate
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: redlib
+        app.kubernetes.io/name: libreddit
     spec:
       securityContext:
         runAsNonRoot: true
@@ -23,11 +23,12 @@ spec:
         runAsGroup: 1000
         fsGroup: 1000
       containers:
-      - name: redlib
-        image: quay.io/redlib/redlib:latest-arm
-        envFrom:
-        - configMapRef:
-            name: redlib-config
+      - name: libreddit
+        image: quay.io/redlib/redlib:latest
+        imagePullPolicy: Always
+        envFrom:                     
+          - configMapRef:             
+              name: libreddit-env     
         ports:
         - name: http
           containerPort: 8080
@@ -41,8 +42,8 @@ spec:
             cpu: 100m
             memory: 128Mi
           limits:
-            cpu: 500m
-            memory: 256Mi
+            cpu: 2000m
+            memory: 1Gi
         livenessProbe:
           httpGet:
             path: /

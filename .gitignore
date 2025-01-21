@@ -1,3 +1,5 @@
+# Ignore all .DS_Store files anywhere in the repository
+**/.DS_Store
 
 infrastructure/.DS_Store
 infrastructure/networking/.DS_Store
