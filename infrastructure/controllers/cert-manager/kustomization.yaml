@@ -25,8 +25,8 @@ replacements:
           name: cloudflare-cluster-issuer
         fieldPaths:
           - spec.acme.email
-    options:
-      decode: true
+        options:
+          decode: true
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"
