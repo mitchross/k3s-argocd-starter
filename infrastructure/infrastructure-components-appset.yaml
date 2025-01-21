@@ -1,38 +1,40 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: infrastructure-components
-  annotations:
-    argocd.argoproj.io/sync-wave: "-2"
+ name: infrastructure-components
+ annotations:
+   argocd.argoproj.io/sync-wave: "-2" 
 spec:
-  generators:
-    - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
-        revision: HEAD
-        directories:
-          - path: infrastructure/networking/*
-          - path: infrastructure/storage/*
-          - path: infrastructure/controllers/*  # Add this line
-          - exclude: true                      # Add this to exclude argocd
-            path: infrastructure/controllers/argocd
-  template:
-    metadata:
-      name: '{{path.basename}}'
-      labels:
-        type: infrastructure
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
-        targetRevision: HEAD
-        path: '{{path}}'
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
-      syncPolicy:
-        automated:
-          prune: true
-          selfHeal: true
-        syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
+ generators:
+   - git:
+       repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+       revision: HEAD
+       directories:
+         - path: infrastructure/networking/*
+         - path: infrastructure/storage/*
+         - path: infrastructure/controllers/*  
+         - exclude: true                      
+           path: infrastructure/controllers/argocd
+ template:
+   metadata:
+     name: '{{path.basename}}'
+     labels:
+       type: infrastructure
+   spec:
+     project: default
+     source:
+       plugin:
+         name: kustomize-build-with-helm
+       repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+       targetRevision: HEAD
+       path: '{{path}}'
+     destination:
+       server: https://kubernetes.default.svc
+       namespace: '{{path.basename}}'
+     syncPolicy:
+       automated:
+         prune: true
+         selfHeal: true
+       syncOptions:
+         - CreateNamespace=true
+         - ServerSideApply=true

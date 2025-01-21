@@ -94,17 +94,21 @@ cilium connectivity test
 ### 4. Install ArgoCD and Setup GitOps 🎯
 
 ```bash
+# Create argocd namespace
+kubectl create namespace argocd
+
+# Install Gateway API CRDs (if not already installed in Cilium step)
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
+
 # Install ArgoCD with custom configuration
-k3s kubectl kustomize --enable-helm infrastructure/controllers/argocd | k3s kubectl apply -f -
-
-
+kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
 
 # Wait for ArgoCD pods to be ready
-k3s kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
 
-k3s kubectl apply -f infrastructure-components-appset.yaml -n argocd
-k3s kubectl apply -f applications-appset.yaml -n argocd
-
+# Apply the ApplicationSets
+kubectl apply -f infrastructure-components-appset.yaml -n argocd
+kubectl apply -f my-apps/myapplications-appset.yaml -n argocd
 ```
 
 This will set up the complete GitOps structure:
@@ -134,6 +138,9 @@ You'll need to create two secrets for Cloudflare integration:
 # Set your credentials as environment variables
 export CLOUDFLARE_API_TOKEN="your-api-token-here"
 export CLOUDFLARE_EMAIL="your-cloudflare-email"
+
+# Create the cert-manager namespace
+kubectl create namespace cert-manager
 
 # Create the secret for cert-manager
 kubectl create secret generic cloudflare-api-token \
