@@ -15,7 +15,6 @@ spec:
           - path: infrastructure/storage/*
   template:
     metadata:
-      # Changed from 'infra-{{path.basename}}' to just '{{path.basename}}'
       name: '{{path.basename}}'
       labels:
         type: infrastructure
@@ -27,7 +26,8 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.segment.1}}'
+        # Use the namespace defined in the component's own namespace.yaml
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true
