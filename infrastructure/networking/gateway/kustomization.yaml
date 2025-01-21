@@ -9,3 +9,4 @@ resources:
   - ns.yaml
   - gw-external.yaml
   - gw-internal.yaml
+  - cert-vanillax.yaml
