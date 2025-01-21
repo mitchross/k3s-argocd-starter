@@ -1,4 +1,3 @@
-# infrastructure-components-appset.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
@@ -13,6 +12,9 @@ spec:
         directories:
           - path: infrastructure/networking/*
           - path: infrastructure/storage/*
+          - path: infrastructure/controllers/*  # Add this line
+          - exclude: true                      # Add this to exclude argocd
+            path: infrastructure/controllers/argocd
   template:
     metadata:
       name: '{{path.basename}}'
@@ -26,7 +28,6 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        # Use the namespace defined in the component's own namespace.yaml
         namespace: '{{path.basename}}'
       syncPolicy:
         automated:
