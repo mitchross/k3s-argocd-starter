@@ -3,15 +3,11 @@ kind: ClusterIssuer
 metadata:
   name: cloudflare-cluster-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Higher number means later sync
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: 
-      valueFrom:
-        secretKeyRef:
-          name: cloudflare-api-token
-          key: email
+    email: "${CLOUDFLARE_EMAIL}"  # This will be replaced by kustomize
     privateKeySecretRef:
       name: cloudflare-key
     solvers:

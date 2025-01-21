@@ -6,7 +6,6 @@ resources:
   - cloudflare-secret.yaml
   - cluster-issuer.yaml
 
-
 helmCharts:
   - name: cert-manager
     repo: https://charts.jetstack.io
@@ -15,6 +14,19 @@ helmCharts:
     namespace: cert-manager
     valuesFile: values.yaml
 
+replacements:
+  - source:
+      kind: Secret
+      name: cloudflare-api-token
+      fieldPath: data.email
+    targets:
+      - select:
+          kind: ClusterIssuer
+          name: cloudflare-cluster-issuer
+        fieldPaths:
+          - spec.acme.email
+    options:
+      decode: true
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"

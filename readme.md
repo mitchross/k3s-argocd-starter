@@ -134,20 +134,24 @@ You'll need to create two secrets for Cloudflare integration:
 #    - Zone - DNS - Edit
 #    - Zone - Zone - Read
 # 5. Set zone resources to your domain
+# 6. Copy the token and your Cloudflare account email
 
-# Set your credentials as environment variables
+# Set your credentials as environment variables (DO NOT COMMIT THESE VALUES)
 export CLOUDFLARE_API_TOKEN="your-api-token-here"
 export CLOUDFLARE_EMAIL="your-cloudflare-email"
 
-# Create the cert-manager namespace
+# First, create the cert-manager namespace if it doesn't exist
 kubectl create namespace cert-manager
 
-# Create the secret for cert-manager
+# IMPORTANT: Create the cloudflare-api-token secret BEFORE deploying cert-manager
 kubectl create secret generic cloudflare-api-token \
   --namespace cert-manager \
   --from-literal=api-token=$CLOUDFLARE_API_TOKEN \
-  --from-literal=email=$CLOUDFLARE_EMAIL \
-  --dry-run=client -o yaml | kubectl apply -f -
+  --from-literal=email=$CLOUDFLARE_EMAIL
+
+# Verify the secret is created with correct data
+kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.email}' | base64 -d
+kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.api-token}' | base64 -d
 ```
 
 #### 2. Setup Cloudflare Tunnel 🌐
@@ -161,17 +165,18 @@ sudo dpkg -i cloudflared-linux-amd64.deb
 # Login to Cloudflare (this will open a browser)
 cloudflared tunnel login
 
-# Set your domain
+# Set your domain (DO NOT COMMIT THIS VALUE)
 export DOMAIN="yourdomain.com"
-
-# Create tunnel and store its name
-export TUNNEL_NAME="k3s-cluster"
-cloudflared tunnel create $TUNNEL_NAME
+export TUNNEL_NAME="k3s-cluster"  # This should match the name in your config.yaml
 
 # Create namespace for cloudflared
 kubectl create namespace cloudflared
 
+# Create the tunnel
+cloudflared tunnel create $TUNNEL_NAME
+
 # Get tunnel credentials and create Kubernetes secret
+# IMPORTANT: Create this secret BEFORE deploying cloudflared
 cloudflared tunnel token --cred-file tunnel-creds.json $TUNNEL_NAME
 kubectl create secret generic tunnel-credentials \
   --namespace=cloudflared \
@@ -184,8 +189,52 @@ rm tunnel-creds.json
 TUNNEL_ID=$(cloudflared tunnel list | grep $TUNNEL_NAME | awk '{print $1}')
 cloudflared tunnel route dns $TUNNEL_ID "*.$DOMAIN"
 
-# Verify your tunnel
+# Verify your tunnel is created
 cloudflared tunnel list
+```
+
+### Deployment Order and Verification
+
+The correct order for deploying components is:
+
+1. Create necessary namespaces:
+```bash
+kubectl create namespace cert-manager
+kubectl create namespace cloudflared
+```
+
+2. Create required secrets (BEFORE deploying any components):
+```bash
+# Create cert-manager secret
+kubectl create secret generic cloudflare-api-token \
+  --namespace cert-manager \
+  --from-literal=api-token=$CLOUDFLARE_API_TOKEN \
+  --from-literal=email=$CLOUDFLARE_EMAIL
+
+# Create cloudflared tunnel credentials
+cloudflared tunnel create $TUNNEL_NAME
+cloudflared tunnel token --cred-file tunnel-creds.json $TUNNEL_NAME
+kubectl create secret generic tunnel-credentials \
+  --namespace=cloudflared \
+  --from-file=credentials.json=tunnel-creds.json
+rm tunnel-creds.json
+```
+
+3. Deploy infrastructure using Argo CD:
+```bash
+kubectl apply -f infrastructure-components-appset.yaml -n argocd
+```
+
+4. Verify the deployments:
+```bash
+# Check cert-manager
+kubectl get pods -n cert-manager
+
+# Check cloudflared
+kubectl get pods -n cloudflared
+
+# Check ClusterIssuer status
+kubectl get clusterissuer cloudflare-cluster-issuer -o wide
 ```
 
 After completing these steps, you'll have:
