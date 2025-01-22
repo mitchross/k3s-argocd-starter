@@ -15,5 +15,3 @@ helmCharts:
     namespace: openebs
     valuesFile: values.yaml
 
-commonLabels:
-  app.kubernetes.io/managed-by: argocd 
