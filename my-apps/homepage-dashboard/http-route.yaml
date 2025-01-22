@@ -7,7 +7,7 @@ spec:
     - name: gateway-internal
       namespace: gateway
   hostnames:
-  - "homepage.example.com"
+  - "homepage.vanillax.xyz"
   rules:
   - matches:
     - path:
