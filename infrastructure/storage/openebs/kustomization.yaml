@@ -5,11 +5,12 @@ namespace: openebs
 
 resources:
   - namespace.yaml
+  - storageclass.yaml
 
 helmCharts:
   - name: openebs
     repo: https://openebs.github.io/charts
-    version: 3.9.0
+    version: 3.6.0
     releaseName: openebs
     namespace: openebs
     valuesFile: values.yaml
