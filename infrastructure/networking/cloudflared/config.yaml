@@ -60,36 +60,8 @@ ingress:
         - name: CF-Challenge
         - name: CF-Bot-Management-Tag
 
-  - hostname: "*.vanillax.me"
-    service: https://cilium-gateway-external.gateway.svc.cluster.local:443
-    originRequest:
-      originServerName: "*.vanillax.xyz"
-      logHeaders: true
-      headers:
-        - name: CF-Connecting-IP
-        - name: X-Real-IP
-        - name: CF-IPCountry
-        - name: CF-Ray
-        - name: CF-Visitor
-        - name: CF-Device-Type
-        - name: CF-IPCITY
-        - name: CF-IPCONTINENT
-        - name: CF-IPLATITUDE
-        - name: CF-IPLONGITUDE
-        - name: CF-IPREGION
-        - name: X-Forwarded-For
-        - name: Accept-Language
-        - name: User-Agent
-        - name: True-Client-IP
-        - name: CF-IPCountry
-        - name: CF-RAY
-        - name: CF-Worker
-        - name: CF-Client-Bot
-        - name: CF-Bot-Score
-        - name: CF-Challenge
-        - name: CF-Bot-Management-Tag
 
-  - hostname: vanillax.me
+  - hostname: vanillax.xyz
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
       originServerName: vanillax.xyz

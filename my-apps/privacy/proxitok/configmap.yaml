@@ -4,7 +4,7 @@ metadata:
   name: proxitok-config
   namespace: proxitok
 data:
-  APP_URL: "https://proxitok.vanillax.me"
+  APP_URL: "https://proxitok.vanillax.xyz"
   LATTE_CACHE: "/cache"
   API_CACHE: "redis"
   REDIS_HOST: "proxitok-redis.proxitok.svc.cluster.local"
