@@ -8,9 +8,14 @@ resources:
 
 helmCharts:
   - name: openebs
-    repo: https://openebs.github.io/openebs  # New repo
-    version: 4.1.0  # ✅ Latest version
+    repo: https://openebs.github.io/openebs
+    version: 4.1.0
     releaseName: openebs
     namespace: openebs
     valuesFile: values.yaml
-
+    # Add explicit component disabling
+    valuesInline:
+      apiServer:
+        enabled: false  # Disable REST API
+      agentCore:
+        enabled: false  # Disable agent core

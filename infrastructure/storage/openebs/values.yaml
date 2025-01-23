@@ -1,13 +1,7 @@
-# Enable only LocalPV provisioner
-provisioner:
-  enabled: true
+# values.yaml - Minimal config for RPi
+# Disable ALL components except LocalPV Hostpath
 
-# OpenEBS LocalPV Provisioner configuration
-localprovisioner:
-  enabled: true
-  basePath: /var/openebs/local
-
-# Disable other OpenEBS components we don't need
+# Disable legacy components
 ndm:
   enabled: false
 ndmOperator:
@@ -17,4 +11,32 @@ cstor:
 jiva:
   enabled: false
 zfs-localpv:
-  enabled: false 
+  enabled: false
+
+# Disable v4.x components
+engines:
+  replicated:
+    mayastor: 
+      enabled: false  # Disable Mayastor
+  local:
+    hostpath:
+      enabled: true   # Keep ONLY Hostpath
+    lvm:
+      enabled: false  # Disable LVM
+    zfs:
+      enabled: false  # Disable ZFS
+
+# Disable monitoring stack
+observability:
+  enabled: false  # Disable Loki/Promtail
+
+# Disable etcd and NATS
+etcd:
+  enabled: false
+nats:
+  enabled: false
+
+# LocalPV Hostpath config
+localprovisioner:
+  enabled: true
+  basePath: /var/openebs/local
