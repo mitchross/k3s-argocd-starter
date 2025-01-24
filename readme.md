@@ -5,6 +5,22 @@
 
 This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles. Compatible with both Raspberry Pi and x86 systems.
 
+## 📋 Table of Contents
+
+- [Prerequisites](#-prerequisites)
+- [Architecture](#-architecture)
+- [Quick Start](#-quick-start)
+  - [System Setup](#1-system-setup)
+  - [K3s Installation](#2-k3s-installation)
+  - [Networking Setup](#3-networking-setup-cilium)
+  - [GitOps Setup](#4-gitops-setup-argo-cd-part-1-of-2)
+- [Security Setup](#-security-setup)
+  - [Cloudflare Integration](#cloudflare-integration)
+- [Verification](#-verification)
+- [Applications](#-included-applications)
+- [Contributing](#-contributing)
+- [License](#-license)
+
 ## 📋 Prerequisites
 
 - Kubernetes cluster (tested with K3s v1.32.0+k3s1)
@@ -76,35 +92,6 @@ graph TD
    - Automated sync with pruning and self-healing
    - Retry on failure with exponential backoff
 
-### Bootstrap Process
-
-1. **Install Argo CD**
-```bash
-# Create argocd namespace
-kubectl create namespace argocd
-
-# Apply Argo CD Projects
-kubectl apply -f infrastructure/controllers/argocd/projects.yaml
-
-# Install Argo CD with custom configuration
-kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
-
-# Wait for Argo CD to be ready
-kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
-```
-
-2. **Deploy ApplicationSets**
-```bash
-# Apply infrastructure ApplicationSet first
-kubectl apply -f infrastructure/infrastructure-components-appset.yaml
-
-# Wait for core infrastructure to be ready
-kubectl wait --for=condition=Available deployment -l type=infrastructure --all-namespaces --timeout=300s
-
-# Apply applications ApplicationSet
-kubectl apply -f my-apps/myapplications-appset.yaml
-```
-
 This setup provides:
 - Clear separation between infrastructure and applications
 - Automated application discovery and deployment
@@ -117,9 +104,9 @@ This setup provides:
 ### 1. System Setup
 
 ```bash
-# Install required system packages
-sudo apt install zfsutils-linux nfs-kernel-server cifs-utils open-iscsi
-sudo apt install --reinstall zfs-dkms
+# Install required system packages if going to mount zfs storage or nfs or iscsi storage
+sudo apt install zfsutils-linux nfs-kernel-server cifs-utils open-iscsi # (optional)
+sudo apt install --reinstall zfs-dkms # (optional)
 ```
 
 ### 2. K3s Installation
@@ -147,6 +134,17 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 chmod 600 $HOME/.kube/config
 ```
 
+### Setting Up Lens (Optional but Recommended)
+
+1. Install Lens from https://k8slens.dev/
+2. Get the kubeconfig:
+   - Copy from `/etc/rancher/k3s/k3s.yaml`, or
+   - Run: `kubectl config view --raw > kubeconfig.yaml`
+3. When adding to Lens:
+   - Replace the server URL with your K3s node IP
+   - Example: `server: https://192.168.100.176:6443`
+4. Save and connect
+
 ### 3. Networking Setup (Cilium)
 
 ```bash
@@ -159,6 +157,7 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz
 
 # Install Cilium with all configurations at once
+# run from root of git repo
 cd infrastructure/networking/cilium
 
 # Option 1: Version in values file (recommended)
@@ -167,25 +166,23 @@ cd infrastructure/networking/cilium
 #   tag: "v1.16.5"
 cilium install -f cilium-values.yaml
 
-# Option 2: Version via CLI (not recommended for GitOps)
-# cilium install --version v1.16.5 -f cilium-values.yaml
-
 # Verify Cilium is working
 cilium status
 cilium connectivity test
 ```
 
-### 4. GitOps Setup (Argo CD)
+### 4. GitOps Setup (Argo CD) (PART 1 of 2)
 
 ```bash
 # Create argocd namespace
 kubectl create namespace argocd
 
-# Apply Argo CD Projects for security boundaries
-kubectl apply -f infrastructure/controllers/argocd/projects.yaml
-
 # Install Argo CD with custom configuration
 kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
+
+# Apply Argo CD Projects for security boundaries
+# run from root of git repo
+kubectl apply -f infrastructure/controllers/argocd/projects.yaml
 
 # Wait for Argo CD to be ready
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
@@ -215,21 +212,9 @@ You'll need to create two secrets for Cloudflare integration:
 export CLOUDFLARE_API_TOKEN="your-api-token-here"
 export CLOUDFLARE_EMAIL="your-cloudflare-email"
 
-# First, create the cert-manager namespace if it doesn't exist
-kubectl create namespace cert-manager
-
-# IMPORTANT: Create the cloudflare-api-token secret BEFORE deploying cert-manager
-kubectl create secret generic cloudflare-api-token \
-  --namespace cert-manager \
-  --from-literal=api-token=$CLOUDFLARE_API_TOKEN \
-  --from-literal=email=$CLOUDFLARE_EMAIL
-
-# Verify the secret is created with correct data
-kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.email}' | base64 -d
-kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.api-token}' | base64 -d
-```
-
 #### 2. Setup Cloudflare Tunnel 🌐
+
+# cd to home directory and run:
 ```bash
 # Install cloudflared
 brew install cloudflare/cloudflare/cloudflared  # macOS
@@ -252,12 +237,16 @@ cloudflared tunnel create $TUNNEL_NAME
 
 # Get tunnel credentials and create Kubernetes secret
 # IMPORTANT: Create this secret BEFORE deploying cloudflared
+# run this from home directory:
 cloudflared tunnel token --cred-file tunnel-creds.json $TUNNEL_NAME
+
+# if you ls -all from your home directory, you will see a tunnel-creds.json file 
+
 kubectl create secret generic tunnel-credentials \
   --namespace=cloudflared \
   --from-file=credentials.json=tunnel-creds.json
 
-# Clean up credentials file
+# Clean up credentials file ( optional )
 rm tunnel-creds.json
 
 # Configure DNS (*.yourdomain.com will point to your tunnel)
@@ -268,71 +257,74 @@ cloudflared tunnel route dns $TUNNEL_ID "*.$DOMAIN"
 cloudflared tunnel list
 ```
 
-### Deployment Order and Verification
+### CERT-MANAGER Prerequisites
 
-The correct order for deploying components is:
-
-1. Create necessary namespaces:
 ```bash
+# Create the cert-manager namespace
 kubectl create namespace cert-manager
-kubectl create namespace cloudflared
-```
 
-2. Create required secrets (BEFORE deploying any components):
-```bash
-# Create cert-manager secret
+# Create the cloudflare-api-token secret
 kubectl create secret generic cloudflare-api-token \
   --namespace cert-manager \
   --from-literal=api-token=$CLOUDFLARE_API_TOKEN \
   --from-literal=email=$CLOUDFLARE_EMAIL
 
-# Create cloudflared tunnel credentials
-cloudflared tunnel create $TUNNEL_NAME
-cloudflared tunnel token --cred-file tunnel-creds.json $TUNNEL_NAME
-kubectl create secret generic tunnel-credentials \
-  --namespace=cloudflared \
-  --from-file=credentials.json=tunnel-creds.json
-rm tunnel-creds.json
+# Verify the secret
+kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.email}' | base64 -d
+kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.api-token}' | base64 -d
 ```
 
-3. Deploy infrastructure using Argo CD:
+### Argo CD Setup (PART 2 of 2)
+
 ```bash
+# Run from root of git repo
 kubectl apply -f infrastructure/infrastructure-components-appset.yaml -n argocd
-```
 
-4. Verify the deployments:
-```bash
-# Check cert-manager
+# Verify deployments
 kubectl get pods -n cert-manager
-
-# Check cloudflared
 kubectl get pods -n cloudflared
-
-# Check ClusterIssuer status
 kubectl get clusterissuer cloudflare-cluster-issuer -o wide
 ```
 
-After completing these steps, you'll have:
-1. A cert-manager secret with your Cloudflare API token and email
-2. A cloudflared secret with your tunnel credentials
-3. DNS routing configured for your domain through the tunnel
+### Deploy Infrastructure and Applications
+
+```bash
+# Apply infrastructure ApplicationSet first
+kubectl apply -f infrastructure/infrastructure-components-appset.yaml
+
+# Wait for core infrastructure to be ready
+kubectl wait --for=condition=Available deployment -l type=infrastructure --all-namespaces --timeout=300s
+
+# Note: It will take 5-30 mins for cert manager certificates to be created
+
+# Deploy applications (Argo CD PART 3 of 3)
+kubectl apply -f my-apps/myapplications-appset.yaml
+```
 
 ## 🔍 Verification
 
+### Core Components
 ```bash
-# Check core components
+# Check all pods
 kubectl get pods -A
-kubectl get applicationsets -n argocd
+
+# Check Argo CD applications
 kubectl get applications -n argocd
 
-# Verify certificates
-kubectl get clusterissuer cloudflare-cluster-issuer -o wide
+# Check certificates
 kubectl get certificates -A
+kubectl get clusterissuer -A
 
-# Check network connectivity
+# Check networking
 cilium status
 cilium connectivity test
 ```
+
+### Application Access
+- Argo CD UI: https://argocd.yourdomain.com
+- ProxiTok: https://proxitok.yourdomain.com
+- SearXNG: https://search.yourdomain.com
+- LibReddit: https://reddit.yourdomain.com
 
 ## 📦 Included Applications
 
@@ -355,3 +347,21 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+1. **Certificates Not Issuing**
+   - Check Cloudflare API token permissions
+   - Verify cert-manager pods are running
+   - Check cert-manager logs: `kubectl logs -n cert-manager -l app=cert-manager`
+
+2. **Cloudflare Tunnel Issues**
+   - Verify tunnel status: `cloudflared tunnel list`
+   - Check tunnel logs: `kubectl logs -n cloudflared -l app=cloudflared`
+
+3. **Cilium Connectivity Issues**
+   - Run connectivity test: `cilium connectivity test`
+   - Check Cilium status: `cilium status --verbose`
+   - Verify Hubble UI access: `cilium hubble ui`
