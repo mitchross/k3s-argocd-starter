@@ -1,47 +1,135 @@
 🚀 Kubernetes Starter Kit
-
-WORK IN PROGRESS ITS ALL BROKE DONT USE
+===================
 
 > Modern GitOps deployment structure using Argo CD on Kubernetes
 
-This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles.
+This starter kit provides a production-ready foundation for deploying applications and infrastructure components using GitOps principles. Compatible with both Raspberry Pi and x86 systems.
+
+## 📋 Prerequisites
+
+- Kubernetes cluster (tested with K3s v1.32.0+k3s1)
+- Linux host (ARM or x86) with:
+  - Storage support (OpenEBS works with ZFS or standard directories)
+  - NFS and CIFS support (optional)
+  - Open-iSCSI
+- Cloudflare account (for DNS and Tunnel)
 
 ## 🏗️ Architecture
 
-This repository follows a three-level GitOps structure:
+This repository follows a two-level GitOps structure using Argo CD ApplicationSets:
 
+```mermaid
+graph TD
+    subgraph "Argo CD Projects"
+        IP[Infrastructure Project] --> IAS[Infrastructure ApplicationSet]
+        AP[Applications Project] --> AAS[Applications ApplicationSet]
+    end
+    
+    subgraph "Infrastructure Components"
+        IAS --> N[Networking]
+        IAS --> S[Storage]
+        IAS --> C[Controllers]
+        
+        N --> Cilium
+        N --> Cloudflared
+        N --> Gateway
+        
+        S --> OpenEBS
+        
+        C --> CertManager
+    end
+    
+    subgraph "User Applications"
+        AAS --> P[Privacy Apps]
+        AAS --> Web[Web Apps]
+        AAS --> Other[Other Apps]
+        
+        P --> ProxiTok
+        P --> SearXNG
+        P --> LibReddit
+        
+        Web --> Nginx
+        Web --> Dashboard
+        
+        Other --> HelloWorld
+    end
+
+    classDef project fill:#f9f,stroke:#333,stroke-width:2px
+    classDef appset fill:#bbf,stroke:#333,stroke-width:2px
+    class IP,AP project
+    class IAS,AAS appset
 ```
-/
-├── root-argocd-app.yml     (Level 1 - Root App of Apps)
-├── appsets/                (Level 2 - ApplicationSets)
-│   ├── infrastructure-appset.yaml
-│   └── apps-appset.yaml    (future application deployments)
-└── apps/                   (Level 3 - Actual manifests)
-    ├── infrastructure/
-    │   ├── networking/
-    │   │   ├── cilium/
-    │   │   ├── cloudflared/
-    │   │   └── gateway/
-    │   └── storage/
-    └── applications/       (future application deployments)
+
+### Argo CD Structure
+
+1. **Projects** (Resource Management & Security)
+   - `infrastructure`: Core system components with cluster-wide permissions
+   - `applications`: User applications with restricted permissions
+
+2. **ApplicationSets** (Automated Application Creation)
+   - `infrastructure-components`: Deploys core infrastructure (sync-wave: -2)
+   - `applications`: Deploys user applications (sync-wave: 1)
+
+3. **Sync Strategy**
+   - Infrastructure deploys first (negative sync wave)
+   - Applications deploy after infrastructure is ready
+   - Automated sync with pruning and self-healing
+   - Retry on failure with exponential backoff
+
+### Bootstrap Process
+
+1. **Install Argo CD**
+```bash
+# Create argocd namespace
+kubectl create namespace argocd
+
+# Apply Argo CD Projects
+kubectl apply -f infrastructure/controllers/argocd/projects.yaml
+
+# Install Argo CD with custom configuration
+kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
+
+# Wait for Argo CD to be ready
+kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
 ```
 
-## 🏃 Getting Started
+2. **Deploy ApplicationSets**
+```bash
+# Apply infrastructure ApplicationSet first
+kubectl apply -f infrastructure/infrastructure-components-appset.yaml
 
-### 1. System Dependencies
+# Wait for core infrastructure to be ready
+kubectl wait --for=condition=Available deployment -l type=infrastructure --all-namespaces --timeout=300s
+
+# Apply applications ApplicationSet
+kubectl apply -f my-apps/myapplications-appset.yaml
+```
+
+This setup provides:
+- Clear separation between infrastructure and applications
+- Automated application discovery and deployment
+- Security boundaries through projects
+- Simplified onboarding for new applications
+- Reliable deployment order through sync waves
+
+## 🚀 Quick Start
+
+### 1. System Setup
+
 ```bash
 # Install required system packages
 sudo apt install zfsutils-linux nfs-kernel-server cifs-utils open-iscsi
 sudo apt install --reinstall zfs-dkms
-
-# Install 1Password CLI (follow instructions at https://1password.com/downloads/command-line/)
 ```
 
-### 2. Install K3s 🎯
+### 2. K3s Installation
+
 ```bash
+# IMPORTANT: Replace these values with your actual configuration
 export SETUP_NODEIP=192.168.100.176
 export SETUP_CLUSTERTOKEN=randomtokensecret1234
 
+# Install K3s with custom configuration
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \
   INSTALL_K3S_EXEC="--node-ip $SETUP_NODEIP \
   --disable=flannel,local-storage,metrics-server,servicelb,traefik \
@@ -59,7 +147,8 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 chmod 600 $HOME/.kube/config
 ```
 
-### 3. Install Cilium 🔄
+### 3. Networking Setup (Cilium)
+
 ```bash
 # Install Cilium CLI
 # Replace ARCH with arm64 or amd64
@@ -69,56 +158,42 @@ curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/d
 sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz
 
-# Install Gateway API CRDs first
-k3s kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
-
-# Install Cilium using values from apps/infrastructure/networking/cilium/cilium-values.yaml
-cilium install \
-  --version 1.16.5 \
-  --set kubeProxyReplacement=true \
-  --helm-set=operator.replicas=1
-
-# Verify installation
-cilium status
-
+# Install Cilium with all configurations at once
 cd infrastructure/networking/cilium
-cilium upgrade -f cilium-values.yaml
 
-# Apply custom configuration
-k3s kubectl apply -k apps/infrastructure/networking/cilium/
+# Option 1: Version in values file (recommended)
+# Add this to your cilium-values.yaml:
+# image:
+#   tag: "v1.16.5"
+cilium install -f cilium-values.yaml
 
-# Verify Cilium is running properly
+# Option 2: Version via CLI (not recommended for GitOps)
+# cilium install --version v1.16.5 -f cilium-values.yaml
+
+# Verify Cilium is working
+cilium status
 cilium connectivity test
 ```
 
-### 4. Install ArgoCD and Setup GitOps 🎯
+### 4. GitOps Setup (Argo CD)
 
 ```bash
 # Create argocd namespace
 kubectl create namespace argocd
 
-# Install Gateway API CRDs (if not already installed in Cilium step)
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/latest/download/experimental-install.yaml
+# Apply Argo CD Projects for security boundaries
+kubectl apply -f infrastructure/controllers/argocd/projects.yaml
 
-# Install ArgoCD with custom configuration
+# Install Argo CD with custom configuration
 kubectl kustomize --enable-helm infrastructure/controllers/argocd | kubectl apply -f -
 
-# Wait for ArgoCD pods to be ready
+# Wait for Argo CD to be ready
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
-
-# Apply the ApplicationSets
-kubectl apply -f infrastructure-components-appset.yaml -n argocd
-kubectl apply -f my-apps/myapplications-appset.yaml -n argocd
 ```
 
-This will set up the complete GitOps structure:
-1. Root application manages ApplicationSets
-2. Infrastructure ApplicationSet manages core components
-3. Future application deployments will be managed separately
+## 🔒 Security Setup
 
-## ☁️ External Services Setup
-
-### Cloudflare Setup
+### Cloudflare Integration
 
 You'll need to create two secrets for Cloudflare integration:
 1. DNS API Token for cert-manager (DNS validation)
@@ -222,7 +297,7 @@ rm tunnel-creds.json
 
 3. Deploy infrastructure using Argo CD:
 ```bash
-kubectl apply -f infrastructure-components-appset.yaml -n argocd
+kubectl apply -f infrastructure/infrastructure-components-appset.yaml -n argocd
 ```
 
 4. Verify the deployments:
@@ -241,3 +316,42 @@ After completing these steps, you'll have:
 1. A cert-manager secret with your Cloudflare API token and email
 2. A cloudflared secret with your tunnel credentials
 3. DNS routing configured for your domain through the tunnel
+
+## 🔍 Verification
+
+```bash
+# Check core components
+kubectl get pods -A
+kubectl get applicationsets -n argocd
+kubectl get applications -n argocd
+
+# Verify certificates
+kubectl get clusterissuer cloudflare-cluster-issuer -o wide
+kubectl get certificates -A
+
+# Check network connectivity
+cilium status
+cilium connectivity test
+```
+
+## 📦 Included Applications
+
+### Privacy Suite
+- **ProxiTok**: Privacy-focused TikTok frontend
+- **SearXNG**: Meta search engine
+- **LibReddit**: Privacy-respecting Reddit frontend
+
+### Infrastructure
+- **Cilium**: CNI and service mesh
+- **Gateway API**: Modern ingress controller
+- **Cloudflared**: Secure tunnel to Cloudflare
+- **OpenEBS**: Storage provisioner
+- **cert-manager**: Certificate management
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
