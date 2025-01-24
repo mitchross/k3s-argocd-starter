@@ -289,6 +289,10 @@ kubectl get clusterissuer cloudflare-cluster-issuer -o wide
 ### Deploy Infrastructure and Applications
 
 ```bash
+
+#apply gate
+kubectl apply -k infrastructure/crds/gateway/
+
 # Apply infrastructure ApplicationSet first
 kubectl apply -f infrastructure/infrastructure-components-appset.yaml
 
