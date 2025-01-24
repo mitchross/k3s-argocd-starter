@@ -38,6 +38,8 @@ spec:
   clusterResourceWhitelist:
     - group: cert-manager.io
       kind: ClusterIssuer
+    - group: ""
+      kind: Namespace
   namespaceResourceWhitelist:
     - group: '*'
       kind: '*'
