@@ -113,7 +113,7 @@ sudo apt install --reinstall zfs-dkms # (optional)
 
 ```bash
 # IMPORTANT: Replace these values with your actual configuration
-export SETUP_NODEIP=192.168.100.176
+export SETUP_NODEIP=192.168.10.176
 export SETUP_CLUSTERTOKEN=randomtokensecret1234
 
 # Install K3s with custom configuration
