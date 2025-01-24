@@ -174,6 +174,13 @@ cilium connectivity test
 ### 4. GitOps Setup (Argo CD) (PART 1 of 2)
 
 ```bash
+
+# Install helm
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+kubectl apply -k infrastructure/crds/gateway/
+
+
 # Create argocd namespace
 kubectl create namespace argocd
 
@@ -278,6 +285,7 @@ kubectl get secret cloudflare-api-token -n cert-manager -o jsonpath='{.data.api-
 
 ```bash
 # Run from root of git repo
+kubectl apply -f infrastructure/controllers/argocd/projects.yaml -n argocd
 kubectl apply -f infrastructure/infrastructure-components-appset.yaml -n argocd
 
 # Verify deployments
