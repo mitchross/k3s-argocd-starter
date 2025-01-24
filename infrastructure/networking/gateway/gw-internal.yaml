@@ -23,7 +23,7 @@ spec:
     - protocol: HTTPS
       port: 443
       name: https-domain-gateway
-      hostname: vanillax.xyz
+      hostname: "vanillax.xyz"
       tls:
         certificateRefs:
           - kind: Secret
@@ -41,7 +41,7 @@ spec:
     - protocol: HTTP
       port: 80
       name: http-domain-gateway
-      hostname: vanillax.xyz
+      hostname: "vanillax.xyz"
       allowedRoutes:
         namespaces:
           from: All
