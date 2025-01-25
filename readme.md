@@ -125,7 +125,7 @@ EOF
 ```bash
 # IMPORTANT: Replace these values with your actual configuration
 export SETUP_NODEIP=192.168.10.202
-export SETUP_CLUSTERTOKEN=randomtokensecret1234
+export SETUP_CLUSTERTOKEN=randomtokensecret1234323232
 
 # Install K3s with custom configuration
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \

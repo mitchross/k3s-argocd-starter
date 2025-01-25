@@ -1,8 +1,22 @@
 apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
 metadata:
-  name: default-l2-announcement-policy
+  name: home-lab-l2-policy
   namespace: kube-system
 spec:
   externalIPs: true
   loadBalancerIPs: true
+  # Add these for better control:
+  interfaces:
+    - eth0  # Explicitly specify your network interface
+  nodeSelector:
+    matchExpressions:
+      - key: node-role.kubernetes.io/worker
+        operator: Exists
+  serviceSelector:
+    matchLabels:
+      l2-announce: "true"
+  # Optional: Match your IP pool
+  # ipPools:
+  #   - cidr: 192.168.10.20/29
+  #   - cidr: 192.168.10.28/30
