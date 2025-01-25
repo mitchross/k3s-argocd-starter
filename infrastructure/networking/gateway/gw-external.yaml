@@ -5,18 +5,18 @@ metadata:
   namespace: gateway
 spec:
   gatewayClassName: cilium
-  infrastructure:
-    annotations:
-      io.cilium/lb-ipam-ips: "192.168.10.22"
+  addresses:
+    - type: IPAddress
+      value: "192.168.10.22"
   listeners:
-    - protocol: HTTP  # Add HTTP listener for cloudflared
+    - protocol: HTTP
       port: 80
       name: http-gateway
       hostname: "*.vanillax.xyz"
       allowedRoutes:
         namespaces:
           from: All
-    - protocol: HTTPS  # Keep HTTPS listener for direct external access
+    - protocol: HTTPS
       port: 443
       name: https-gateway
       hostname: "*.vanillax.xyz"
