@@ -3,7 +3,6 @@ kind: CiliumLoadBalancerIPPool
 metadata:
   name: home-pool
 spec:
-  cidrs:
-    - cidr: "192.168.10.20/29"  # 192.168.10.20-27 (8 IPs)
-    - cidr: "192.168.10.28/30"  # 192.168.10.28-29 (2 IPs)
-  disable: false
+  blocks:
+    - start: 192.168.10.20
+      stop: 192.168.10.29
