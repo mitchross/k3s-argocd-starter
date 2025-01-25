@@ -5,6 +5,7 @@ metadata:
   namespace: gateway
   annotations:  
     io.cilium/lb-ipam-ips: "192.168.10.23"
+    io.cilium/lb-force-ip: "true"
 spec:
   gatewayClassName: cilium
   listeners:
