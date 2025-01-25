@@ -3,17 +3,16 @@ kind: Kustomization
 
 resources:
   - ns.yaml
-  - cloudflare-secret.yaml
+ # - cloudflare-secret.yaml
   - cluster-issuer.yaml
 
 helmCharts:
   - name: cert-manager
     repo: https://charts.jetstack.io
-    version: v1.16.2
+    version: v1.16.2 # renovate: github-releases=cert-manager/cert-manager
     releaseName: cert-manager
     namespace: cert-manager
     valuesFile: values.yaml
-
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"
