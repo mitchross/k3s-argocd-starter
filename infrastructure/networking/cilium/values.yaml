@@ -13,7 +13,8 @@ ipam:
 # Gateway API
 gatewayAPI:
   enabled: true
-  hostNetwork: false
+  hostNetwork:
+    enabled: false
 
 # L2 Announcements
 l2announcements:
