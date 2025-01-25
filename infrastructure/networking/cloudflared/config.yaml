@@ -2,13 +2,9 @@ tunnel: threadripper
 credentials-file: /etc/cloudflared/credentials/credentials.json
 metrics: 0.0.0.0:2000
 no-autoupdate: true
-
 # Enhanced logging configuration
-loglevel: debug   # Increased log level for more details
+loglevel: debug # Increased log level for more details
 transport-loglevel: debug
-
-
-
 ingress:
   - hostname: hello.vanillax.xyz
     service: hello_world
@@ -30,10 +26,10 @@ ingress:
         - name: X-Forwarded-For
         - name: Accept-Language
         - name: User-Agent
-
   - hostname: "*.vanillax.xyz"
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
+      noTLSVerify: true
       originServerName: "*.vanillax.xyz"
       logHeaders: true
       headers:
@@ -59,11 +55,10 @@ ingress:
         - name: CF-Bot-Score
         - name: CF-Challenge
         - name: CF-Bot-Management-Tag
-
-
   - hostname: vanillax.xyz
     service: https://cilium-gateway-external.gateway.svc.cluster.local:443
     originRequest:
+      noTLSVerify: true
       originServerName: vanillax.xyz
       logHeaders: true
       headers:
@@ -81,5 +76,4 @@ ingress:
         - name: X-Forwarded-For
         - name: Accept-Language
         - name: User-Agent
-
   - service: http_status:404
