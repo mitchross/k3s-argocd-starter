@@ -109,11 +109,22 @@ sudo apt install zfsutils-linux nfs-kernel-server cifs-utils open-iscsi # (optio
 sudo apt install --reinstall zfs-dkms # (optional)
 ```
 
+# workaround for cilium not loading packages, dependent upon OS
+## https://docs.cilium.io/en/stable/operations/system_requirements/#linux-kernel
+## https://github.com/cilium/cilium/issues/25021
+modprobe iptable_raw
+modprobe xt_socket
+
+cat << 'EOF' > /etc/modules-load.d/cilium.conf
+xt_socket
+iptable_raw
+EOF
+
 ### 2. K3s Installation
 
 ```bash
 # IMPORTANT: Replace these values with your actual configuration
-export SETUP_NODEIP=192.168.10.176
+export SETUP_NODEIP=192.168.10.202
 export SETUP_CLUSTERTOKEN=randomtokensecret1234
 
 # Install K3s with custom configuration
@@ -142,16 +153,22 @@ chmod 600 $HOME/.kube/config
    - Run: `kubectl config view --raw > kubeconfig.yaml`
 3. When adding to Lens:
    - Replace the server URL with your K3s node IP
-   - Example: `server: https://192.168.100.176:6443`
+   - Example: `server: https://192.168.10.202:6443`
 4. Save and connect
 
 ### 3. Networking Setup (Cilium)
 
 ```bash
 # Install Cilium CLI
-# Replace ARCH with arm64 or amd64
+# Auto-detect architecture
+CLI_ARCH=$(uname -m)
+case $CLI_ARCH in
+    x86_64)  CLI_ARCH="amd64" ;;
+    aarch64) CLI_ARCH="arm64" ;;
+    *)       echo "Unsupported architecture: $CLI_ARCH" && exit 1 ;;
+esac
+
 CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-CLI_ARCH=arm64
 curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
 sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz
@@ -160,11 +177,8 @@ rm cilium-linux-${CLI_ARCH}.tar.gz
 # run from root of git repo
 cd infrastructure/networking/cilium
 
-# Option 1: Version in values file (recommended)
-# Add this to your cilium-values.yaml:
-# image:
-#   tag: "v1.16.5"
-cilium install -f cilium-values.yaml
+
+cilium install -f values.yaml
 
 # Verify Cilium is working
 cilium status
@@ -178,6 +192,7 @@ cilium connectivity test
 # Install helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
+# cd to root of git repo
 kubectl apply -k infrastructure/crds/gateway/
 
 
