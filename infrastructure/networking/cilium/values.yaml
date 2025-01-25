@@ -1,8 +1,7 @@
 cluster:
   name: nuc
   id: 10
-
-kubeProxyReplacement: strict
+kubeProxyReplacement: true
 gatewayAPI:
   enabled: true
   hostNetwork: 
