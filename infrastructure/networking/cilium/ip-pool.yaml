@@ -1,14 +1,12 @@
 apiVersion: cilium.io/v2alpha1
 kind: CiliumLoadBalancerIPPool
 metadata:
-  name: home-lab-pool
+  name: main-pool
 spec:
   cidrs:
-    - cidr: "192.168.10.20/29"  # 20-27
-    - cidr: "192.168.10.28/30"  # 28-29
-  disable: false
-  # Allow services to request specific IPs
+    - cidr: "192.168.10.20/28"  # 192.168.10.16-31 (16 IPs)
   serviceSelector:
     matchExpressions:
-      - key: app
-        operator: Exists
+      - key: app-type
+        operator: In
+        values: ["gateway", "internal-service"]

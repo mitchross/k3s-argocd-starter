@@ -1,14 +1,38 @@
 cluster:
   name: nuc
   id: 10
+
 kubeProxyReplacement: true
-gatewayAPI:
+hostServices:
   enabled: true
-  hostNetwork: 
-    enabled: true
 ipam:
   mode: kubernetes
-loadBalancer:
-  mode: dsr
-bgp:
-  enabled: false
+  operator:
+    clusterPoolIPv4PodCIDR: "192.168.10.0/24"
+
+# Gateway API
+gatewayAPI:
+  enabled: true
+  hostNetwork: false
+
+# L2 Announcements
+l2announcements:
+  enabled: true
+  leaseDuration: 10s
+  interface: eth0
+
+# Envoy for L7
+envoy:
+  enabled: true
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+
+# Resource optimization for NUC
+operator:
+  replicas: 1
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"

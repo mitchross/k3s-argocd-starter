@@ -172,6 +172,16 @@ CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli
 curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
 sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz
+ 
+or 
+
+(WIP)
+helm repo add cilium https://helm.cilium.io
+helm repo update cilium
+helm install cilium cilium/cilium -n kube-system \
+  -f infrastructure/networking/cilium/values.yaml \
+  --version 1.17.0-rc.2 \
+  --set operator.replicas=1  # Recommended for single-node
 
 # Install Cilium with all configurations at once
 # run from root of git repo

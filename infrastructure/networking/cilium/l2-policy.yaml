@@ -1,0 +1,14 @@
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: main-l2-policy
+spec:
+  interfaces:
+    - eth0
+  serviceSelector:
+    matchExpressions:
+      - key: app-type
+        operator: In
+        values: ["gateway", "internal-service"]
+  loadBalancerIPs: true
+  externalIPs: true
