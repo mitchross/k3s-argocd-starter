@@ -12,7 +12,7 @@ spec:
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         revision: HEAD
         directories:
-          - path: my-apps/*
+          - path: my-apps/**/*
           - exclude: true
             path: my-apps/myapplications-appset.yaml
   template:
