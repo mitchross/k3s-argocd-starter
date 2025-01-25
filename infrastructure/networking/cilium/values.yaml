@@ -131,7 +131,7 @@ loadBalancer:
 gatewayAPI:
   enabled: true
   secretsNamespace:
-    create: true
+    create: false
     name: gateway
   controller: true
 ingressController:
