@@ -3,7 +3,7 @@ cluster:
   id: 1
 
 kubeProxyReplacement: true
-
+ 
 ipam:
   mode: kubernetes
 
@@ -37,6 +37,7 @@ volumeMounts:
     mountPath: /var/run/cilium/envoy/sockets
 
 operator:
+  replicas: 1
   resources:
     requests:
       memory: "512Mi"
