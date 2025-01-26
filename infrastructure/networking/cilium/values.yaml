@@ -2,7 +2,8 @@ cluster:
   name: vanillax-cluster
   id: 1
 
-kubeProxyReplacement: strict
+kubeProxyReplacement: true
+
 ipam:
   mode: kubernetes
 
