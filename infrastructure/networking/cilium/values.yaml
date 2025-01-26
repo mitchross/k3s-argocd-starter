@@ -1,49 +1,98 @@
 cluster:
-  name: vanillax-cluster
+  name: nuc
   id: 1
 
 kubeProxyReplacement: true
- 
+
+ # Talos specific
+k8sServiceHost: 192.168.10.202
+k8sServicePort: 6443
+securityContext:
+  capabilities:
+    ciliumAgent: [ CHOWN, KILL, NET_ADMIN, NET_RAW, IPC_LOCK, SYS_ADMIN, SYS_RESOURCE, DAC_OVERRIDE, FOWNER, SETGID, SETUID ]
+    cleanCiliumState: [ NET_ADMIN, SYS_ADMIN, SYS_RESOURCE ]
+
+cgroup:
+  autoMount:
+    enabled: false
+  hostRoot: /sys/fs/cgroup
+
+# https://docs.cilium.io/en/stable/network/concepts/ipam/
 ipam:
   mode: kubernetes
 
+operator:
+  rollOutPods: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+# Roll out cilium agent pods automatically when ConfigMap is updated.
+rollOutCiliumPods: true
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
+#debug:
+#  enabled: true
+
+# Increase rate limit when doing L2 announcements
+k8sClientRateLimit:
+  qps: 20
+  burst: 100
+
 l2announcements:
   enabled: true
-  interface: eth0
-  leaseDuration: 10s
+
+externalIPs:
+  enabled: true
+
+enableCiliumEndpointSlice: true
+
+loadBalancer:
+  # https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/#maglev-consistent-hashing
+  algorithm: maglev
 
 gatewayAPI:
   enabled: true
-  hostNetwork:
-    enabled: false
-
 envoy:
-  enabled: true
-  socketPath: /var/run/cilium/envoy/sockets
   securityContext:
-    privileged: true
     capabilities:
       keepCapNetBindService: true
-      add: [NET_ADMIN, PERFMON, BPF, SYS_ADMIN]
+      envoy: [ NET_ADMIN, PERFMON, BPF ]
 
-volumes:
-  - name: envoy-sock-dir
-    hostPath:
-      path: /var/run/cilium/envoy/sockets
-      type: DirectoryOrCreate
+hubble:
+  enabled: true
+  relay:
+    enabled: true
+    rollOutPods: true
+  ui:
+    enabled: true
+    rollOutPods: true
 
-volumeMounts:
-  - name: envoy-sock-dir
-    mountPath: /var/run/cilium/envoy/sockets
+ingressController:
+  enabled: false
+  default: true
+  loadbalancerMode: shared
+  service:
+    annotations:
+      io.cilium/lb-ipam-ips: 192.168.10.24
 
-operator:
-  replicas: 1
-  resources:
-    requests:
-      memory: "512Mi"
-      cpu: "250m"
-
-resources:
-  requests:
-    memory: "1Gi"
-    cpu: "500m"
+# mTLS
+authentication:
+  enabled: false
+  mutual:
+    spire:
+      enabled: false
+      install:
+        server:
+          dataStorage:
+            storageClass: cilium-spire-sc
