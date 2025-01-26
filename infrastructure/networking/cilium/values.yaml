@@ -1,39 +1,47 @@
 cluster:
-  name: nuc
-  id: 10
+  name: vanillax-cluster
+  id: 1
 
-kubeProxyReplacement: true
-hostServices:
-  enabled: true
+kubeProxyReplacement: strict
 ipam:
   mode: kubernetes
-  operator:
-    clusterPoolIPv4PodCIDR: "192.168.10.0/24"
 
-# Gateway API
+l2announcements:
+  enabled: true
+  interface: eth0
+  leaseDuration: 10s
+
 gatewayAPI:
   enabled: true
   hostNetwork:
     enabled: false
 
-# L2 Announcements
-l2announcements:
-  enabled: true
-  leaseDuration: 10s
-  interface: eth0
-
-# Envoy for L7
 envoy:
   enabled: true
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
+  socketPath: /var/run/cilium/envoy/sockets
+  securityContext:
+    privileged: true
+    capabilities:
+      keepCapNetBindService: true
+      add: [NET_ADMIN, PERFMON, BPF, SYS_ADMIN]
 
-# Resource optimization for NUC
+volumes:
+  - name: envoy-sock-dir
+    hostPath:
+      path: /var/run/cilium/envoy/sockets
+      type: DirectoryOrCreate
+
+volumeMounts:
+  - name: envoy-sock-dir
+    mountPath: /var/run/cilium/envoy/sockets
+
 operator:
-  replicas: 1
   resources:
     requests:
       memory: "512Mi"
       cpu: "250m"
+
+resources:
+  requests:
+    memory: "1Gi"
+    cpu: "500m"
