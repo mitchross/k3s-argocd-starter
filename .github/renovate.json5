@@ -1,0 +1,68 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: [
+    'config:recommended',
+  ],
+  prHourlyLimit: 3,
+  enabledManagers: [
+    'helm-values',
+    'kubernetes',
+    'kustomize',
+    'argocd',
+  ],
+  argocd: {
+    fileMatch: [
+      '^infra/.+\\.yaml$',
+      '^apps/.+\\.yaml$',
+    ],
+  },
+  kubernetes: {
+    fileMatch: [
+      '^infra/.+\\.yaml$',
+      '^apps/.+\\.yaml$',
+    ],
+  },
+  'helm-values': {
+    fileMatch: [
+      '^infra/.+/values\\.yaml$',
+      '^apps/.+/values\\.yaml$',
+    ],
+  },
+  kustomize: {
+    fileMatch: [
+      '(^|/)kustomization\\.ya?ml$',
+    ],
+  },
+  packageRules: [
+    {
+      matchUpdateTypes: [
+        'minor',
+        'patch',
+      ],
+      matchManagers: [
+        'helm-values',
+        'kubernetes',
+        'kustomize',
+        'argocd',
+      ],
+      automerge: true,
+      automergeType: 'branch',
+    },
+    {
+      matchUpdateTypes: [
+        'major',
+      ],
+      matchManagers: [
+        'helm-values',
+        'kubernetes',
+        'kustomize',
+        'argocd',
+      ],
+      automerge: false,
+      prCreation: 'immediate',
+    },
+  ],
+  ignorePaths: [
+    '**/charts/**',
+  ],
+}
