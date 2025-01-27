@@ -4,25 +4,17 @@ cluster:
 
 kubeProxyReplacement: true
 
- # Talos specific
 k8sServiceHost: 192.168.10.202
 k8sServicePort: 6443
+
+# Core security and system requirements
 securityContext:
   capabilities:
     ciliumAgent: [ CHOWN, KILL, NET_ADMIN, NET_RAW, IPC_LOCK, SYS_ADMIN, SYS_RESOURCE, DAC_OVERRIDE, FOWNER, SETGID, SETUID ]
     cleanCiliumState: [ NET_ADMIN, SYS_ADMIN, SYS_RESOURCE ]
 
-cgroup:
-  autoMount:
-    enabled: false
-  hostRoot: /sys/fs/cgroup
-
-# https://docs.cilium.io/en/stable/network/concepts/ipam/
-ipam:
-  mode: kubernetes
-
+# Basic resource settings
 operator:
-  rollOutPods: true
   resources:
     limits:
       cpu: 500m
@@ -31,8 +23,6 @@ operator:
       cpu: 50m
       memory: 128Mi
 
-# Roll out cilium agent pods automatically when ConfigMap is updated.
-rollOutCiliumPods: true
 resources:
   limits:
     cpu: 1000m
@@ -41,13 +31,9 @@ resources:
     cpu: 200m
     memory: 512Mi
 
-#debug:
-#  enabled: true
-
-# Increase rate limit when doing L2 announcements
-k8sClientRateLimit:
-  qps: 20
-  burst: 100
+# Essential networking features
+ipam:
+  mode: kubernetes
 
 l2announcements:
   enabled: true
@@ -55,44 +41,16 @@ l2announcements:
 externalIPs:
   enabled: true
 
-enableCiliumEndpointSlice: true
-
 loadBalancer:
-  # https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/#maglev-consistent-hashing
   algorithm: maglev
 
 gatewayAPI:
   enabled: true
-envoy:
-  securityContext:
-    capabilities:
-      keepCapNetBindService: true
-      envoy: [ NET_ADMIN, PERFMON, BPF ]
 
+# Optional but useful for debugging
 hubble:
   enabled: true
   relay:
     enabled: true
-    rollOutPods: true
   ui:
     enabled: true
-    rollOutPods: true
-
-ingressController:
-  enabled: false
-  default: true
-  loadbalancerMode: shared
-  service:
-    annotations:
-      io.cilium/lb-ipam-ips: 192.168.10.24
-
-# mTLS
-authentication:
-  enabled: false
-  mutual:
-    spire:
-      enabled: false
-      install:
-        server:
-          dataStorage:
-            storageClass: cilium-spire-sc

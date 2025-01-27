@@ -125,7 +125,7 @@ EOF
 ```bash
 # IMPORTANT: Replace these values with your actual configuration
 export SETUP_NODEIP=192.168.10.202
-export SETUP_CLUSTERTOKEN=randomtokensecret1234323232
+export SETUP_CLUSTERTOKEN=randomtokensecret1234
 
 # Install K3s with custom configuration
 curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \
@@ -160,22 +160,7 @@ chmod 600 $HOME/.kube/config
 
 ```bash
 # Install Cilium CLI
-# Auto-detect architecture
-CLI_ARCH=$(uname -m)
-case $CLI_ARCH in
-    x86_64)  CLI_ARCH="amd64" ;;
-    aarch64) CLI_ARCH="arm64" ;;
-    *)       echo "Unsupported architecture: $CLI_ARCH" && exit 1 ;;
-esac
 
-CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable.txt)
-curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz
-sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
-rm cilium-linux-${CLI_ARCH}.tar.gz
- 
-or 
-
-(WIP)
 helm repo add cilium https://helm.cilium.io
 helm repo update cilium
 helm install cilium cilium/cilium -n kube-system \
@@ -183,12 +168,10 @@ helm install cilium cilium/cilium -n kube-system \
   --version 1.17.0-rc.2 \
   --set operator.replicas=1  # Recommended for single-node
 
-# Install Cilium with all configurations at once
-# run from root of git repo
-cd infrastructure/networking/cilium
 
 
-cilium install -f values.yaml
+
+
 
 # Verify Cilium is working
 cilium status
@@ -202,9 +185,10 @@ cilium connectivity test
 # Install helm
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
-# cd to root of git repo
-kubectl apply -k infrastructure/crds/gateway/
 
+
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
 
 # Create argocd namespace
 kubectl create namespace argocd
@@ -402,3 +386,16 @@ This project is licensed under the MIT License - see the LICENSE file for detail
    - Run connectivity test: `cilium connectivity test`
    - Check Cilium status: `cilium status --verbose`
    - Verify Hubble UI access: `cilium hubble ui`
+
+// todo add note on l2 policy info on interface 
+
+apiVersion: cilium.io/v2alpha1
+kind: CiliumL2AnnouncementPolicy
+metadata:
+  name: main-l2-policy
+  namespace: kube-system
+spec:
+  interfaces:
+    - enp1s0
+  loadBalancerIPs: true
+  externalIPs: true

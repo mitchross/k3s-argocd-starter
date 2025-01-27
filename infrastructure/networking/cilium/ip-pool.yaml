@@ -5,9 +5,4 @@ metadata:
 spec:
   blocks:
     - cidr: "192.168.10.20/28"  # Use "blocks" instead of "cidrs"
-  allowFirstLastIPs: "Yes"  # Required in Cilium 1.16+ if reserving first/last IPs :cite[3]
-  serviceSelector:
-    matchExpressions:
-      - key: app-type
-        operator: In
-        values: ["gateway", "internal-service"]
+  allowFirstLastIPs: "No"  # Required in Cilium 1.16+ if reserving first/last IPs :cite[3]

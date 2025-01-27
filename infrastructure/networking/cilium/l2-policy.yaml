@@ -2,13 +2,9 @@ apiVersion: cilium.io/v2alpha1
 kind: CiliumL2AnnouncementPolicy
 metadata:
   name: main-l2-policy
+  namespace: kube-system
 spec:
   interfaces:
-    - eth0
-  serviceSelector:
-    matchExpressions:
-      - key: app-type
-        operator: In
-        values: ["gateway", "internal-service"]
+    - enp1s0
   loadBalancerIPs: true
   externalIPs: true
