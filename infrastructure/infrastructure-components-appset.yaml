@@ -13,8 +13,6 @@ spec:
           - path: infrastructure/networking/*
           - path: infrastructure/storage/*
           - path: infrastructure/controllers/*
-          - exclude: true
-            path: infrastructure/controllers/argocd
   template:
     metadata:
       name: '{{path.basename}}'
