@@ -1,40 +1,7 @@
-# apiVersion: gateway.networking.k8s.io/v1
-# kind: Gateway
-# metadata:
-#   name: internal
-#   namespace: gateway
-# spec:
-#   addresses:
-#   - type: IPAddress
-#     value: 192.168.10.21
-#   gatewayClassName: cilium
-#   listeners:
-#     - protocol: HTTPS
-#       port: 443
-#       name: https-gateway
-#       hostname: "*.vanillax.xyz"
-#       tls:
-#         certificateRefs:
-#           - kind: Secret
-#             name: cert-vanillax
-#       allowedRoutes:
-#         namespaces:
-#           from: All
-#     - protocol: HTTPS
-#       port: 443
-#       name: https-domain-gateway
-#       hostname: "vanillax.xyz"
-#       tls:
-#         certificateRefs:
-#           - kind: Secret
-#             name: cert-vanillax
-#       allowedRoutes:
-#         namespaces:
-#           from: All
 apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
-  name: vanillax-gateway-internal-test
+  name: gateway-internal
   namespace: gateway
 spec:
   addresses:

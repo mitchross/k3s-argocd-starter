@@ -5,7 +5,7 @@ metadata:
   namespace: argocd
 spec:
   parentRefs:
-    - name: vanillax-gateway-internal-test
+    - name: gateway-internal
       namespace: gateway
   hostnames:
     - "argocd.vanillax.xyz"
