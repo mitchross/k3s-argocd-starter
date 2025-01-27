@@ -20,6 +20,10 @@ spec:
       protocol: HTTPS
       port: 443
       hostname: "*.vanillax.xyz"
+      tls:
+        certificateRefs:
+          - name: cert-vanillax
+            kind: Secret
       allowedRoutes:
         namespaces:
           from: All

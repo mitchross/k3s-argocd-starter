@@ -59,3 +59,23 @@ spec:
         - name: nginx
           port: 80
 ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: nginx-route-external
+  namespace: default
+spec:
+  parentRefs:
+    - name: gateway-external    # Must match your Gateway's metadata.name
+      namespace: gateway
+      sectionName: https       # Must match your Gateway's listeners[].name
+  hostnames:
+    - "test2.vanillax.xyz"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: nginx
+          port: 80
