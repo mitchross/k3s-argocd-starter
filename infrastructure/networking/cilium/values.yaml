@@ -22,7 +22,8 @@ operator:
     requests:
       cpu: 50m
       memory: 128Mi
-
+# Roll out cilium agent pods automatically when ConfigMap is updated.
+rollOutCiliumPods: true
 resources:
   limits:
     cpu: 1000m
