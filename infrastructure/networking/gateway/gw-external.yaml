@@ -19,7 +19,7 @@ spec:
     - protocol: HTTPS
       port: 443
       name: https-gateway
-      hostname: "*.vanillax.xyz,vanillax.xyz"  # Combined hostnames
+      hostname: "*.vanillax.xyz"  # Combined hostnames
       tls:
         certificateRefs:
           - kind: Secret
