@@ -193,7 +193,7 @@ cilium connectivity test
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 
-
+#Install gateway crds
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
 kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
 

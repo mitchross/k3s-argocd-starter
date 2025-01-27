@@ -1,0 +1,18 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: vanillax-gateway-internal-test
+  namespace: gateway
+spec:
+  addresses:
+  - type: IPAddress
+    value: 192.168.10.20
+  gatewayClassName: cilium
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: "*.vanillax.test"
+      allowedRoutes:
+        namespaces:
+          from: All

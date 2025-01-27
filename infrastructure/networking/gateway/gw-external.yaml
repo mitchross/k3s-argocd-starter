@@ -3,10 +3,11 @@ kind: Gateway
 metadata:
   name: external
   namespace: gateway
-  annotations:  
-    io.cilium/lb-ipam-ips: "192.168.10.22"
-    io.cilium/lb-force-ip: "true"
+
 spec:
+  addresses:
+  - type: IPAddress
+    value: 192.168.10.22
   gatewayClassName: cilium
   listeners:
     - protocol: HTTP
