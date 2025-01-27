@@ -209,6 +209,11 @@ kubectl apply -f infrastructure/controllers/argocd/projects.yaml
 
 # Wait for Argo CD to be ready
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -n argocd
+
+# Get argocd admin password
+kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
+
+
 ```
 
 ## 🔒 Security Setup
