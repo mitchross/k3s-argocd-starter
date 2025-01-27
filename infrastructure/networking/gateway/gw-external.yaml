@@ -3,7 +3,6 @@ kind: Gateway
 metadata:
   name: external
   namespace: gateway
-
 spec:
   addresses:
   - type: IPAddress
@@ -20,18 +19,7 @@ spec:
     - protocol: HTTPS
       port: 443
       name: https-gateway
-      hostname: "*.vanillax.xyz"
-      tls:
-        certificateRefs:
-          - kind: Secret
-            name: cert-vanillax
-      allowedRoutes:
-        namespaces:
-          from: All
-    - protocol: HTTPS
-      port: 443
-      name: https-domain-gateway
-      hostname: "vanillax.xyz"
+      hostname: "*.vanillax.xyz,vanillax.xyz"  # Combined hostnames
       tls:
         certificateRefs:
           - kind: Secret

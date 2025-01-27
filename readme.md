@@ -213,6 +213,11 @@ kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -
 # Get argocd admin password
 kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
 
+Generate a New Password:
+Use a bcrypt hash generator tool (such as https://www.browserling.com/tools/bcrypt) to create a new bcrypt hash for the password.
+Update the argocd-secret secret with the new bcrypt hash.
+kubectl -n argocd patch secret argocd-secret -p '{"stringData": { "admin.password": "$2a$10$rgDBwhzr0ygDfH6scxkdddddx3cd612Cutw1Xu1X3a.kVrRq", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
+
 
 ```
 
