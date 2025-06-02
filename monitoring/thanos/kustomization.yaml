@@ -7,7 +7,7 @@ resources:
 helmCharts:
   - name: thanos
     repo: https://charts.bitnami.com/bitnami
-    version: 15.7.30
+    version: 16.0.7
     releaseName: thanos
     namespace: monitoring
     valuesFile: values.yaml
