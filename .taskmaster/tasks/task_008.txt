@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Enable Custom Dashboards & Metrics-to-Logs Correlation
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Allow custom Grafana dashboard creation (e.g., via ConfigMaps). Implement metrics-to-logs correlation with time-synchronized navigation and consistent labeling.
+# Details:
+
+
+# Test Strategy:
+

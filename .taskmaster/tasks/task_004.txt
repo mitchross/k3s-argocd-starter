@@ -1,0 +1,11 @@
+# Task ID: 4
+# Title: Deploy and Configure Loki & Promtail for Log Aggregation
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Deploy Loki and Promtail. Configure automatic log collection from all pods and node system logs (journald), using MinIO for Loki storage.
+# Details:
+
+
+# Test Strategy:
+
