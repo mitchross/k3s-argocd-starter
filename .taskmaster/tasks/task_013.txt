@@ -3,47 +3,53 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Implement Grafana RBAC, TLS encryption for all communications, non-root containers, and PII scrubbing for logs to ensure GDPR compliance.
+# Description: Update security measures focusing on implementing end-to-end TLS encryption for Grafana, Prometheus, and inter-component communication, integrating cert-manager for automated certificate lifecycle, and implementing PII scrubbing for logs to ensure GDPR compliance. This task also includes validating and documenting the existing basic RBAC implementation. Foundational security measures like non-root containers, security contexts, and basic RBAC are already in place.
 # Details:
-
+The primary goals are to secure data in transit via comprehensive TLS encryption (for Grafana, Prometheus, and inter-component communication), protect sensitive user data in logs through PII scrubbing, and streamline certificate management using cert-manager. Additionally, the existing basic Role-Based Access Control (RBAC) needs thorough validation and documentation. This builds upon an existing baseline where non-root container execution, security contexts, and basic RBAC are already established.
 
 # Test Strategy:
-
+Testing will involve: 1. Verifying TLS encryption across all specified components (Grafana, Prometheus, inter-component) using network analysis tools and certificate validation. 2. Confirming cert-manager correctly provisions and renews certificates. 3. Testing the PII scrubbing mechanism by ingesting sample logs with PII and verifying its redaction/masking. 4. Performing access control tests based on defined roles to validate the existing RBAC effectiveness and document findings. 5. Reviewing logs and system configurations to ensure compliance and security best practices for all implemented and validated measures.
 
 # Subtasks:
-## 1. Implement Grafana RBAC [pending]
+## 1. Implement Grafana RBAC [done]
 ### Dependencies: None
-### Description: Configure Role-Based Access Control in Grafana to provide standardized access management for users and resources
+### Description: Basic Role-Based Access Control in Grafana has been configured, providing standardized access management for users and resources. This subtask covers the initial setup which is now complete.
 ### Details:
-Configure RBAC settings in Grafana configuration files or environment variables. Set up permission validation, cache settings, and basic role resets. Create custom roles with specific permissions (actions and scopes) for different user types. Provision RBAC using YAML files for role assignments. Test access controls to verify proper permission enforcement.
+Initial RBAC settings in Grafana configuration files or environment variables are complete. Basic permission validation, cache settings, and role resets were set up. Standard roles were provisioned. Further validation and documentation are covered in subtask 5.
 
-## 2. Configure TLS encryption for all communications [pending]
+## 2. Configure End-to-End TLS Encryption [pending]
 ### Dependencies: None
-### Description: Implement end-to-end TLS encryption for all Grafana communications to ensure data security
+### Description: Implement end-to-end TLS encryption for Grafana, Prometheus, and all inter-component communications to ensure data security.
 ### Details:
-Generate or obtain TLS certificates from a trusted CA. Configure Grafana server to use HTTPS with proper certificate paths. Set up TLS for database connections, alerting channels, and other external communications. Implement certificate rotation procedures. Test TLS configuration with tools like OpenSSL to verify proper encryption and certificate validity.
+Generate or obtain TLS certificates, preferably via cert-manager (see subtask 7) for automation, or manually if cert-manager integration is not yet complete. Configure Grafana server, Prometheus, and other components (e.g., Alertmanager, backend services) to use HTTPS/TLS with proper certificate paths. Set up TLS for database connections if applicable. Implement certificate rotation procedures (automated via cert-manager or manual). Test TLS configuration with tools like OpenSSL to verify proper encryption and certificate validity across all services.
 
-## 3. Enforce non-root container execution [pending]
+## 3. Enforce non-root container execution [done]
 ### Dependencies: None
-### Description: Configure Grafana containers to run as non-root users to enhance security posture
+### Description: Grafana containers have been configured and verified to run as non-root users, enhancing the security posture. Security contexts are also in place.
 ### Details:
-Modify Dockerfile or container configuration to use a dedicated non-root user. Set appropriate file permissions for Grafana directories and files. Configure volume mounts with proper ownership. Update security contexts in Kubernetes deployments if applicable. Test container startup and operation to ensure functionality without root privileges.
+Dockerfile/container configuration uses a dedicated non-root user. Appropriate file permissions for Grafana directories/files are set. Volume mounts have proper ownership. Security contexts in Kubernetes deployments are configured. Container startup and operation without root privileges have been verified as per existing setup.
 
 ## 4. Implement PII scrubbing for logs [pending]
 ### Dependencies: None
-### Description: Set up mechanisms to identify and remove personally identifiable information from Grafana logs
+### Description: Set up mechanisms to identify and remove personally identifiable information from Grafana logs to ensure GDPR compliance.
 ### Details:
-Identify potential PII data points in Grafana logs. Configure log processing pipelines with regex patterns to detect PII. Implement redaction or masking of sensitive information. Set up log rotation and retention policies. Test log scrubbing effectiveness with sample PII data to ensure proper removal.
+Identify potential PII data points in Grafana logs. Configure log processing pipelines with regex patterns or other mechanisms to detect PII. Implement redaction or masking of sensitive information. Set up log rotation and retention policies compliant with GDPR. Test log scrubbing effectiveness with sample PII data to ensure proper removal.
 
-## 5. Validate RBAC implementation [pending]
+## 5. Validate and Document Existing RBAC Implementation [pending]
 ### Dependencies: 13.1
-### Description: Test and verify that RBAC permissions are correctly enforced across all Grafana resources
+### Description: Test, verify, and document that the existing basic RBAC permissions are correctly enforced across all Grafana resources and that the configuration is well-documented.
 ### Details:
-Create test users with different role assignments. Attempt to access various Grafana resources with each user type. Verify that permissions are correctly enforced for dashboards, data sources, alerts, and other resources. Document permission matrices and validation results. Make adjustments to RBAC configuration as needed based on testing results.
+Create test users with different role assignments based on the existing basic RBAC setup. Attempt to access various Grafana resources (dashboards, data sources, alerts, etc.) with each user type. Verify that permissions are correctly enforced. Document the existing permission matrices, role definitions, and validation results. Identify any gaps or areas for improvement in the current RBAC setup. Make minor adjustments to RBAC configuration as needed based on testing results, or create new tasks for major changes.
 
 ## 6. Conduct security audit and documentation [pending]
-### Dependencies: 13.1, 13.2, 13.3, 13.4, 13.5
-### Description: Perform comprehensive security review and document all security implementations
+### Dependencies: 13.2, 13.4, 13.5
+### Description: Perform a comprehensive security review of the newly implemented TLS, PII scrubbing, cert-manager, and the validated RBAC. Document all security implementations and audit findings.
 ### Details:
-Review all security configurations including RBAC, TLS, container security, and PII handling. Conduct penetration testing to identify potential vulnerabilities. Document all security measures implemented with configuration details. Create runbooks for security incident response. Develop training materials for administrators on security features and best practices.
+Review configurations for TLS (including cert-manager integration), PII scrubbing, and RBAC. Conduct tests to identify potential vulnerabilities in these new implementations. Document all security measures implemented with configuration details. Update runbooks for security incident response related to these systems. Update training materials for administrators on these security features and best practices.
+
+## 7. Integrate cert-manager for Automated Certificate Lifecycle [pending]
+### Dependencies: None
+### Description: Set up and configure cert-manager in the Kubernetes cluster to automate the management (issuance, renewal) of TLS certificates for all relevant services (Grafana, Prometheus, etc.).
+### Details:
+Install cert-manager in the Kubernetes cluster. Configure ClusterIssuers or Issuers (e.g., Let's Encrypt or internal CA). Update Ingress resources or create Certificate resources for Grafana, Prometheus, and other services to use cert-manager for obtaining and renewing TLS certificates. Verify automated certificate issuance and renewal capabilities.
 

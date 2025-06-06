@@ -3,9 +3,51 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Deploy Loki and Promtail. Configure automatic log collection from all pods and node system logs (journald), using MinIO for Loki storage.
+# Description: Loki and Promtail are deployed and collecting logs. This task focuses on updating the Loki configuration to extend log retention to 90 days, validating existing configurations, and adjusting storage allocations as necessary.
 # Details:
+The primary goal is to update Loki's log retention policy from the current 7 days to 90 days to meet audit requirements. Additionally, the existing MinIO S3 storage backend configuration needs validation, and log filtering/labeling functionality should be verified. Storage allocations may need adjustment to accommodate the extended retention period.
 
+Key activities:
+1. Modify Loki configuration to set retention to 90 days (2160h).
+2. Confirm MinIO S3 backend is correctly configured and accessible by Loki for long-term storage.
+3. Verify that Promtail's log filtering and labeling mechanisms are functioning as expected for pod logs, events, system logs, and kernel logs.
+4. Assess current storage usage and projected needs for 90-day retention, adjusting MinIO storage allocations if required.
 
 # Test Strategy:
+1. After configuration changes, monitor Loki to ensure logs are retained beyond the old 7-day limit and up to the new 90-day limit.
+2. Query logs older than 7 days after a sufficient period has passed to confirm retention.
+3. Verify that new logs continue to be ingested correctly from all sources (pods, events, system, kernel).
+4. Check MinIO storage to ensure data is being written and that storage utilization is within acceptable limits after the retention change.
+5. Confirm that log filtering and labeling continue to work as expected by querying specific log streams based on labels.
+
+# Subtasks:
+## subtask_4_1. Update Loki retention policy to 90 days [pending]
+### Dependencies: None
+### Description: Modify the Loki configuration (e.g., `loki-config.yaml` or relevant Helm chart values) to change `retention_period` or equivalent setting from 168h to 2160h (90 days). Apply the configuration changes to the Loki deployment.
+### Details:
+
+
+## subtask_4_2. Validate MinIO S3 storage backend configuration [pending]
+### Dependencies: None
+### Description: Review Loki's storage configuration to ensure it correctly points to the MinIO S3 backend. Verify credentials, bucket names, and endpoint URLs. Confirm Loki has read/write access to the configured MinIO bucket.
+### Details:
+
+
+## subtask_4_3. Verify log filtering and labeling functionality [pending]
+### Dependencies: None
+### Description: Perform test queries in Grafana/Loki to ensure logs are correctly labeled (e.g., by namespace, pod, container, node). Verify that existing filtering rules in Promtail are effective and logs are being processed as intended.
+### Details:
+
+
+## subtask_4_4. Assess and adjust storage allocations for extended retention [pending]
+### Dependencies: None
+### Description: Estimate the storage increase required for 90-day retention based on current ingestion rates. Monitor MinIO storage usage and, if necessary, increase storage capacity or adjust quotas to accommodate the extended log data.
+### Details:
+
+
+## subtask_4_5. Test and monitor new retention policy [pending]
+### Dependencies: None
+### Description: After implementing changes, monitor Loki and MinIO. After more than 7 days, verify that logs older than 7 days are still available. Continue monitoring to ensure logs are purged correctly after 90 days (long-term verification).
+### Details:
+
 

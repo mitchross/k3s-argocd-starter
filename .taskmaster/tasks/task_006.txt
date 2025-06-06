@@ -1,6 +1,6 @@
 # Task ID: 6
 # Title: Deploy Grafana and Integrate Datasources
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: medium
 # Description: Deploy Grafana as the unified visualization UI. Integrate Prometheus and Loki as primary datasources.

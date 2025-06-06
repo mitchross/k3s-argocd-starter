@@ -3,9 +3,51 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Allow custom Grafana dashboard creation (e.g., via ConfigMaps). Implement metrics-to-logs correlation with time-synchronized navigation and consistent labeling.
+# Description: Enhance the existing Grafana deployment (with Prometheus and Loki datasources already configured) by implementing a robust metrics-to-logs correlation workflow. This involves enabling seamless navigation from Prometheus metrics to Loki logs, ensuring time-synchronized filtering, maintaining consistent labeling, providing application-specific dashboard templates demonstrating this correlation, and integrating log correlation links into alerts. The focus is on improving user experience and workflow for troubleshooting and analysis, not basic dashboard creation.
 # Details:
-
+The implementation should cover the following key aspects:
+1.  **Seamless Navigation:** Configure Grafana to allow users to easily navigate from metrics displayed in Prometheus dashboards to related logs in Loki.
+2.  **Time-Synchronized Filtering:** Implement functionality where selecting a time range or point in a metric graph automatically filters logs in Loki to the corresponding timeframe, especially when navigating from metric alerts.
+3.  **Consistent Labeling:** Establish and enforce consistent labeling conventions between Prometheus metrics and Loki logs to ensure accurate correlation (e.g., `app`, `instance`, `job`).
+4.  **Dashboard Templates:** Develop and provide application-specific Grafana dashboard templates that showcase the metrics-to-logs correlation feature effectively. These templates should serve as examples and starting points for users.
+5.  **Alerting Integration:** Enhance the alerting mechanism (e.g., Alertmanager) to include direct links to correlated logs in Loki within alert notifications, facilitating quicker investigation.
 
 # Test Strategy:
+1.  **Navigation Verification:** Test navigation links from various Prometheus metric panels to Loki log queries. Ensure context (labels, time) is passed correctly.
+2.  **Time Synchronization Test:** Trigger navigation from a metric graph at a specific time point and verify that Loki logs are filtered to the exact or very close time range. Test this with alerts as well.
+3.  **Label Consistency Check:** Audit Prometheus metrics and Loki log streams for a set of key applications/services to ensure labels used for correlation are present and consistent.
+4.  **Dashboard Template Review:** Validate that the provided dashboard templates correctly implement and demonstrate the metrics-to-logs correlation. Check for usability and clarity.
+5.  **Alerting Integration Test:** Configure sample alerts and verify that notifications include functional links that lead to time-synchronized and label-filtered logs in Loki.
+6.  **User Acceptance Testing (UAT):** Conduct UAT with representative users to gather feedback on the ease of use and effectiveness of the correlation workflow.
+
+# Subtasks:
+## 8.1. Configure Grafana Data Links for Prometheus-to-Loki Navigation [pending]
+### Dependencies: None
+### Description: Set up Grafana data links in Prometheus data source or dashboards to enable direct navigation to Loki, passing relevant labels and time ranges.
+### Details:
+
+
+## 8.2. Implement Time Synchronization for Metrics-to-Logs Jumps [pending]
+### Dependencies: None
+### Description: Ensure that when navigating from a metric (e.g., from a graph or an alert) to logs, the time range in Loki is automatically synchronized with the metric's time context.
+### Details:
+
+
+## 8.3. Define and Enforce Consistent Labeling Strategy [pending]
+### Dependencies: None
+### Description: Establish a consistent labeling scheme (e.g., for 'app', 'instance', 'job', 'namespace') across Prometheus metrics and Loki log streams. Document and implement mechanisms for enforcement or validation.
+### Details:
+
+
+## 8.4. Develop Application-Specific Dashboard Templates with Correlation [pending]
+### Dependencies: None
+### Description: Create 2-3 example Grafana dashboard templates for key applications, demonstrating effective metrics-to-logs correlation using the configured navigation and consistent labels.
+### Details:
+
+
+## 8.5. Enhance Alerting with Log Correlation Links [pending]
+### Dependencies: None
+### Description: Modify alert notification templates (e.g., for Alertmanager via Grafana) to include dynamically generated links that take users directly to relevant, time-synchronized logs in Loki.
+### Details:
+
 

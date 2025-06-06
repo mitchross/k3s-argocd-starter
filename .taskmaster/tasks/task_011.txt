@@ -42,7 +42,7 @@ Choose appropriate fields to distribute workload among service replicas. For Cor
 Implement a system to associate alerts with specific teams. Use label-based routing in Alertmanager configuration to direct alerts to the right recipients. Create generic alerts that can be automatically routed based on namespace or other metadata.
 
 ## 6. Test failover scenarios and resilience [pending]
-### Dependencies: 11.1, 11.2, 11.3, 11.4, 11.5
+### Dependencies: 11.1, 11.2, 11.3, 11.4
 ### Description: Verify the high availability setup by testing various failure scenarios to ensure resilience to node failures.
 ### Details:
 Simulate crashes of individual Prometheus and Alertmanager instances to verify that the system continues to function without externally-visible downtime. Test scaling up, scaling down, and rolling out new versions without service interruption or data loss. Verify that alerts are still delivered when components fail.

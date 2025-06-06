@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Initial GitOps Setup & Core Prometheus Stack Deployment
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: medium
 # Description: Establish GitOps workflow using ArgoCD. Deploy core Prometheus stack (Operator, Prometheus, AlertManager, Node Exporter, Kube State Metrics) as the foundation for metrics.
@@ -11,38 +11,38 @@
 
 
 # Subtasks:
-## 1. Install and Configure ArgoCD [pending]
+## 1. Install and Configure ArgoCD [done]
 ### Dependencies: None
 ### Description: Set up ArgoCD in your Kubernetes cluster as the foundation for GitOps workflow
 ### Details:
 Create a dedicated namespace for ArgoCD, apply the installation manifests, and configure access to the ArgoCD API server. Install the ArgoCD CLI for command-line management. Ensure proper RBAC permissions are set up for ArgoCD to manage resources across namespaces.
 
-## 2. Create Git Repository Structure for Prometheus Stack [pending]
+## 2. Create Git Repository Structure for Prometheus Stack [done]
 ### Dependencies: 1.1
 ### Description: Establish a Git repository with proper structure to store all Prometheus stack manifests
 ### Details:
 Create a new Git repository or use an existing one with a clear directory structure for Kubernetes manifests. Include separate directories for Prometheus Operator, Prometheus, AlertManager, Node Exporter, and Kube State Metrics. Add a README with documentation and establish branching strategy aligned with GitOps principles.
 
-## 3. Prepare Prometheus Operator Manifests [pending]
+## 3. Prepare Prometheus Operator Manifests [done]
 ### Dependencies: 1.2
 ### Description: Create and commit Kubernetes manifests for Prometheus Operator deployment
 ### Details:
 Prepare YAML manifests for Prometheus Operator CRDs, deployment, service accounts, and RBAC permissions. Include configuration for custom resource definitions that will be used by other Prometheus components. Commit these manifests to the Git repository in the appropriate directory structure.
 
-## 4. Prepare Core Prometheus Stack Component Manifests [pending]
+## 4. Prepare Core Prometheus Stack Component Manifests [done]
 ### Dependencies: 1.3
 ### Description: Create and commit Kubernetes manifests for Prometheus, AlertManager, Node Exporter, and Kube State Metrics
 ### Details:
 Prepare YAML manifests for Prometheus server, AlertManager, Node Exporter, and Kube State Metrics. Include service definitions, ConfigMaps for configuration, PersistentVolumeClaims for storage, and ServiceMonitor resources. Configure basic alerting rules and Prometheus scrape configurations. Commit all manifests to the Git repository.
 
-## 5. Configure ArgoCD Applications [pending]
+## 5. Configure ArgoCD Applications [done]
 ### Dependencies: 1.1, 1.4
 ### Description: Define ArgoCD Application resources that point to the Git repository
 ### Details:
 Create ArgoCD Application manifests that reference the Git repository and specify the path to each component's manifests. Configure sync policies, health checks, and dependencies between applications. Ensure proper ordering of deployments (Operator first, then other components). Apply these Application resources to ArgoCD.
 
-## 6. Validate and Test the GitOps Workflow [pending]
-### Dependencies: 1.5
+## 6. Validate and Test the GitOps Workflow [done]
+### Dependencies: None
 ### Description: Verify the complete GitOps workflow and Prometheus stack functionality
 ### Details:
 Confirm that ArgoCD successfully deploys all components of the Prometheus stack. Verify that Prometheus is collecting metrics from Node Exporter and Kube State Metrics. Test the alerting pipeline through AlertManager. Make a change to the manifests in Git and verify that ArgoCD automatically syncs the changes to the cluster, demonstrating the GitOps workflow.

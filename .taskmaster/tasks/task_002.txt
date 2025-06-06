@@ -3,9 +3,50 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Configure Prometheus for comprehensive Kubernetes component metrics collection, 15-day high-resolution storage, ServiceMonitor auto-discovery, and custom application metrics support.
+# Description: Optimize the existing Prometheus configuration for enhanced metrics collection, including extending data retention to 15 days, increasing storage allocation, tuning resource limits, and validating ServiceMonitor auto-discovery.
 # Details:
+This task involves optimizing the existing Prometheus deployment. The core Prometheus stack is already in place. The required changes are primarily within the `monitoring/prometheus-stack/values.yaml` file:
 
+1.  **Update Data Retention:** Modify the Prometheus configuration to extend data retention from the current 7 days to 15 days. This typically involves updating the `retention` or `retentionTime` setting for the Prometheus server.
+2.  **Increase Storage Allocation:** Adjust the persistent volume claim (PVC) size for Prometheus from the current 25Gi to 50Gi to accommodate the extended retention. This involves updating the `storageSpec` or similar configuration for the Prometheus statefulset.
+3.  **Optimize Resource Limits:** Review and adjust the CPU and memory resource requests and limits for the Prometheus server (and potentially related components like `kube-state-metrics` or `node-exporter` if their load is expected to increase significantly) to ensure stable operation with the increased data volume and retention period.
+4.  **Validate ServiceMonitor Auto-Discovery:** Confirm that ServiceMonitor auto-discovery is functioning as expected. While it appears functional, a thorough check is required to ensure new services with appropriate labels are being picked up automatically and existing ones continue to be monitored.
 
 # Test Strategy:
+1.  **Verify Retention Configuration:** After applying changes, inspect the live Prometheus configuration (e.g., via Prometheus UI `/config` endpoint or `kubectl describe prometheus <prometheus-instance>`) to confirm the retention period is set to 15 days.
+2.  **Verify Storage Allocation:** Check the PVC size for Prometheus using `kubectl get pvc -n <namespace>` to ensure it reflects 50Gi and that the volume has successfully resized if applicable.
+3.  **Monitor Resource Usage:** After changes are deployed, monitor Prometheus pod resource utilization (CPU, memory) using `kubectl top pod` or cluster monitoring tools over a period (e.g., 24-48 hours) to ensure it operates within the new limits without OOMKills or CPU throttling.
+4.  **Validate Data Availability:** After the system has been running for more than 7 days post-change, query Prometheus for metrics older than 7 days (but less than 15 days) to confirm data is being retained for the new 15-day period.
+5.  **Test ServiceMonitor Discovery:** Verify target discovery in the Prometheus UI (`/targets` endpoint). If possible, deploy a new sample service with a ServiceMonitor or check an existing one to ensure metrics are being scraped as expected.
+
+# Subtasks:
+## 2.1. Modify values.yaml: Update Prometheus retention_time to 15d [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 2.2. Modify values.yaml: Increase Prometheus PVC storage request to 50Gi [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 2.3. Modify values.yaml: Review and adjust Prometheus resource requests/limits [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 2.4. Validate ServiceMonitor auto-discovery functionality post-configuration [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
+
+## 2.5. Apply updated Prometheus Helm chart values and monitor deployment [pending]
+### Dependencies: None
+### Description: 
+### Details:
+
 

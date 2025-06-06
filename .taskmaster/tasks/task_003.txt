@@ -3,47 +3,65 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Deploy Thanos components (Query, Store Gateway, Compactor, Ruler). Configure 13-month long-term metrics storage with automatic downsampling, using MinIO for object storage.
+# Description: Migrate existing Thanos deployment (Query, Store Gateway, Compactor) from filesystem storage to MinIO S3-compatible object storage. Update retention policies to 13-months with specified downsampling. Validate data accessibility and performance post-migration. MinIO is already deployed.
 # Details:
-
+The primary goal is to reconfigure the deployed Thanos Query, Store Gateway, and Compactor components to use MinIO for object storage instead of their current filesystem setup. This involves updating the object storage configuration secret, modifying component configurations, and adjusting retention/downsampling settings. Thanos Ruler deployment remains a future step if not already completed. The migration focuses on ensuring new data flows to S3 and existing configurations are updated; migration of historical data blocks from filesystem to S3 is not explicitly covered in these subtasks but should be considered for full data availability.
 
 # Test Strategy:
-
+1. Verify Thanos components (Store Gateway, Compactor) connect to MinIO successfully using the updated secret. 2. Confirm new metrics are written to MinIO by Prometheus (assuming sidecars/agent are configured for S3, or this is handled separately). 3. Validate that data in MinIO is queryable via Thanos Query. 4. Check query performance for recent data and, if applicable, older data after downsampling. 5. Ensure downsampling by Compactor is working correctly according to the new retention policies (raw: 15d, 5m: 120d, 1h: 1y) and downsampled data is stored in MinIO. 6. Monitor logs for any errors related to S3 connectivity or operations across all relevant Thanos components.
 
 # Subtasks:
-## 1. Set up MinIO for object storage [pending]
+## 1. Set up MinIO for object storage [done]
 ### Dependencies: None
 ### Description: Install and configure MinIO as the object storage backend for Thanos
 ### Details:
 Deploy MinIO in your environment, create the necessary buckets for Thanos data, and generate access credentials that will be used by Thanos components to interact with the object storage
 
-## 2. Configure Thanos object storage secret [pending]
+## 2. Update Thanos object storage secret for MinIO [pending]
 ### Dependencies: 3.1
-### Description: Create a Kubernetes secret with MinIO connection details for Thanos components
+### Description: Update the existing `thanos-objstore-config` Kubernetes secret to use MinIO connection details, replacing any filesystem configuration.
 ### Details:
-Create a configuration file with MinIO endpoint, access key, secret key, and bucket information. Convert this into a Kubernetes secret that will be referenced by all Thanos components
+Retrieve MinIO endpoint, access key, secret key, and bucket information. Create/Update the `objstore.yml` (or equivalent configuration content for S3 provider) and apply it to the `thanos-objstore-config` Kubernetes secret. Ensure all Thanos components that require object storage access will pick up this updated secret.
 
-## 3. Deploy Prometheus with Thanos sidecar [pending]
+## 3. Deploy Prometheus with Thanos sidecar [done]
 ### Dependencies: 3.2
 ### Description: Set up Prometheus instances with Thanos sidecar for uploading metrics to object storage
 ### Details:
 Deploy Prometheus with persistent storage and configure the Thanos sidecar to connect to the object storage. Ensure the sidecar has access to the object storage secret created earlier
 
-## 4. Deploy core Thanos components [pending]
+## 4. Deploy core Thanos components [done]
 ### Dependencies: 3.3
 ### Description: Install Thanos Query, Store Gateway, and Compactor components
 ### Details:
 Use Helm or direct manifests to deploy the Thanos Query (for querying metrics), Store Gateway (for accessing object storage data), and Compactor (for downsampling and retention). Configure them to use the object storage secret
 
-## 5. Configure 13-month storage with downsampling [pending]
-### Dependencies: 3.4
-### Description: Set up retention policies and downsampling configuration for long-term storage
+## 5. Update Thanos Compactor retention and downsampling policies for S3 [pending]
+### Dependencies: 3.8
+### Description: Reconfigure Thanos Compactor to apply the new 13-month retention and downsampling settings for data stored in S3.
 ### Details:
-Configure the Thanos Compactor with appropriate retention periods (13 months) and downsampling intervals (typically 5m to 1h and 1h to 1d) to optimize storage while maintaining query performance for older data
+Update Compactor configuration to reflect new retention periods: raw data for 15 days (currently 7d), 5-minute downsampled data for 120 days (currently 30d), and 1-hour downsampled data for 1 year (currently 90d). Ensure Compactor is operating on the S3 backend. These settings are: --retention.resolution-raw=15d --retention.resolution-5m=120d --retention.resolution-1h=1y.
 
 ## 6. Deploy Thanos Ruler and set up monitoring [pending]
-### Dependencies: 3.4, 3.5
+### Dependencies: 3.4
 ### Description: Install Thanos Ruler component and configure monitoring for the Thanos deployment
 ### Details:
-Deploy the Thanos Ruler component for evaluation of recording and alerting rules. Set up ServiceMonitors or similar resources to monitor the health and performance of all Thanos components
+Deploy the Thanos Ruler component for evaluation of recording and alerting rules. Set up ServiceMonitors or similar resources to monitor the health and performance of all Thanos components, including their interaction with MinIO.
+
+## 7. Reconfigure Thanos Store Gateway for S3 Object Storage [pending]
+### Dependencies: 3.2, 3.4
+### Description: Modify the Thanos Store Gateway deployment/configuration to read from the MinIO S3 object storage instead of the local filesystem.
+### Details:
+Update the Store Gateway's command-line arguments or configuration file to specify the S3 provider (MinIO) by referencing the updated `thanos-objstore-config` secret (e.g., via `--objstore.config-file` pointing to the secret mount). Remove any filesystem-specific storage configurations. Restart/redeploy Store Gateway pods to apply changes.
+
+## 8. Reconfigure Thanos Compactor for S3 Object Storage [pending]
+### Dependencies: 3.2, 3.4
+### Description: Modify the Thanos Compactor deployment/configuration to use MinIO S3 object storage for its operations (reading data, writing downsampled data, applying retention).
+### Details:
+Update the Compactor's command-line arguments or configuration file to specify the S3 provider (MinIO) by referencing the updated `thanos-objstore-config` secret. Ensure it's configured to process blocks from S3 for downsampling and retention. Remove any filesystem-specific storage configurations. Restart/redeploy Compactor pods to apply changes.
+
+## 9. Validate S3 Migration, Data Flow, and Query Performance [pending]
+### Dependencies: None
+### Description: Verify that Thanos is correctly using MinIO for storage, new data is being ingested to S3, and query performance meets expectations.
+### Details:
+Perform checks: 1. Query recent data via Thanos Query and confirm it's sourced from S3 (or via sidecars if they also target S3). 2. After Compactor runs, query older, downsampled data. 3. Inspect MinIO buckets to confirm data blocks are being written/managed by Compactor and potentially sidecars. 4. Monitor Thanos component logs (Query, Store Gateway, Compactor) for S3-related errors or successful operations. 5. Assess query latency for various time ranges. Validate that new data correctly flows to S3. If historical data from the filesystem was manually migrated to MinIO, verify its accessibility.
 

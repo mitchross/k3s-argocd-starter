@@ -3,9 +3,63 @@
 # Status: pending
 # Dependencies: None
 # Priority: medium
-# Description: Set up persistent storage for all stateful components (Prometheus, Thanos, Loki, MinIO, Grafana) with specified allocations (Prometheus: 50GB, Thanos Store: 50GB, Thanos Compactor: 100GB, Loki: 20GB, Tempo: 30GB, MinIO: 100GB, Grafana: 10GB) and support for storage expansion.
+# Description: Ensure and adjust persistent storage allocations for stateful components (Prometheus, MinIO, Loki, Thanos, Tempo, Grafana) to meet specified capacities and extended retention requirements. This task builds upon the existing Longhorn storage class configuration, focusing on increasing storage for MinIO and Prometheus, and verifying/adjusting others as needed. Original target allocations: Prometheus: 50GB, Thanos Store: 50GB, Thanos Compactor: 100GB, Loki: 20GB, Tempo: 30GB, MinIO: 100GB, Grafana: 10GB.
 # Details:
-
+The existing Longhorn storage class is configured and operational. This task focuses on specific storage adjustments to support extended data retention:
+1.  **MinIO:** Increase storage from its current 50Gi to 100Gi.
+2.  **Prometheus:** Increase storage from its current 25Gi to 50Gi to accommodate 15-day retention.
+3.  **Verification & Potential Adjustments for Other Components:**
+    *   **Loki:** Verify current allocation against the 20GB target and extended log retention needs. Adjust if necessary.
+    *   **Thanos Store Gateway:** Verify current allocation against the 50GB target. Adjust if necessary.
+    *   **Thanos Compactor:** Verify current allocation against the 100GB target. Adjust if necessary.
+    *   **Tempo:** Verify current allocation against the 30GB target.
+    *   **Grafana:** Verify current allocation against the 10GB target.
+4.  **Monitoring:** Monitor storage utilization across all relevant components after changes are applied.
 
 # Test Strategy:
+1.  Verify that MinIO's PersistentVolumeClaim (PVC) is resized to 100Gi and the component operates correctly with the expanded volume.
+2.  Verify that Prometheus's PVC is resized to 50Gi and the component operates correctly, confirming it can store data for the 15-day retention period.
+3.  For Loki, Thanos Store Gateway, Thanos Compactor, Tempo, and Grafana:
+    a.  Document their current PVC sizes.
+    b.  If any adjustments were made, confirm the new PVC sizes are reflected and components function correctly.
+    c.  If no adjustments were made, confirm that current sizes are adequate for their respective retention goals and original targets.
+4.  Monitor storage utilization trends for all affected components for at least one week post-changes to ensure stability and sufficiency.
+5.  Confirm that monitoring alerts are configured for high storage utilization on critical components (Prometheus, MinIO, Loki, Thanos).
+
+# Subtasks:
+## subtask_12_1. Increase MinIO Storage to 100Gi [pending]
+### Dependencies: None
+### Description: Update the MinIO StatefulSet/Deployment configuration to request 100Gi for its PersistentVolumeClaim using the Longhorn storage class. Verify successful pod restart and that the volume expansion is recognized by the system and application.
+### Details:
+
+
+## subtask_12_2. Increase Prometheus Storage to 50Gi [pending]
+### Dependencies: None
+### Description: Update the Prometheus StatefulSet/Deployment configuration to request 50Gi for its PersistentVolumeClaim to support 15-day retention, using the Longhorn storage class. Verify successful pod restart and that the volume expansion is recognized.
+### Details:
+
+
+## subtask_12_3. Verify & Document Loki, Thanos Store, Thanos Compactor Storage [pending]
+### Dependencies: None
+### Description: Investigate and document the current PersistentVolumeClaim sizes for Loki, Thanos Store Gateway, and Thanos Compactor. Compare these sizes against their original target allocations (Loki: 20GB, Thanos Store: 50GB, Thanos Compactor: 100GB) and extended retention requirements.
+### Details:
+
+
+## subtask_12_4. Adjust Loki, Thanos Store, Thanos Compactor Storage (If Needed) [pending]
+### Dependencies: None
+### Description: Based on the findings from subtask_12_3, if current allocations for Loki, Thanos Store Gateway, or Thanos Compactor are insufficient, update their configurations to request increased PVC sizes. Verify successful pod restarts and volume expansions for any adjusted components.
+### Details:
+
+
+## subtask_12_5. Verify Tempo and Grafana Storage Allocations [pending]
+### Dependencies: None
+### Description: Check the current PersistentVolumeClaim sizes for Tempo (original target 30GB) and Grafana (original target 10GB). Ensure these allocations are adequate for their operational needs. Document current sizes.
+### Details:
+
+
+## subtask_12_6. Monitor Storage Utilization Post-Changes [pending]
+### Dependencies: None
+### Description: After all storage adjustments are complete, monitor storage utilization dashboards for Prometheus, MinIO, Loki, and Thanos components. Track trends for at least one week to ensure capacities are sufficient and stable. Confirm alerting for high utilization is active.
+### Details:
+
 
