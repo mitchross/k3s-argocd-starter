@@ -6,7 +6,7 @@ namespace: monitoring
 helmCharts:
   - name: thanos
     repo: https://charts.bitnami.com/bitnami
-    version: "17.0.0"
+    version: "17.0.1"
     releaseName: thanos
     namespace: monitoring
     valuesFile: values.yaml
