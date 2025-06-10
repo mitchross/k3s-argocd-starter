@@ -100,7 +100,7 @@ ingester:
       memory: 2Gi
   persistence:
     enabled: true
-    size: 30Gi
+    size: 10Gi
     storageClass: longhorn
 distributor:
   replicas: 3
@@ -144,7 +144,7 @@ compactor:
       memory: 1Gi
   persistence:
     enabled: true
-    size: 10Gi
+    size: 5Gi
     storageClass: longhorn
 memcached:
   enabled: false
