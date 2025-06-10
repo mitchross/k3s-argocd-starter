@@ -15,7 +15,7 @@ persistence:
   enabled: true
   storageClass: longhorn
   accessMode: ReadWriteOnce
-  size: 50Gi
+  size: 20Gi
 service:
   type: ClusterIP
   clusterIP: ~

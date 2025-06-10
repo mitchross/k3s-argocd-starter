@@ -158,17 +158,17 @@ kubelet:
 kubeControllerManager:
   enabled: true
   endpoints:
-    - 192.168.1.10 # Update with your control plane IPs
+    - 192.168.101.176 # Update with your control plane IPs
 kubeScheduler:
   enabled: true
   endpoints:
-    - 192.168.1.10 # Update with your control plane IPs
+    - 192.168.101.176 # Update with your control plane IPs
 kubeProxy:
   enabled: true
 kubeEtcd:
   enabled: true
   endpoints:
-    - 192.168.1.10 # Update with your control plane IPs
+    - 192.168.101.176 # Update with your control plane IPs
 defaultRules:
   create: true
   rules:

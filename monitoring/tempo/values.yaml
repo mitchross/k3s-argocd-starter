@@ -6,7 +6,7 @@ storage:
     backend: s3
     s3:
       bucket: tempo
-      endpoint: minio-minio.monitoring.svc.cluster.local:9000
+      endpoint: minio.monitoring.svc.cluster.local:9000
       access_key: minioadmin
       secret_key: minioadmin
       insecure: true
