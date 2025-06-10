@@ -72,12 +72,12 @@
     {
       "id": 2,
       "title": "Configure Prometheus Metrics Collection & Short-Term Storage",
-      "description": "Optimize the existing Prometheus configuration for enhanced metrics collection, including extending data retention to 15 days, increasing storage allocation, tuning resource limits, and validating ServiceMonitor auto-discovery.",
+      "description": "Optimize the existing Prometheus configuration for enhanced metrics collection, including extending data retention to 15 days, adjusting storage allocation to 20Gi for low hardware, tuning resource limits, and validating ServiceMonitor auto-discovery.",
       "status": "pending",
       "dependencies": [],
       "priority": "medium",
-      "details": "This task involves optimizing the existing Prometheus deployment. The core Prometheus stack is already in place. The required changes are primarily within the `monitoring/prometheus-stack/values.yaml` file:\n\n1.  **Update Data Retention:** Modify the Prometheus configuration to extend data retention from the current 7 days to 15 days. This typically involves updating the `retention` or `retentionTime` setting for the Prometheus server.\n2.  **Increase Storage Allocation:** Adjust the persistent volume claim (PVC) size for Prometheus from the current 25Gi to 50Gi to accommodate the extended retention. This involves updating the `storageSpec` or similar configuration for the Prometheus statefulset.\n3.  **Optimize Resource Limits:** Review and adjust the CPU and memory resource requests and limits for the Prometheus server (and potentially related components like `kube-state-metrics` or `node-exporter` if their load is expected to increase significantly) to ensure stable operation with the increased data volume and retention period.\n4.  **Validate ServiceMonitor Auto-Discovery:** Confirm that ServiceMonitor auto-discovery is functioning as expected. While it appears functional, a thorough check is required to ensure new services with appropriate labels are being picked up automatically and existing ones continue to be monitored.",
-      "testStrategy": "1.  **Verify Retention Configuration:** After applying changes, inspect the live Prometheus configuration (e.g., via Prometheus UI `/config` endpoint or `kubectl describe prometheus <prometheus-instance>`) to confirm the retention period is set to 15 days.\n2.  **Verify Storage Allocation:** Check the PVC size for Prometheus using `kubectl get pvc -n <namespace>` to ensure it reflects 50Gi and that the volume has successfully resized if applicable.\n3.  **Monitor Resource Usage:** After changes are deployed, monitor Prometheus pod resource utilization (CPU, memory) using `kubectl top pod` or cluster monitoring tools over a period (e.g., 24-48 hours) to ensure it operates within the new limits without OOMKills or CPU throttling.\n4.  **Validate Data Availability:** After the system has been running for more than 7 days post-change, query Prometheus for metrics older than 7 days (but less than 15 days) to confirm data is being retained for the new 15-day period.\n5.  **Test ServiceMonitor Discovery:** Verify target discovery in the Prometheus UI (`/targets` endpoint). If possible, deploy a new sample service with a ServiceMonitor or check an existing one to ensure metrics are being scraped as expected.",
+      "details": "This task involves optimizing the existing Prometheus deployment for a low hardware environment. The core Prometheus stack is already in place. The required changes are primarily within the `monitoring/prometheus-stack/values.yaml` file:\n\n1.  **Update Data Retention:** Modify the Prometheus configuration to extend data retention from the current 7 days to 15 days. This typically involves updating the `retention` or `retentionTime` setting for the Prometheus server.\n2.  **Adjust Storage Allocation:** Set the persistent volume claim (PVC) size for Prometheus to 20Gi to accommodate the extended retention while working within hardware constraints. This involves updating the `storageSpec` or similar configuration for the Prometheus statefulset.\n3.  **Optimize Resource Limits:** Review and adjust the CPU and memory resource requests and limits for the Prometheus server (and potentially related components like `kube-state-metrics` or `node-exporter` if their load is expected to increase significantly) to ensure stable operation with the increased data volume and retention period.\n4.  **Validate ServiceMonitor Auto-Discovery:** Confirm that ServiceMonitor auto-discovery is functioning as expected. While it appears functional, a thorough check is required to ensure new services with appropriate labels are being picked up automatically and existing ones continue to be monitored.",
+      "testStrategy": "1.  **Verify Retention Configuration:** After applying changes, inspect the live Prometheus configuration (e.g., via Prometheus UI `/config` endpoint or `kubectl describe prometheus <prometheus-instance>`) to confirm the retention period is set to 15 days.\n2.  **Verify Storage Allocation:** Check the PVC size for Prometheus using `kubectl get pvc -n <namespace>` to ensure it reflects 20Gi and that the volume has successfully resized if applicable.\n3.  **Monitor Resource Usage:** After changes are deployed, monitor Prometheus pod resource utilization (CPU, memory) using `kubectl top pod` or cluster monitoring tools over a period (e.g., 24-48 hours) to ensure it operates within the new limits without OOMKills or CPU throttling.\n4.  **Validate Data Availability:** After the system has been running for more than 7 days post-change, query Prometheus for metrics older than 7 days (but less than 15 days) to confirm data is being retained for the new 15-day period.\n5.  **Test ServiceMonitor Discovery:** Verify target discovery in the Prometheus UI (`/targets` endpoint). If possible, deploy a new sample service with a ServiceMonitor or check an existing one to ensure metrics are being scraped as expected.",
       "subtasks": [
         {
           "id": "2.1",
@@ -86,7 +86,7 @@
         },
         {
           "id": "2.2",
-          "title": "Modify values.yaml: Increase Prometheus PVC storage request to 50Gi",
+          "title": "Modify values.yaml: Set Prometheus PVC storage request to 20Gi",
           "status": "pending"
         },
         {
@@ -209,18 +209,18 @@
     {
       "id": 4,
       "title": "Deploy and Configure Loki & Promtail for Log Aggregation",
-      "description": "Loki and Promtail are deployed and collecting logs. This task focuses on updating the Loki configuration to extend log retention to 90 days, validating existing configurations, and adjusting storage allocations as necessary.",
+      "description": "Loki and Promtail are deployed and collecting logs. This task focuses on updating the Loki configuration to extend log retention to 30 days (reduced for low hardware), validating existing configurations, and adjusting storage allocations as necessary.",
       "status": "pending",
       "dependencies": [],
       "priority": "medium",
-      "details": "The primary goal is to update Loki's log retention policy from the current 7 days to 90 days to meet audit requirements. Additionally, the existing MinIO S3 storage backend configuration needs validation, and log filtering/labeling functionality should be verified. Storage allocations may need adjustment to accommodate the extended retention period.\n\nKey activities:\n1. Modify Loki configuration to set retention to 90 days (2160h).\n2. Confirm MinIO S3 backend is correctly configured and accessible by Loki for long-term storage.\n3. Verify that Promtail's log filtering and labeling mechanisms are functioning as expected for pod logs, events, system logs, and kernel logs.\n4. Assess current storage usage and projected needs for 90-day retention, adjusting MinIO storage allocations if required.",
-      "testStrategy": "1. After configuration changes, monitor Loki to ensure logs are retained beyond the old 7-day limit and up to the new 90-day limit.\n2. Query logs older than 7 days after a sufficient period has passed to confirm retention.\n3. Verify that new logs continue to be ingested correctly from all sources (pods, events, system, kernel).\n4. Check MinIO storage to ensure data is being written and that storage utilization is within acceptable limits after the retention change.\n5. Confirm that log filtering and labeling continue to work as expected by querying specific log streams based on labels.",
+      "details": "The primary goal is to update Loki's log retention policy from the current 7 days to 30 days to balance audit requirements with hardware constraints. Additionally, the existing MinIO S3 storage backend configuration needs validation, and log filtering/labeling functionality should be verified. Storage allocations have been adjusted for the low hardware environment.\n\nKey activities:\n1. Modify Loki configuration to set retention to 30 days (720h).\n2. Confirm MinIO S3 backend is correctly configured and accessible by Loki for long-term storage.\n3. Verify that Promtail's log filtering and labeling mechanisms are functioning as expected for pod logs, events, system logs, and kernel logs.\n4. Monitor current storage usage for the 30-day retention period.",
+      "testStrategy": "1. After configuration changes, monitor Loki to ensure logs are retained beyond the old 7-day limit and up to the new 30-day limit.\n2. Query logs older than 7 days after a sufficient period has passed to confirm retention.\n3. Verify that new logs continue to be ingested correctly from all sources (pods, events, system, kernel).\n4. Check MinIO storage to ensure data is being written and that storage utilization is within acceptable limits after the retention change.\n5. Confirm that log filtering and labeling continue to work as expected by querying specific log streams based on labels.",
       "subtasks": [
         {
           "id": "subtask_4_1",
-          "title": "Update Loki retention policy to 90 days",
+          "title": "Update Loki retention policy to 30 days",
           "status": "pending",
-          "description": "Modify the Loki configuration (e.g., `loki-config.yaml` or relevant Helm chart values) to change `retention_period` or equivalent setting from 168h to 2160h (90 days). Apply the configuration changes to the Loki deployment."
+          "description": "Modify the Loki configuration (e.g., `loki-config.yaml` or relevant Helm chart values) to change `retention_period` or equivalent setting from 168h to 720h (30 days). Apply the configuration changes to the Loki deployment."
         },
         {
           "id": "subtask_4_2",
@@ -236,15 +236,15 @@
         },
         {
           "id": "subtask_4_4",
-          "title": "Assess and adjust storage allocations for extended retention",
+          "title": "Monitor storage allocations for 30-day retention",
           "status": "pending",
-          "description": "Estimate the storage increase required for 90-day retention based on current ingestion rates. Monitor MinIO storage usage and, if necessary, increase storage capacity or adjust quotas to accommodate the extended log data."
+          "description": "Monitor MinIO storage usage with the 30-day retention period and verify that the reduced storage allocations are sufficient for the low hardware environment."
         },
         {
           "id": "subtask_4_5",
           "title": "Test and monitor new retention policy",
           "status": "pending",
-          "description": "After implementing changes, monitor Loki and MinIO. After more than 7 days, verify that logs older than 7 days are still available. Continue monitoring to ensure logs are purged correctly after 90 days (long-term verification)."
+          "description": "After implementing changes, monitor Loki and MinIO. After more than 7 days, verify that logs older than 7 days are still available. Continue monitoring to ensure logs are purged correctly after 30 days."
         }
       ]
     },
@@ -381,47 +381,47 @@
     {
       "id": 12,
       "title": "Configure Persistent Storage and Management",
-      "description": "Ensure and adjust persistent storage allocations for stateful components (Prometheus, MinIO, Loki, Thanos, Tempo, Grafana) to meet specified capacities and extended retention requirements. This task builds upon the existing Longhorn storage class configuration, focusing on increasing storage for MinIO and Prometheus, and verifying/adjusting others as needed. Original target allocations: Prometheus: 50GB, Thanos Store: 50GB, Thanos Compactor: 100GB, Loki: 20GB, Tempo: 30GB, MinIO: 100GB, Grafana: 10GB.",
+      "description": "Ensure and adjust persistent storage allocations for stateful components (Prometheus, MinIO, Loki, Thanos, Tempo, Grafana) to meet low hardware constraints and retention requirements. This task builds upon the existing Longhorn storage class configuration, focusing on optimizing storage for limited resources. Target allocations: Prometheus: 20GB, MinIO: 20GB, Loki: 10GB (5GB backend + 5GB write), Tempo: 15GB total, Grafana: 5GB.",
       "status": "pending",
       "dependencies": [],
       "priority": "medium",
-      "details": "The existing Longhorn storage class is configured and operational. This task focuses on specific storage adjustments to support extended data retention:\n1.  **MinIO:** Increase storage from its current 50Gi to 100Gi.\n2.  **Prometheus:** Increase storage from its current 25Gi to 50Gi to accommodate 15-day retention.\n3.  **Verification & Potential Adjustments for Other Components:**\n    *   **Loki:** Verify current allocation against the 20GB target and extended log retention needs. Adjust if necessary.\n    *   **Thanos Store Gateway:** Verify current allocation against the 50GB target. Adjust if necessary.\n    *   **Thanos Compactor:** Verify current allocation against the 100GB target. Adjust if necessary.\n    *   **Tempo:** Verify current allocation against the 30GB target.\n    *   **Grafana:** Verify current allocation against the 10GB target.\n4.  **Monitoring:** Monitor storage utilization across all relevant components after changes are applied.",
-      "testStrategy": "1.  Verify that MinIO's PersistentVolumeClaim (PVC) is resized to 100Gi and the component operates correctly with the expanded volume.\n2.  Verify that Prometheus's PVC is resized to 50Gi and the component operates correctly, confirming it can store data for the 15-day retention period.\n3.  For Loki, Thanos Store Gateway, Thanos Compactor, Tempo, and Grafana:\n    a.  Document their current PVC sizes.\n    b.  If any adjustments were made, confirm the new PVC sizes are reflected and components function correctly.\n    c.  If no adjustments were made, confirm that current sizes are adequate for their respective retention goals and original targets.\n4.  Monitor storage utilization trends for all affected components for at least one week post-changes to ensure stability and sufficiency.\n5.  Confirm that monitoring alerts are configured for high storage utilization on critical components (Prometheus, MinIO, Loki, Thanos).",
+      "details": "The existing Longhorn storage class is configured and operational. This task focuses on storage adjustments optimized for low hardware environments:\n1.  **MinIO:** Set storage to 20Gi for S3-compatible object storage.\n2.  **Prometheus:** Set storage to 20Gi to accommodate 15-day retention.\n3.  **Loki:** Total 10GB allocation (5GB backend + 5GB write) for 30-day log retention.\n4.  **Tempo:** Total 15GB allocation (10GB ingester + 5GB compactor) for trace data.\n5.  **Grafana:** Maintain 5GB allocation for dashboards and configuration.\n6.  **Thanos components:** Will use MinIO for object storage rather than large local volumes.\n7.  **Monitoring:** Monitor storage utilization across all components after changes are applied.",
+      "testStrategy": "1.  Verify that MinIO's PersistentVolumeClaim (PVC) is set to 20Gi and the component operates correctly.\n2.  Verify that Prometheus's PVC is set to 20Gi and the component operates correctly, confirming it can store data for the 15-day retention period.\n3.  For Loki, Tempo, and Grafana:\n    a.  Document their current PVC sizes.\n    b.  Confirm the adjusted PVC sizes are reflected and components function correctly.\n4.  Monitor storage utilization trends for all affected components for at least one week post-changes to ensure stability and sufficiency.\n5.  Confirm that monitoring alerts are configured for high storage utilization on critical components (Prometheus, MinIO, Loki).",
       "subtasks": [
         {
           "id": "subtask_12_1",
-          "title": "Increase MinIO Storage to 100Gi",
-          "description": "Update the MinIO StatefulSet/Deployment configuration to request 100Gi for its PersistentVolumeClaim using the Longhorn storage class. Verify successful pod restart and that the volume expansion is recognized by the system and application.",
+          "title": "Set MinIO Storage to 20Gi",
+          "description": "Update the MinIO StatefulSet/Deployment configuration to request 20Gi for its PersistentVolumeClaim using the Longhorn storage class. Verify successful pod restart and that the volume is properly sized.",
           "status": "pending"
         },
         {
           "id": "subtask_12_2",
-          "title": "Increase Prometheus Storage to 50Gi",
-          "description": "Update the Prometheus StatefulSet/Deployment configuration to request 50Gi for its PersistentVolumeClaim to support 15-day retention, using the Longhorn storage class. Verify successful pod restart and that the volume expansion is recognized.",
+          "title": "Set Prometheus Storage to 20Gi",
+          "description": "Update the Prometheus StatefulSet/Deployment configuration to request 20Gi for its PersistentVolumeClaim to support 15-day retention, using the Longhorn storage class. Verify successful pod restart.",
           "status": "pending"
         },
         {
           "id": "subtask_12_3",
-          "title": "Verify & Document Loki, Thanos Store, Thanos Compactor Storage",
-          "description": "Investigate and document the current PersistentVolumeClaim sizes for Loki, Thanos Store Gateway, and Thanos Compactor. Compare these sizes against their original target allocations (Loki: 20GB, Thanos Store: 50GB, Thanos Compactor: 100GB) and extended retention requirements.",
+          "title": "Verify & Document Loki Storage Configuration",
+          "description": "Verify that Loki backend and write components each have 5Gi PersistentVolumeClaims (total 10GB) to support 30-day retention in the low hardware environment.",
           "status": "pending"
         },
         {
           "id": "subtask_12_4",
-          "title": "Adjust Loki, Thanos Store, Thanos Compactor Storage (If Needed)",
-          "description": "Based on the findings from subtask_12_3, if current allocations for Loki, Thanos Store Gateway, or Thanos Compactor are insufficient, update their configurations to request increased PVC sizes. Verify successful pod restarts and volume expansions for any adjusted components.",
+          "title": "Verify Tempo Storage Configuration",
+          "description": "Verify that Tempo ingester has 10Gi and compactor has 5Gi PersistentVolumeClaims (total 15GB) for trace storage in the low hardware environment.",
           "status": "pending"
         },
         {
           "id": "subtask_12_5",
-          "title": "Verify Tempo and Grafana Storage Allocations",
-          "description": "Check the current PersistentVolumeClaim sizes for Tempo (original target 30GB) and Grafana (original target 10GB). Ensure these allocations are adequate for their operational needs. Document current sizes.",
+          "title": "Verify Grafana Storage Allocation",
+          "description": "Check that Grafana has a 5Gi PersistentVolumeClaim. Ensure this allocation is adequate for dashboards and configuration data.",
           "status": "pending"
         },
         {
           "id": "subtask_12_6",
           "title": "Monitor Storage Utilization Post-Changes",
-          "description": "After all storage adjustments are complete, monitor storage utilization dashboards for Prometheus, MinIO, Loki, and Thanos components. Track trends for at least one week to ensure capacities are sufficient and stable. Confirm alerting for high utilization is active.",
+          "description": "After all storage adjustments are complete, monitor storage utilization dashboards for Prometheus, MinIO, Loki, and Tempo. Track trends for at least one week to ensure capacities are sufficient and stable. Confirm alerting for high utilization is active.",
           "status": "pending"
         }
       ]
