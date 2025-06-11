@@ -4,6 +4,6 @@ namespace: monitoring
 helmCharts:
   - name: promtail
     repo: https://grafana.github.io/helm-charts
-    version: 6.16.1
+    version: 6.17.0
     releaseName: promtail
     valuesFile: values.yaml
