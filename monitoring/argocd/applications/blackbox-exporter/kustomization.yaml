@@ -4,7 +4,7 @@ namespace: monitoring
 helmCharts:
   - name: prometheus-blackbox-exporter
     repo: https://prometheus-community.github.io/helm-charts
-    version: 8.8.0
+    version: 8.17.0
     releaseName: blackbox-exporter
     valuesFile: values.yaml
 resources:
