@@ -3,13 +3,17 @@ kind: ApplicationSet
 metadata:
   name: monitoring-components
   namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
 spec:
   generators:
     - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter
+        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         revision: HEAD
         directories:
           - path: monitoring/*
+          - exclude: true
+            path: monitoring/monitoring-components-appset.yaml
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
@@ -20,7 +24,7 @@ spec:
       source:
         plugin:
           name: kustomize-build-with-helm
-        repoURL: https://github.com/mitchross/k3s-argocd-starter
+        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:

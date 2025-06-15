@@ -1,1 +1,0 @@
-mkdir -p monitoring/{argocd/{applications,projects},prometheus/{configs,rules,servicemonitors},grafana/{dashboards,datasources,configs},loki/configs,tempo/configs,thanos/configs,minio/configs,ingress/certificates,docs/{runbooks,troubleshooting},promtail/configs,blackbox-exporter/configs} 
