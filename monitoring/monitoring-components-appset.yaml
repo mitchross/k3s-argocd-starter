@@ -6,32 +6,36 @@ metadata:
 spec:
   generators:
     - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git # Corrected the repo URL
+        repoURL: https://github.com/mitchross/k3s-argocd-starter
         revision: HEAD
         directories:
-          - path: monitoring/argocd/applications/*
+          - path: monitoring/*
   template:
     metadata:
+      name: 'monitoring-{{path.basename}}'
       labels:
         type: monitoring
-      name: '{{path.basename}}'
     spec:
       project: monitoring
       source:
-        # Use the same Kustomize+Helm plugin as other appsets
         plugin:
           name: kustomize-build-with-helm
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git # Corrected the repo URL
+        repoURL: https://github.com/mitchross/k3s-argocd-starter
         targetRevision: HEAD
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        # All monitoring components go into the 'monitoring' namespace
-        namespace: 'monitoring'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
-          prune: true
           selfHeal: true
+          prune: true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m
         syncOptions:
-          - CreateNamespace=false # The namespace is created separately
+          - CreateNamespace=true
           - ServerSideApply=true
