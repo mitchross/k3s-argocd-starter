@@ -3,6 +3,10 @@ kind: Certificate
 metadata:
   name: cert-vanillax
   namespace: gateway
+  annotations:
+    argocd.argoproj.io/sync-wave: "2" # Deploy after ClusterIssuer (wave 1)
+    argocd.argoproj.io/sync-options: Validate=true
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
   dnsNames:
     - "*.vanillax.xyz"
@@ -12,6 +16,12 @@ spec:
     kind: ClusterIssuer
     name: cloudflare-cluster-issuer
   secretName: cert-vanillax
+  # Best practices from cert-manager documentation
+  privateKey:
+    algorithm: RSA
+    size: 2048
+    rotationPolicy: Always # Recommended for security - rotates private key with each renewal
+  revisionHistoryLimit: 1 # Keeps only 1 old CertificateRequest to reduce clutter
   usages:
     - digital signature
     - key encipherment

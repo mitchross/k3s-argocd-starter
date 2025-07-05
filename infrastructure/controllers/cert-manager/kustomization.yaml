@@ -1,11 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 resources:
   - ns.yaml
- # - cloudflare-secret.yaml
+  # - cloudflare-secret.yaml
   - cluster-issuer.yaml
-
+  - validate-setup.yaml
 helmCharts:
   - name: cert-manager
     repo: https://charts.jetstack.io
@@ -13,7 +12,5 @@ helmCharts:
     releaseName: cert-manager
     namespace: cert-manager
     valuesFile: values.yaml
-
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "-10"
-

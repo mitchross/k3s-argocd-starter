@@ -3,12 +3,16 @@ kind: ClusterIssuer
 metadata:
   name: cloudflare-cluster-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "1" # Deploy after cert-manager (wave -10) but before Certificates (wave 2)
+    argocd.argoproj.io/sync-options: Validate=true
+    argocd.argoproj.io/compare-options: ServerSideDiff=true
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
 spec:
   acme:
     # stage server: https://acme-staging-v02.api.letsencrypt.org/directory
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: youremail@vanillax.xyz
+    email: admin@vanillax.xyz
     privateKeySecretRef:
       name: cloudflare-key
     solvers:
