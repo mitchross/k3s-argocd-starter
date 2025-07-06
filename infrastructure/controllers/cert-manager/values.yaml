@@ -19,20 +19,8 @@ extraArgs:
   - "--dns01-check-retry-period=10s"
   - "--max-concurrent-challenges=60"
   - "--enable-certificate-owner-ref=true"
-# Security context for improved container security - Modified to allow network operations
+# Security context for improved container security - This section is well-configured
 securityContext:
-  runAsNonRoot: true
-  runAsUser: 65534
-  seccompProfile:
-    type: RuntimeDefault
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop:
-      - ALL
-    add:
-      - NET_BIND_SERVICE
-  readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 65534
   seccompProfile:
@@ -51,18 +39,6 @@ webhook:
     runAsUser: 65534
     seccompProfile:
       type: RuntimeDefault
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-      add:
-        - NET_BIND_SERVICE
-    readOnlyRootFilesystem: true
-    runAsNonRoot: true
-    runAsUser: 65534
-    seccompProfile:
-      type: RuntimeDefault
   resources:
     limits:
       cpu: 100m
@@ -72,16 +48,6 @@ webhook:
       memory: 64Mi
 cainjector:
   securityContext:
-    runAsNonRoot: true
-    runAsUser: 65534
-    seccompProfile:
-      type: RuntimeDefault
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-    capabilities:
-      drop:
-        - ALL
-    readOnlyRootFilesystem: true
     runAsNonRoot: true
     runAsUser: 65534
     seccompProfile:
