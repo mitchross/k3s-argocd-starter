@@ -3,7 +3,7 @@ kind: ClusterIssuer
 metadata:
   name: cloudflare-cluster-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "1" # Deploy after cert-manager (wave -10) but before Certificates (wave 2)
+    argocd.argoproj.io/sync-wave: "5" # Deploy well after cert-manager deployments are ready
     argocd.argoproj.io/sync-options: Validate=true
     argocd.argoproj.io/compare-options: ServerSideDiff=true
 spec:
