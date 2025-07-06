@@ -5,7 +5,7 @@ cluster:
 kubeProxyReplacement: true
 
 
-k8sServiceHost: 192.168.101.176
+k8sServiceHost: 192.168.101.202
 k8sServicePort: 6443
 securityContext:
   capabilities:

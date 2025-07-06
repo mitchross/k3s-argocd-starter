@@ -5,6 +5,10 @@ metadata:
   namespace: kube-system
 spec:
   interfaces:
-    - wlan*
+    - eth.*
+    - enp.*
+    - ens.*
+    - wlan.*
+    - wlp.*
   loadBalancerIPs: true
   externalIPs: true

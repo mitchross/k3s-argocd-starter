@@ -1,23 +1,31 @@
+# Add leader election namespace to prevent RBAC permissions errors
+global:
+  leaderElection:
+    # This should be the same namespace cert-manager is installed into
+    namespace: cert-manager
 crds:
   enabled: true
   keep: true
-# Enhanced security configuration based on cert-manager documentation
+# Use the modern, structured configuration for controller settings
+config:
+  apiVersion: controller.config.cert-manager.io/v1alpha1
+  kind: ControllerConfiguration
+  enableGatewayAPI: true
+# extraArgs can still be used for flags not available in the structured config
 extraArgs:
-  - "--enable-gateway-api"
+  # "--enable-gateway-api" has been moved to the 'config' block above
   - "--dns01-recursive-nameservers-only"
   - "--dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53,9.9.9.9:53"
   - "--dns01-check-retry-period=10s"
   - "--max-concurrent-challenges=60"
   - "--enable-certificate-owner-ref=true"
-# Security context for improved container security
+# Security context for improved container security - This section is well-configured
 securityContext:
   runAsNonRoot: true
-  runAsUser: 1001
-  runAsGroup: 1001
-  fsGroup: 1001
+  runAsUser: 65534
   seccompProfile:
     type: RuntimeDefault
-# Resource limits for production workloads
+# Resource limits for production workloads - This section is well-configured
 resources:
   limits:
     cpu: 200m
@@ -28,9 +36,7 @@ resources:
 webhook:
   securityContext:
     runAsNonRoot: true
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
+    runAsUser: 65534
     seccompProfile:
       type: RuntimeDefault
   resources:
@@ -43,9 +49,7 @@ webhook:
 cainjector:
   securityContext:
     runAsNonRoot: true
-    runAsUser: 1001
-    runAsGroup: 1001
-    fsGroup: 1001
+    runAsUser: 65534
     seccompProfile:
       type: RuntimeDefault
   resources:
@@ -55,7 +59,7 @@ cainjector:
     requests:
       cpu: 20m
       memory: 128Mi
-# Prometheus monitoring
+# Prometheus monitoring - This section is well-configured
 prometheus:
   enabled: true
   servicemonitor:
