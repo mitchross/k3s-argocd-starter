@@ -4,11 +4,10 @@ metadata:
   name: proxitok-route
   namespace: proxitok
 spec:
-
   parentRefs:
-    - name: gateway-external    # Must match your Gateway's metadata.name
+    - name: gateway-external # Must match your Gateway's metadata.name
       namespace: gateway
-      sectionName: https       # Must match your Gateway's listeners[].name
+      sectionName: https # Must match your Gateway's listeners[].name
   hostnames:
     - "proxitok.vanillax.xyz"
   rules:
@@ -19,4 +18,3 @@ spec:
       backendRefs:
         - name: proxitok-web
           port: 8080
-

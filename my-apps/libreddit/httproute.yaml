@@ -7,6 +7,9 @@ spec:
   parentRefs:
     - name: gateway-external
       namespace: gateway
+      sectionName: http
+    - name: gateway-external
+      namespace: gateway
       sectionName: https
   hostnames:
     - "libreddit.vanillax.xyz"
