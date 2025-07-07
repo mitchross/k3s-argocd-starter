@@ -1,3 +1,14 @@
+longhorn:
+  replicas: 1
+csi:
+  attacher:
+    replicas: 1
+  provisioner:
+    replicas: 1
+  resizer:
+    replicas: 1
+  snapshotter:
+    replicas: 1
 defaultSettings:
   defaultDataPath: "/var/lib/longhorn"
 preUpgradeChecker:
