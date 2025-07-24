@@ -1,20 +1,15 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 metadata:
-  name: cloudflared
+  name: cloudflared-daemonset
   annotations:
     argocd.argoproj.io/sync-wave: "-1"
-
 namespace: cloudflared
-
 resources:
   - ns.yaml
   - deployment.yaml
-
 generatorOptions:
   disableNameSuffixHash: true
-
 configMapGenerator:
   - name: config
     files:
@@ -25,4 +20,3 @@ configMapGenerator:
 
 # The secret will be created manually via kubectl
 # ... existing code ...
-  
