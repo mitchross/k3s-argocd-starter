@@ -8,6 +8,7 @@ resources:
   - prometheus-http-route.yaml
   - custom-alerts.yaml
   - custom-servicemonitors.yaml
+  - network-policies.yaml
 # Strategic merge patches to handle resource conflicts
 patchesStrategicMerge:
   - alertmanager-config.yaml

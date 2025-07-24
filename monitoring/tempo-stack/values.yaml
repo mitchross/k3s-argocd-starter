@@ -1,0 +1,159 @@
+# Tempo configuration for distributed tracing
+# Optimized for production workloads with security and performance considerations
+
+tempo:
+  # Tempo server configuration
+  server:
+    http_listen_port: 3200
+    grpc_listen_port: 9095
+    log_level: info
+  # Storage configuration
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+      block:
+        bloom_filter_false_positive: .05
+        index_downsample_bytes: 1000
+        encoding: zstd
+        index_page_size_bytes: 250000
+        max_bytes_per_trace: 5000000
+        max_compaction_objects: 6000000
+        max_block_bytes: 100000000
+        block_retention: 24h
+        compacted_block_retention: 1h
+  # Ingester configuration
+  ingester:
+    max_block_bytes: 100000000
+    max_block_duration: 5m
+    trace_idle_period: 10s
+    flush_check_period: 30s
+    flush_workers: 1
+    complete_block_timeout: 1h
+  # Compactor configuration
+  compactor:
+    compaction:
+      block_retention: 24h
+      compacted_block_retention: 1h
+    retention: 24h
+  # Querier configuration
+  querier:
+    frontend_worker:
+      frontend_address: "tempo-query-frontend:9095"
+  # Query frontend configuration - Optimized for homelab
+  queryFrontend:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+  # Distributor configuration
+  distributor:
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: "0.0.0.0:4317"
+          http:
+            endpoint: "0.0.0.0:4318"
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+  # Ingester configuration - Optimized for homelab
+  ingester:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+  # Compactor configuration
+  compactor:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+  # Querier configuration - Optimized for homelab
+  querier:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+  # Memcached for caching - Optimized for homelab
+  memcached:
+    enabled: false
+    # Disabled for homelab to reduce resource usage
+  # Gateway configuration - Optimized for homelab
+  gateway:
+    enabled: true
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
+    service:
+      type: ClusterIP
+  # Grafana Agent for collecting traces
+  grafanaAgent:
+    enabled: true
+    replicas: 1
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+    config:
+      server:
+        log_level: info
+      traces:
+        configs:
+          - name: default
+            receivers:
+              otlp:
+                protocols:
+                  grpc:
+                    endpoint: "0.0.0.0:4317"
+                  http:
+                    endpoint: "0.0.0.0:4318"
+            remote_write:
+              - endpoint: "tempo-distributor:4317"
+                protocol: grpc
+                tls_config:
+                  insecure: true
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    fsGroup: 65534
+  # Persistence configuration - Optimized for homelab
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 2Gi
+    accessModes:
+      - ReadWriteOnce

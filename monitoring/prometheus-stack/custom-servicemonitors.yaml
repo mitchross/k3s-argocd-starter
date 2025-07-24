@@ -188,3 +188,45 @@ spec:
     - port: metrics
       interval: 30s
       path: /metrics
+---
+# ServiceMonitor for Tempo
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: tempo-metrics
+  namespace: prometheus-stack
+  labels:
+    app.kubernetes.io/name: tempo
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: tempo
+  namespaceSelector:
+    matchNames:
+      - tempo-stack
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics
+---
+# ServiceMonitor for Promtail
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: promtail-metrics
+  namespace: prometheus-stack
+  labels:
+    app.kubernetes.io/name: promtail
+    release: kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: promtail
+  namespaceSelector:
+    matchNames:
+      - promtail-stack
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics

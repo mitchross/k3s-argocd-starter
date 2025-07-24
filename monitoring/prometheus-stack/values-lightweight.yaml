@@ -1,0 +1,170 @@
+# Ultra-lightweight kube-prometheus-stack configuration
+# FOR VERY RESOURCE-CONSTRAINED HOMELABS
+# - Minimal components enabled
+# - Very low resource requirements
+# - Short retention periods
+# - Disabled optional features
+
+# Global settings
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+# CRD Configuration
+crds:
+  enabled: true
+# Prometheus Configuration
+prometheus:
+  enabled: true
+  prometheusSpec:
+    # Minimal retention for homelab
+    retention: 3d
+    retentionSize: 2GB
+    walCompression: true
+    # Minimal storage
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 2Gi
+    # Very low resource allocation
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    # Slower scrape intervals to reduce load
+    scrapeInterval: 120s
+    evaluationInterval: 120s
+    scrapeTimeout: 30s
+    # Minimal service discovery
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+# Alertmanager Configuration - Minimal
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    # Minimal storage
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    # Low resource allocation
+    resources:
+      requests:
+        cpu: 25m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+    # Security context
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      fsGroup: 65534
+    # Short retention
+    retention: 24h
+# Grafana Configuration - Minimal
+grafana:
+  enabled: true
+  adminPassword: "CHANGE_ME_TO_SECURE_PASSWORD"
+  # Minimal persistence
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+  # Low resource allocation
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 472
+    fsGroup: 472
+  # Minimal plugins
+  plugins: []
+  # Disable default dashboards to save resources
+  defaultDashboardsEnabled: false
+  defaultDashboardsTimezone: UTC
+  # Minimal data sources
+  additionalDataSources: []
+# Node Exporter - Keep for basic node metrics
+nodeExporter:
+  enabled: true
+  hostRootFsMount:
+    enabled: true
+    mountPropagation: HostToContainer
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+# kube-state-metrics - Keep for basic k8s metrics
+kubeStateMetrics:
+  enabled: true
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+# Prometheus Operator - Minimal
+prometheusOperator:
+  enabled: true
+  resources:
+    requests:
+      cpu: 25m
+      memory: 32Mi
+    limits:
+      cpu: 100m
+      memory: 64Mi
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+# Minimal monitoring components
+kubelet:
+  enabled: true
+  serviceMonitor:
+    interval: 120s
+kubeApiServer:
+  enabled: true
+  serviceMonitor:
+    interval: 120s
+kubeControllerManager:
+  enabled: false # Disabled to reduce load
+kubeScheduler:
+  enabled: false # Disabled to reduce load
+kubeEtcd:
+  enabled: false # Disabled to reduce load
+coreDns:
+  enabled: true
+  serviceMonitor:
+    interval: 120s
+kubeDns:
+  enabled: false

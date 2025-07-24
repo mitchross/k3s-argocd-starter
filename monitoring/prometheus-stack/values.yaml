@@ -1,5 +1,9 @@
 # Enhanced kube-prometheus-stack configuration
-# Optimized for production workloads with security and performance considerations
+# OPTIMIZED FOR HOMELAB (NUC + RPi5)
+# - Reduced resource requirements
+# - Shorter retention periods
+# - Single replica deployments
+# - Minimal storage requirements
 
 # Global settings
 global:
@@ -12,11 +16,11 @@ crds:
 prometheus:
   enabled: true
   prometheusSpec:
-    # Data retention and storage
-    retention: 30d
-    retentionSize: 15GB
+    # Data retention and storage - Optimized for homelab
+    retention: 7d
+    retentionSize: 5GB
     walCompression: true
-    # Storage configuration with Longhorn
+    # Storage configuration with Longhorn - Optimized for homelab
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -25,24 +29,24 @@ prometheus:
             - ReadWriteOnce
           resources:
             requests:
-              storage: 20Gi
-    # Resource allocation
+              storage: 5Gi
+    # Resource allocation - Optimized for NUC + RPi5
     resources:
       requests:
-        cpu: 500m
-        memory: 2Gi
+        cpu: 200m
+        memory: 512Mi
       limits:
-        cpu: 2000m
-        memory: 4Gi
+        cpu: 1000m
+        memory: 1Gi
     # Security context
     securityContext:
       runAsNonRoot: true
       runAsUser: 65534
       fsGroup: 65534
-    # Scrape configuration
-    scrapeInterval: 30s
-    evaluationInterval: 30s
-    scrapeTimeout: 10s
+    # Scrape configuration - Optimized for homelab
+    scrapeInterval: 60s
+    evaluationInterval: 60s
+    scrapeTimeout: 15s
     # Enable service discovery for dynamic targets
     serviceMonitorSelectorNilUsesHelmValues: false
     podMonitorSelectorNilUsesHelmValues: false
@@ -91,23 +95,23 @@ alertmanager:
 # Grafana Configuration
 grafana:
   enabled: true
-  # Admin credentials
+  # Admin credentials - CHANGE THIS PASSWORD!
   adminPassword: "prom-operator"
-  # Persistence
+  # Persistence - Optimized for homelab
   persistence:
     enabled: true
     storageClassName: longhorn
-    size: 5Gi
+    size: 2Gi
     accessModes:
       - ReadWriteOnce
-  # Resource allocation
+  # Resource allocation - Optimized for homelab
   resources:
     requests:
-      cpu: 100m
-      memory: 256Mi
+      cpu: 50m
+      memory: 128Mi
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 200m
+      memory: 256Mi
   # Security context
   securityContext:
     runAsNonRoot: true
@@ -135,6 +139,23 @@ grafana:
             matcherRegex: "(?:logger=rpc\\.server|report).*?(?:traceID|trace_id)=([a-f\\d]+)"
             name: TraceID
             url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      access: proxy
+      url: http://tempo-gateway.tempo-stack.svc.cluster.local
+      jsonData:
+        httpMethod: GET
+        serviceMap:
+          datasourceUid: prometheus-uid
+        tracesToLogs:
+          datasourceUid: loki-uid
+          tags: ['job', 'instance', 'pod', 'namespace']
+          mappedTags: [{key: 'service.name', value: 'service'}]
+          mapTagNamesEnabled: false
+          spanStartTimeShift: '1h'
+          spanEndTimeShift: '-1h'
+          filterByTraceID: false
+          filterBySpanID: false
   # Grafana configuration
   grafana.ini:
     server:
@@ -181,14 +202,14 @@ kubeStateMetrics:
 # Prometheus Operator Configuration
 prometheusOperator:
   enabled: true
-  # Resource allocation
+  # Resource allocation - Optimized for homelab
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 64Mi
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 200m
+      memory: 256Mi
   # Security context
   securityContext:
     runAsNonRoot: true

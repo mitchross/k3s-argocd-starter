@@ -135,6 +135,30 @@ spec:
           annotations:
             summary: "Alertmanager configuration reload failure"
             description: "Alertmanager {{ $labels.instance }} configuration reload has failed."
+        - alert: GrafanaHighMemoryUsage
+          expr: (container_memory_working_set_bytes{container="grafana"} / container_spec_memory_limit_bytes{container="grafana"}) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Grafana has high memory usage"
+            description: "Grafana memory usage is above 85% (current value: {{ printf \"%.2f\" $value }}%)"
+        - alert: PrometheusHighMemoryUsage
+          expr: (container_memory_working_set_bytes{container="prometheus"} / container_spec_memory_limit_bytes{container="prometheus"}) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Prometheus has high memory usage"
+            description: "Prometheus memory usage is above 85% (current value: {{ printf \"%.2f\" $value }}%)"
+        - alert: LokiHighMemoryUsage
+          expr: (container_memory_working_set_bytes{container=~"loki.*"} / container_spec_memory_limit_bytes{container=~"loki.*"}) * 100 > 85
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Loki has high memory usage"
+            description: "Loki memory usage is above 85% (current value: {{ printf \"%.2f\" $value }}%)"
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
