@@ -15,7 +15,7 @@ preUpgradeChecker:
   jobEnabled: false
 persistence:
   defaultClass: true
-  defaultClassReplicaCount: 2
+  defaultClassReplicaCount: 1
   defaultFsType: ext4
   reclaimPolicy: Retain
 ingress:
