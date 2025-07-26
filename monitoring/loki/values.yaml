@@ -14,7 +14,7 @@ loki:
     limits:
       cpu: 500m
       memory: 512Mi
-  config:
+  config: |
     auth_enabled: false
     server:
       http_listen_port: 3100
