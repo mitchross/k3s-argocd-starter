@@ -183,8 +183,9 @@ sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
 rm cilium-linux-${CLI_ARCH}.tar.gz*
 
 # Helm install Cilium
+# use  helm install if first time, or helm upgrade if trying to update/upgrade/redo something 
 helm repo add cilium https://helm.cilium.io && helm repo update
-helm upgrade cilium cilium/cilium -n kube-system \
+helm install cilium cilium/cilium -n kube-system \
   -f infrastructure/networking/cilium/values.yaml \
   --version 1.17.3 \
   --set operator.replicas=1

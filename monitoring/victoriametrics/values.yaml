@@ -1,0 +1,27 @@
+victoria-metrics-operator:
+  enabled: true
+vmsingle:
+  enabled: true
+  spec:
+    retentionPeriod: 7d
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 5Gi
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+grafana:
+  enabled: false
+kube-state-metrics:
+  enabled: true
+node-exporter:
+  enabled: true

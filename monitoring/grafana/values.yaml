@@ -1,0 +1,13 @@
+adminPassword: "prom-operator"
+persistence:
+  enabled: true
+  storageClassName: longhorn
+  size: 2Gi
+  accessModes:
+    - ReadWriteOnce
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    folder: /var/lib/grafana/dashboards
+    searchNamespace: monitoring

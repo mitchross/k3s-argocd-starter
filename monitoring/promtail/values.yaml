@@ -1,0 +1,13 @@
+persistence:
+  enabled: true
+  storageClassName: longhorn
+  size: 500Mi
+  accessModes:
+    - ReadWriteOnce
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
