@@ -53,3 +53,12 @@ loki:
     table_manager:
       retention_deletes_enabled: true
       retention_period: 168h
+schemaConfig:
+  configs:
+    - from: 2020-10-24
+      store: boltdb-shipper
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 24h
