@@ -241,29 +241,43 @@ Update the argocd-secret secret with the new bcrypt hash.
 kubectl -n argocd patch secret argocd-secret -p '{"stringData": { "admin.password": "$2a$10$rgDBwhzr0ygDfH6scxkdddddx3cd612Cutw1Xu1X3a.kVrRq", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
 
-### 5. Monitoring Setup (Prometheus, Grafana, Loki)
-The monitoring stack is deployed via Argo CD and provides a comprehensive, homelab-friendly observability solution.
+### 5. Monitoring Setup (Prometheus, VictoriaMetrics, Grafana, Loki, Kubecost)
 
-- **Metrics**: `Prometheus` for collecting detailed time-series metrics from the cluster and applications.
-- **Visualization**: `Grafana` comes pre-configured with Prometheus and Loki data sources, plus several default dashboards for instant visibility.
-- **Logging**: `Loki` provides efficient log aggregation, with `Promtail` acting as the agent to collect logs from all applications.
+The monitoring stack is deployed via Argo CD and provides a comprehensive, homelab-friendly observability solution. Each component is deployed as a separate ArgoCD Application in its own namespace (e.g., `prometheus`, `grafana`, `loki`, `victoriametrics`, `kubecost`, `promtail`).
+
+- **Metrics**: `Prometheus` and/or `VictoriaMetrics` (choose one or both) for collecting detailed time-series metrics.
+- **Visualization**: `Grafana` pre-configured with Prometheus, VictoriaMetrics, and Loki data sources, plus several default dashboards.
+- **Logging**: `Loki` for log aggregation, with `Promtail` as the agent.
+- **Cost Monitoring**: `Kubecost` for real-time cost visibility.
 - **Alerting**: `AlertManager` handles alerts from Prometheus.
-- **Uptime**: `Blackbox Exporter` allows probing of HTTP, TCP, and other endpoints to monitor service availability.
 
-This stack is designed to be resource-efficient and is a great starting point for observing your homelab.
+Each component is managed as a separate ArgoCD Application. To add or remove components, edit `monitoring/monitoring-components-appset.yaml` and comment/uncomment the desired subfolders.
 
 **Access URLs (after DNS/Gateway setup):**
-- **Grafana**: `https://grafana.yourdomain.xyz`
-  - **Default Credentials**: `admin` / `prom-operator` (You should change this!)
-- **Prometheus**: `https://prometheus.yourdomain.xyz`
-- **AlertManager**: `https://alertmanager.yourdomain.xyz`
+- **Grafana**: `https://grafana.yourdomain.xyz` (namespace: `grafana`, default: `admin` / `prom-operator`)
+- **Prometheus**: `https://prometheus.yourdomain.xyz` (namespace: `prometheus`)
+- **VictoriaMetrics**: `https://victoriametrics.yourdomain.xyz` (namespace: `victoriametrics`)
+- **AlertManager**: `https://alertmanager.yourdomain.xyz` (namespace: `prometheus`)
+- **Loki**: `https://loki.yourdomain.xyz` (namespace: `loki`)
+- **Kubecost**: `https://kubecost.yourdomain.xyz` (namespace: `kubecost`)
 
-**Storage:**
-The stack is configured with persistent storage using your default StorageClass (e.g., OpenEBS):
-- **Prometheus**: `10Gi` for time series data
-- **Loki**: `10Gi` for log data
-- **Grafana**: `2Gi` for dashboards and configurations
-- **AlertManager**: `1Gi` for alert history
+**Storage (default sizes):**
+- **Prometheus**: `5Gi`
+- **VictoriaMetrics**: `5Gi`
+- **Loki**: `2Gi`
+- **Grafana**: `2Gi`
+- **AlertManager**: `2Gi`
+- **Kubecost**: `2Gi`
+
+**Default Credentials:**
+- **Grafana**: `admin` / `prom-operator` (change after first login)
+- **Other components**: No default auth (local access only)
+
+**For detailed usage, dashboards, and troubleshooting, see [`monitoring/README.md`](monitoring/README.md).**
+
+---
+
+To add or remove monitoring components, edit `monitoring/monitoring-components-appset.yaml` and comment/uncomment the desired subfolders. Each component is managed as a separate ArgoCD Application in its own namespace.
 
 ## 🔒 Security Setup
 
