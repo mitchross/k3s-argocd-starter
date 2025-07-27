@@ -25,3 +25,5 @@ kube-state-metrics:
   enabled: true
 node-exporter:
   enabled: true
+defaultRules:
+  create: false
