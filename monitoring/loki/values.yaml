@@ -62,3 +62,13 @@ loki:
         index:
           prefix: index_
           period: 24h
+backend:
+  replicaCount: 1
+read:
+  replicaCount: 1
+write:
+  replicaCount: 1
+gateway:
+  replicaCount: 1
+canary:
+  replicaCount: 1
