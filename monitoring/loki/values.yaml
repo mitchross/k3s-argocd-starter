@@ -16,7 +16,7 @@ singleBinary:
       memory: 256Mi
     limits:
       cpu: 500m
-      memory: 512Mi
+      memory: 1Gi
 loki:
   # Required: replication_factor must be 1 for single replica
   commonConfig:
@@ -77,6 +77,12 @@ bloomGateway:
   replicas: 0
 # Disable minio (using filesystem storage)
 minio:
+  enabled: false
+# Disable chunks cache for homelab (saves 10GB+ memory)
+chunksCache:
+  enabled: false
+# Disable results cache for homelab (saves additional memory)
+resultsCache:
   enabled: false
 # Optional: Enable ruler for alerting
 ruler:
