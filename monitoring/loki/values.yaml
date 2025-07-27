@@ -2,7 +2,6 @@
 # https://grafana.com/docs/loki/latest/setup/install/helm/install-monolithic/
 
 deploymentMode: SingleBinary
-
 singleBinary:
   replicas: 1
   persistence:
@@ -18,12 +17,10 @@ singleBinary:
     limits:
       cpu: 500m
       memory: 512Mi
-
 loki:
   # Required: replication_factor must be 1 for single replica
   commonConfig:
     replication_factor: 1
-  
   # Modern schema configuration (required)
   schemaConfig:
     configs:
@@ -34,22 +31,25 @@ loki:
         index:
           prefix: loki_index_
           period: 24h
-  
   # Pattern ingester configuration
   pattern_ingester:
     enabled: false
-  
   # Basic limits and retention
   limits_config:
     allow_structured_metadata: true
     volume_enabled: true
-    retention_period: 168h  # 7 days
-  
+    retention_period: 168h # 7 days
   # Storage configuration for filesystem
   storage_config:
     filesystem:
       directory: /var/loki/chunks
-
+  # Required storage configuration for Helm chart templates
+  storage:
+    type: filesystem
+    bucketNames:
+      chunks: "chunks"
+      ruler: "ruler"
+      admin: "admin"
 # Disable all distributed mode components (required)
 backend:
   replicas: 0
@@ -75,11 +75,9 @@ bloomCompactor:
   replicas: 0
 bloomGateway:
   replicas: 0
-
 # Disable minio (using filesystem storage)
 minio:
   enabled: false
-
 # Optional: Enable ruler for alerting
 ruler:
   enabled: false
