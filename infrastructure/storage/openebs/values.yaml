@@ -26,13 +26,14 @@ engines:
       enabled: false # Disable ZFS
 # Disable monitoring stack
 observability:
-  enabled: false # Disable Loki/Promtail
-  loki:
-    enabled: false
-  minio:
-    enabled: false
-  grafana-agent:
-    enabled: false
+  enabled: false
+  openebs:
+    loki:
+      enabled: false
+    minio:
+      enabled: false
+    grafanaAgent:
+      enabled: false
 # Disable etcd and NATS
 etcd:
   enabled: false
