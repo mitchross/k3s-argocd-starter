@@ -1,0 +1,6 @@
+alloy:
+  controller:
+    type: daemonset
+  configMap:
+    create: true
+    content: "loki.source.kubernetes \"pods\" {\n  forward_to = [loki.write.default.receiver]\n}\nloki.write \"default\" {\n  endpoint {\n    url = \"http://loki.loki.svc.cluster.local:3100/loki/api/v1/push\"\n  }\n} "
