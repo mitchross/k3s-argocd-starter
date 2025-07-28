@@ -11,3 +11,6 @@ resources:
   limits:
     cpu: 200m
     memory: 256Mi
+config:
+  clients:
+    - url: http://loki.loki.svc.cluster.local:3100/loki/api/v1/push
