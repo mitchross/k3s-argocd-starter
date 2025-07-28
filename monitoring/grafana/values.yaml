@@ -22,7 +22,6 @@ initChownData:
 securityContext:
   runAsUser: 472
   runAsGroup: 472
-  fsGroup: 472
 # Add proper container security context
 containerSecurityContext:
   runAsUser: 472
