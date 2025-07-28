@@ -1,5 +1,6 @@
 longhorn:
   replicas: 1
+
 csi:
   attacher:
     replicas: 1
@@ -9,14 +10,23 @@ csi:
     replicas: 1
   snapshotter:
     replicas: 1
+
 defaultSettings:
   defaultDataPath: "/var/lib/longhorn"
+  # Add this to force formatting even if device appears in use
+  mkfsExt4Parameters: "-F"
+
 preUpgradeChecker:
   jobEnabled: false
+
 persistence:
   defaultClass: true
   defaultClassReplicaCount: 1
   defaultFsType: ext4
-  reclaimPolicy: Retain
+  # Change this to Delete so volumes are cleaned up properly
+  reclaimPolicy: Delete
+  # Add mkfs options to force formatting
+  defaultMkfsParams: "-F"
+
 ingress:
   enabled: false
