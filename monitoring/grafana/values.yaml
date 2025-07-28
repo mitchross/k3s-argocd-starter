@@ -5,9 +5,28 @@ persistence:
   size: 2Gi
   accessModes:
     - ReadWriteOnce
+  # Add explicit volume binding mode to prevent stuck volumes
+  volumeBindingMode: Immediate
+  # Add proper reclaim policy
+  reclaimPolicy: Retain
 sidecar:
   dashboards:
     enabled: true
     label: grafana_dashboard
     folder: /var/lib/grafana/dashboards
     searchNamespace: monitoring
+# Add security context to prevent init container issues
+securityContext:
+  runAsUser: 472
+  runAsGroup: 472
+  fsGroup: 472
+# Ensure proper init container configuration
+initChownData:
+  enabled: true
+  resources: {}
+  securityContext:
+    runAsUser: 0
+    runAsNonRoot: false
+    capabilities:
+      add:
+        - CHOWN
