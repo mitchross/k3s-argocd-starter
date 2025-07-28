@@ -1,0 +1,34 @@
+alloy:
+  enabled: true
+grafana:
+  enabled: true
+  ingress:
+    enabled: false
+loki:
+  enabled: true
+prometheus:
+  enabled: true
+  ingress:
+    enabled: false
+dashboards:
+  enabled: true
+  providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: 'file'
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards/default
+  import:
+    - url: https://grafana.com/api/dashboards/10000/revisions/1/download
+      path: /var/lib/grafana/dashboards/default/cluster-monitoring.json
+    - url: https://grafana.com/api/dashboards/12202/revisions/1/download
+      path: /var/lib/grafana/dashboards/default/cluster-overview.json
+    - url: https://grafana.com/api/dashboards/15661/revisions/1/download
+      path: /var/lib/grafana/dashboards/default/k8s-dashboard-en.json
+    - url: https://grafana.com/api/dashboards/14623/revisions/1/download
+      path: /var/lib/grafana/dashboards/default/monitoring-overview.json
+    - url: https://grafana.com/api/dashboards/12740/revisions/1/download
+      path: /var/lib/grafana/dashboards/default/monitoring-dashboard.json

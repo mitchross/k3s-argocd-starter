@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+helmCharts:
+  - name: k8s-monitoring
+    repo: https://grafana.github.io/k8s-monitoring-helm/charts
+    version: 0.6.0
+    releaseName: k8s-monitoring
+    namespace: k8s-monitoring
+    valuesFile: values.yaml
+resources:
+  - http-routes.yaml

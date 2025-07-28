@@ -11,9 +11,7 @@ spec:
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         revision: HEAD
         directories:
-          - path: monitoring/*
-          - exclude: true
-            path: monitoring/monitoring-components-appset.yaml
+          - path: monitoring/k8s-monitoring
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
