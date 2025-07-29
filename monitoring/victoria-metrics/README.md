@@ -4,12 +4,13 @@ This directory contains manifests for deploying the VictoriaMetrics Operator and
 
 ## Contents
 - `kustomization.yaml`: Kustomize entrypoint for Argo CD or manual apply. Installs the operator and CRDs via the official Helm chart.
-- `vmsingle.yaml`: Single-node VictoriaMetrics storage instance.
-- `vmagent.yaml`: Metric scraper and forwarder.
-- `vmalertmanager.yaml`: Alertmanager for notifications.
-- `vmalert.yaml`: Alert evaluation and rule engine.
-- `vmauth.yaml`: Auth proxy for secure access (configured for Gateway API).
-- `vmuser.yaml`: User for accessing VictoriaMetrics UIs and APIs.
+- `vmsingle.yaml`: Single-node VictoriaMetrics storage instance (`vmsingle`).
+- `vmagent.yaml`: Metric scraper and forwarder (`vmagent`).
+- `vmalertmanager.yaml`: Alertmanager for notifications (`vmalertmanager`).
+- `vmalert.yaml`: Alert evaluation and rule engine (`vmalert`).
+- `vmauth.yaml`: Auth proxy for secure access (`vmauth`).
+- `vmuser.yaml`: User for accessing VictoriaMetrics UIs and APIs (`vmuser`).
+- `httproute.yaml`: Gateway API HTTPRoute for external access to VictoriaMetrics via your internal gateway.
 
 ## Usage
 1. **Deploy with Argo CD or Kustomize**
@@ -22,8 +23,9 @@ This directory contains manifests for deploying the VictoriaMetrics Operator and
 2. **Customize**
    - Adjust resource names, namespaces, or configuration as needed for your environment.
    - The manifests are based on the [official QuickStart guide](https://docs.victoriametrics.com/operator/quick-start/).
+   - The HTTPRoute (`httproute.yaml`) is set up for the domain `victoriametrics.vanillax.xyz` and uses the internal gateway. Update the hostname or gateway reference as needed for your cluster.
 
 ## Notes
-- The `vmauth.yaml` is configured for Gateway API ingress with the host `victoriametrics.vanillax.xyz` and class `external`. Adjust as needed for your cluster's ingress setup.
-- All resources use the `vm` namespace as recommended.
+- All resources use the `victoria-metrics` namespace for clarity and consistency.
+- Ingress is handled by the Gateway API HTTPRoute, not by an ingress block in the VMAuth resource.
 - For more advanced configuration, see the [VictoriaMetrics Operator documentation](https://docs.victoriametrics.com/operator/quick-start/). 
