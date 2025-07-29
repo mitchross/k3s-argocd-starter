@@ -5,6 +5,8 @@ metadata:
   namespace: victoriametrics-operator
   labels:
     app: victoriametrics
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   parentRefs:
     - name: external-gateway

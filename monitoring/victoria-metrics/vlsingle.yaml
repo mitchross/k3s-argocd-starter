@@ -5,6 +5,8 @@ metadata:
   namespace: victoriametrics-operator
   labels:
     app: victorialogs
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
 spec:
   # Single binary mode configuration for logs
   retentionPeriod: "30d"

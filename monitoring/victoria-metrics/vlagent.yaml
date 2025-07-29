@@ -5,6 +5,8 @@ metadata:
   namespace: victoriametrics-operator
   labels:
     app: vlagent
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   # Agent configuration
   selectors:

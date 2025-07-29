@@ -4,3 +4,5 @@ metadata:
   name: victoriametrics-operator
   labels:
     name: victoriametrics-operator
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
