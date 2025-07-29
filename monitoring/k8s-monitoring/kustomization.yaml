@@ -3,7 +3,7 @@ kind: Kustomization
 helmCharts:
   - name: k8s-monitoring
     repo: https://grafana.github.io/helm-charts
-    version: 0.7.1
+    version: 3.2.0
     releaseName: k8s-monitoring
     namespace: k8s-monitoring
     valuesFile: values-k8s-monitoring.yaml
