@@ -36,15 +36,22 @@ This directory contains the configuration for deploying VictoriaMetrics Operator
 ## Features
 
 - **Admission Webhooks**: Enabled with cert-manager for validation
-- **Self-Monitoring**: VMServiceScrape configured for operator monitoring
+- **Self-Monitoring**: VMScrape configured for operator monitoring
+- **Unified Logging**: VictoriaLogs integration for log aggregation
+- **Log Collection**: VLAgent for efficient log collection from multiple namespaces
+- **Alerting**: VMAlert with pre-configured alert rules
 - **Persistent Storage**: Uses Longhorn storage class
 - **Security**: Non-root user, security context configured
 - **Resource Limits**: Configured CPU and memory limits
+- **Cost Efficiency**: Up to 60% less disk usage compared to Prometheus
 
 ## Access
 
 Once deployed, VictoriaMetrics will be available at:
-- **Internal**: `victoriametrics.victoriametrics-operator.svc.cluster.local:8428`
+- **VictoriaMetrics**: `victoriametrics.victoriametrics-operator.svc.cluster.local:8428`
+- **VictoriaLogs**: `victorialogs.victoriametrics-operator.svc.cluster.local:9420`
+- **VMAlert**: `vmalert.victoriametrics-operator.svc.cluster.local:8880`
+- **VLAgent**: `vlagent.victoriametrics-operator.svc.cluster.local:8429`
 - **External**: `https://metrics.vanillax.xyz`
 - **Metrics Endpoint**: `/metrics`
 
@@ -53,15 +60,22 @@ Once deployed, VictoriaMetrics will be available at:
 The setup includes:
 - VictoriaMetrics Operator (manages CRDs and controllers)
 - VMSingle instance (single binary mode)
-- VMServiceScrape (for self-monitoring)
+- VLSingle instance (log aggregation)
+- VLAgent (log collection from multiple namespaces)
+- VMAlert (alerting with pre-configured rules)
+- VMScrape (for self-monitoring)
 - HTTPRoute (for external access via Gateway API)
 
 ## Dependencies
 
 - cert-manager (for admission webhooks)
 - Longhorn (for persistent storage)
+- Grafana (for visualization - can be integrated separately)
 
 ## Documentation
 
 - [VictoriaMetrics Operator Helm Chart](https://docs.victoriametrics.com/helm/victoriametrics-operator/)
-- [VMSingle CRD Documentation](https://docs.victoriametrics.com/operator/custom-resources/vmsingle/) 
+- [VMSingle CRD Documentation](https://docs.victoriametrics.com/operator/custom-resources/vmsingle/)
+- [VictoriaLogs Documentation](https://docs.victoriametrics.com/victorialogs/)
+- [VMAlert Documentation](https://docs.victoriametrics.com/vmalert/)
+- [VLAgent Documentation](https://docs.victoriametrics.com/vlagent/) 
