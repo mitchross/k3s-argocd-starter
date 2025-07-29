@@ -1,6 +1,4 @@
 # https://github.com/grafana/helm-charts/blob/main/charts/tempo/values.yaml
-global:
-  cluster: k3s-nuc
 tempo:
   persistence:
     enabled: true

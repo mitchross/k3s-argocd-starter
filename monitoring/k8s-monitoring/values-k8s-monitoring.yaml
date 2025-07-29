@@ -1,7 +1,7 @@
 # https://github.com/grafana/k8s-monitoring-helm/blob/main/values.yaml
+cluster:
+  name: k3s-nuc
 global:
-  cluster:
-    name: k3s-nuc
   common:
     labels:
       cluster: k3s-nuc
