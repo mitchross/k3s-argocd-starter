@@ -1,0 +1,6 @@
+# https://github.com/grafana/helm-charts/blob/main/charts/tempo/values.yaml
+tempo:
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi

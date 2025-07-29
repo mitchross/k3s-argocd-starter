@@ -12,7 +12,7 @@ spec:
   rules:
     - backendRefs:
         - name: k8s-monitoring-grafana
-          port: 3000
+          port: 80
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -27,7 +27,7 @@ spec:
     - "prometheus.vanillax.xyz"
   rules:
     - backendRefs:
-        - name: k8s-monitoring-prometheus
+        - name: k8s-monitoring-kube-prometheus
           port: 9090
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -76,4 +76,4 @@ spec:
   rules:
     - backendRefs:
         - name: k8s-monitoring-tempo
-          port: 3100
+          port: 3200

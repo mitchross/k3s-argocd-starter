@@ -1,0 +1,140 @@
+# https://github.com/prometheus-community/helm-charts/blob/main/charts/kube-prometheus-stack/values.yaml
+global:
+  cluster: k3s-nuc
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi
+  adminPassword: prom-operator
+  ingress:
+    enabled: false
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      uid: loki
+      url: http://k8s-monitoring-loki.k8s-monitoring.svc.cluster.local:3100
+      isDefault: false
+      jsonData:
+        derivedFields:
+          - datasourceUid: tempo
+            matcherRegex: "trace_id=([a-fA-F0-9]{32})"
+            name: trace_id
+            url: "$${__value.raw}"
+    - name: Tempo
+      type: tempo
+      uid: tempo
+      url: http://k8s-monitoring-tempo.k8s-monitoring.svc.cluster.local:3100
+      isDefault: false
+      jsonData:
+        httpMethod: "POST"
+        tracesToLogs:
+          datasourceUid: "loki"
+          tags: ["job", "instance", "pod", "namespace"]
+          mappedTags: [{key: "service.name", value: "job"}]
+          spanStartTimeShift: "1h"
+          spanEndTimeShift: "1h"
+          filterByTraceID: true
+          filterBySpanID: false
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: "k8s-monitoring"
+      provider:
+        name: sidecar-provider
+        orgid: 1
+        folder: "General"
+        type: file
+        disableDelete: false
+        allowUiUpdates: true
+        updateIntervalSeconds: 30
+        options:
+          path: /var/lib/grafana/dashboards/default
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: "default"
+          orgId: 1
+          folder: ""
+          type: file
+          disableDeletion: false
+          editable: true
+          options:
+            path: /var/lib/grafana/dashboards/default
+  dashboards:
+    default:
+      node-exporter:
+        gnetId: 1860
+        revision: 37
+        datasource: Prometheus
+      kubernetes-all-in-one-cluster:
+        gnetId: 16099
+        revision: 11
+        datasource: Prometheus
+      kubernetes-all-in-one-cluster-en:
+        gnetId: 15757
+        revision: 6
+        datasource: Prometheus
+      kubernetes-cluster-monitoring:
+        gnetId: 10856
+        revision: 11
+        datasource: Prometheus
+      kubernetes-deployment:
+        gnetId: 14282
+        revision: 4
+        datasource: Prometheus
+      loki-log:
+        gnetId: 7336
+        revision: 1
+        datasource: Loki
+      loki:
+        gnetId: 13277
+        revision: 1
+        datasource: Loki
+prometheus:
+  enabled: true
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+alertmanager:
+  enabled: true
+  ingress:
+    enabled: false
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ["job"]
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        receiver: "null"
+      receivers:
+        - name: "null"
+prometheus-node-exporter:
+  tolerations:
+    - operator: Exists
+kube-state-metrics:
+  tolerations:
+    - operator: Exists
