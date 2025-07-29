@@ -4,7 +4,6 @@ namespace: victoria-metrics
 resources:
   - vmsingle.yaml
   - vmagent.yaml
-  - vmalertmanager.yaml
   - vmalert.yaml
   - vmauth.yaml
   - vmuser.yaml
