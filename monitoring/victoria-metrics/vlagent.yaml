@@ -1,0 +1,59 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VLAgent
+metadata:
+  name: vlagent
+  namespace: victoriametrics-operator
+  labels:
+    app: vlagent
+spec:
+  # Agent configuration
+  selectors:
+    namespaceSelector:
+      matchNames:
+        - kube-system
+        - default
+        - victoriametrics-operator
+        - monitoring
+  # Remote write configuration
+  remoteWrite:
+    - url: "http://victorialogs.victoriametrics-operator.svc.cluster.local:9420/insert/0/prometheus/api/v1/write"
+  # Pod configuration
+  podMetadata:
+    labels:
+      app: vlagent
+    annotations: {}
+  # Container configuration
+  containers:
+    - name: vlagent
+      image: victoriametrics/vlagent:v1.96.0
+      imagePullPolicy: IfNotPresent
+      args:
+        - --httpListenAddr=:8429
+        - --remoteWrite.url=http://victorialogs.victoriametrics-operator.svc.cluster.local:9420/insert/0/prometheus/api/v1/write
+        - --remoteWrite.tlsInsecureSkipVerify=true
+      ports:
+        - name: http
+          containerPort: 8429
+          protocol: TCP
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  # Node selector
+  nodeSelector: {}
+  # Tolerations
+  tolerations: []
+  # Affinity
+  affinity: {}
+  # Topology spread constraints
+  topologySpreadConstraints: []
+  # Termination grace period
+  terminationGracePeriodSeconds: 30

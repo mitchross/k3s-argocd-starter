@@ -11,7 +11,7 @@ spec:
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         revision: HEAD
         directories:
-          - path: monitoring/k8s-monitoring
+          - path: monitoring/victoria-metrics
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
@@ -41,3 +41,16 @@ spec:
         syncOptions:
           - CreateNamespace=true
           - ServerSideApply=true
+          - RespectIgnoreDifferences=true
+        ignoreDifferences:
+          - group: ""
+            kind: Secret
+            name: vmo-validation
+            namespace: victoria-metrics
+            jsonPointers:
+              - /data
+          - group: admissionregistration.k8s.io
+            kind: ValidatingWebhookConfiguration
+            name: vmo-admission
+            jqPathExpressions:
+              - '.webhooks[]?.clientConfig.caBundle'

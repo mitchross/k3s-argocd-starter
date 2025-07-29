@@ -1,0 +1,63 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlert
+metadata:
+  name: vmalert
+  namespace: victoriametrics-operator
+  labels:
+    app: vmalert
+spec:
+  # Alert configuration
+  datasource:
+    url: "http://victoriametrics.victoriametrics-operator.svc.cluster.local:8428"
+  # Notification configuration
+  notifiers:
+    - url: "http://alertmanager.victoriametrics-operator.svc.cluster.local:9093/api/v1/alerts"
+  # Pod configuration
+  podMetadata:
+    labels:
+      app: vmalert
+    annotations: {}
+  # Container configuration
+  containers:
+    - name: vmalert
+      image: victoriametrics/vmalert:v1.96.0
+      imagePullPolicy: IfNotPresent
+      args:
+        - --httpListenAddr=:8880
+        - --datasource.url=http://victoriametrics.victoriametrics-operator.svc.cluster.local:8428
+        - --notifier.url=http://alertmanager.victoriametrics-operator.svc.cluster.local:9093/api/v1/alerts
+        - --rule=/etc/vmalert/rules/*.yaml
+      ports:
+        - name: http
+          containerPort: 8880
+          protocol: TCP
+      resources:
+        limits:
+          cpu: 200m
+          memory: 256Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+      volumeMounts:
+        - name: rules
+          mountPath: /etc/vmalert/rules
+  # Volumes for alert rules
+  volumes:
+    - name: rules
+      configMap:
+        name: vmalert-rules
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  # Node selector
+  nodeSelector: {}
+  # Tolerations
+  tolerations: []
+  # Affinity
+  affinity: {}
+  # Topology spread constraints
+  topologySpreadConstraints: []
+  # Termination grace period
+  terminationGracePeriodSeconds: 30

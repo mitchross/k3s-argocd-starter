@@ -1,0 +1,70 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VLSingle
+metadata:
+  name: victorialogs
+  namespace: victoriametrics-operator
+  labels:
+    app: victorialogs
+spec:
+  # Single binary mode configuration for logs
+  retentionPeriod: "30d"
+  # Storage configuration
+  storage:
+    # Use Longhorn for persistent storage
+    storageClassName: longhorn
+    accessMode: ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 9420
+  # Pod configuration
+  podMetadata:
+    labels:
+      app: victorialogs
+    annotations: {}
+  # Container configuration
+  containers:
+    - name: victorialogs
+      image: victoriametrics/victorialogs:v1.96.0
+      imagePullPolicy: IfNotPresent
+      args:
+        - --httpListenAddr=:9420
+        - --storageDataPath=/storage
+        - --retentionPeriod=30d
+      ports:
+        - name: http
+          containerPort: 9420
+          protocol: TCP
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+      volumeMounts:
+        - name: storage
+          mountPath: /storage
+  # Volumes
+  volumes:
+    - name: storage
+      persistentVolumeClaim:
+        claimName: victorialogs-storage
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+  # Node selector
+  nodeSelector: {}
+  # Tolerations
+  tolerations: []
+  # Affinity
+  affinity: {}
+  # Topology spread constraints
+  topologySpreadConstraints: []
+  # Termination grace period
+  terminationGracePeriodSeconds: 30
