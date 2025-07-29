@@ -17,6 +17,8 @@ destinations:
 externalServices:
   prometheus:
     host: http://prometheus-server.k8s-monitoring.svc.cluster.local
+  loki:
+    host: http://loki-gateway.k8s-monitoring.svc.cluster.local
 collectors:
   events:
     enabled: true
