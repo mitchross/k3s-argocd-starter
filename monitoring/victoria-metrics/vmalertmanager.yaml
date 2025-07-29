@@ -1,7 +1,7 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMAlertmanager
 metadata:
-  name: demo
+  name: vmalertmanager
   namespace: victoria-metrics
 spec:
   configRawYaml: |

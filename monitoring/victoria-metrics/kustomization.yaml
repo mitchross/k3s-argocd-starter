@@ -8,6 +8,7 @@ resources:
   - vmalert.yaml
   - vmauth.yaml
   - vmuser.yaml
+  - httproute.yaml
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/

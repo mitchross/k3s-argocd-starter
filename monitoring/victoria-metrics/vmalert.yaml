@@ -1,16 +1,16 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMAlert
 metadata:
-  name: demo
+  name: vmalert
   namespace: victoria-metrics
 spec:
   datasource:
-    url: "http://vmsingle-demo.victoria-metrics.svc:8429"
+    url: "http://vmsingle.victoria-metrics.svc:8429"
   remoteWrite:
-    url: "http://vmsingle-demo.victoria-metrics.svc:8429"
+    url: "http://vmsingle.victoria-metrics.svc:8429"
   remoteRead:
-    url: "http://vmsingle-demo.victoria-metrics.svc:8429"
+    url: "http://vmsingle.victoria-metrics.svc:8429"
   notifier:
-    url: "http://vmalertmanager-demo.victoria-metrics.svc:9093"
+    url: "http://vmalertmanager.victoria-metrics.svc:9093"
   evaluationInterval: "10s"
   selectAllByDefault: true

@@ -1,5 +1,5 @@
 apiVersion: operator.victoriametrics.com/v1beta1
 kind: VMSingle
 metadata:
-  name: demo
+  name: vmsingle
   namespace: victoria-metrics
