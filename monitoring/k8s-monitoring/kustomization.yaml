@@ -15,7 +15,7 @@ helmCharts:
     valuesFile: values-grafana.yaml
   - name: loki
     repo: https://grafana.github.io/helm-charts
-    version: 6.6.2
+    version: 6.33.0
     releaseName: loki
     namespace: k8s-monitoring
     valuesFile: values-loki.yaml
