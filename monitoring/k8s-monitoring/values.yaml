@@ -1,39 +1,8 @@
-alloy:
-  enabled: true
 cluster:
   name: k3s-nuc
-prometheus:
+clusterMetrics:
   enabled: true
-  ingress:
-    enabled: false
-  alertmanager:
-    enabled: true
-    ingress:
-      enabled: false
-    config:
-      global:
-        resolve_timeout: 5m
-      route:
-        group_by: ['job']
-        group_wait: 30s
-        group_interval: 5m
-        repeat_interval: 12h
-        receiver: 'null'
-      receivers:
-        - name: 'null'
-  prometheus:
-    enabled: true
-    persistence:
-      enabled: true
-      storageClass: longhorn
-      size: 20Gi
-loki:
-  enabled: true
-  persistence:
-    enabled: true
-    storageClass: longhorn
-    size: 10Gi
-tempo:
+logs:
   enabled: true
 grafana:
   enabled: true
@@ -47,7 +16,7 @@ grafana:
     - name: Prometheus
       type: prometheus
       uid: prometheus
-      url: http://k8s-monitoring-prometheus-operated.k8s-monitoring.svc.cluster.local:9090
+      url: http://k8s-monitoring-prometheus.k8s-monitoring.svc.cluster.local:9090
       isDefault: true
       jsonData:
         httpMethod: "POST"
@@ -55,7 +24,7 @@ grafana:
     - name: Loki
       type: loki
       uid: loki
-      url: http://k8s-monitoring-loki-gateway.k8s-monitoring.svc.cluster.local:80
+      url: http://k8s-monitoring-loki.k8s-monitoring.svc.cluster.local:3100
       isDefault: false
       jsonData:
         derivedFields:
@@ -66,7 +35,7 @@ grafana:
     - name: Tempo
       type: tempo
       uid: tempo
-      url: http://k8s-monitoring-tempo-distributor.k8s-monitoring.svc.cluster.local:4318
+      url: http://k8s-monitoring-tempo.k8s-monitoring.svc.cluster.local:3100
       isDefault: false
       jsonData:
         httpMethod: "POST"
@@ -94,3 +63,31 @@ grafana:
         url: https://grafana.com/api/dashboards/7336/revisions/1/download
       loki:
         url: https://grafana.com/api/dashboards/13277/revisions/1/download
+prometheus:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 20Gi
+  alertmanager:
+    enabled: true
+    ingress:
+      enabled: false
+    config:
+      global:
+        resolve_timeout: 5m
+      route:
+        group_by: ['job']
+        group_wait: 30s
+        group_interval: 5m
+        repeat_interval: 12h
+        receiver: 'null'
+      receivers:
+        - name: 'null'
+loki:
+  persistence:
+    enabled: true
+    storageClass: longhorn
+    size: 10Gi
+tempo:
+  enabled: true

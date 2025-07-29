@@ -12,7 +12,7 @@ spec:
   rules:
     - backendRefs:
         - name: k8s-monitoring-grafana
-          port: 80
+          port: 3000
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -27,7 +27,7 @@ spec:
     - "prometheus.vanillax.xyz"
   rules:
     - backendRefs:
-        - name: k8s-monitoring-prometheus-operated
+        - name: k8s-monitoring-prometheus
           port: 9090
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -43,7 +43,7 @@ spec:
     - "alertmanager.vanillax.xyz"
   rules:
     - backendRefs:
-        - name: k8s-monitoring-alertmanager-operated
+        - name: k8s-monitoring-alertmanager
           port: 9093
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -59,8 +59,8 @@ spec:
     - "loki.vanillax.xyz"
   rules:
     - backendRefs:
-        - name: k8s-monitoring-loki-gateway
-          port: 80
+        - name: k8s-monitoring-loki
+          port: 3100
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -75,5 +75,5 @@ spec:
     - "tempo.vanillax.xyz"
   rules:
     - backendRefs:
-        - name: k8s-monitoring-tempo-query-frontend
+        - name: k8s-monitoring-tempo
           port: 3100
