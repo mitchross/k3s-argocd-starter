@@ -1,0 +1,43 @@
+# https://github.com/grafana/k8s-monitoring-helm/blob/main/values.yaml
+global:
+  cluster:
+    name: k3s-nuc
+  common:
+    labels:
+      cluster: k3s-nuc
+destinations:
+  loki:
+    url: http://loki-gateway.k8s-monitoring.svc.cluster.local/loki/api/v1/push
+  prometheus:
+    url: http://prometheus-server.k8s-monitoring.svc.cluster.local/api/v1/write
+  tempo:
+    url: http://tempo-distributor.k8s-monitoring.svc.cluster.local:4317
+    tls:
+      insecure: true
+collectors:
+  events:
+    enabled: true
+    collector: alloy-logs
+  logs:
+    enabled: true
+    collector: alloy-logs
+    namespaces: []
+  metrics:
+    enabled: true
+    collector: alloy-metrics
+  traces:
+    enabled: true
+    collector: alloy-traces
+  profiles:
+    enabled: false
+  kubelet:
+    enabled: true
+alloy-logs:
+  tolerations:
+    - operator: Exists
+alloy-metrics:
+  tolerations:
+    - operator: Exists
+alloy-traces:
+  tolerations:
+    - operator: Exists
