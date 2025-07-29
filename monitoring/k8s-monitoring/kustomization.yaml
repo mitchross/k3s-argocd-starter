@@ -21,7 +21,7 @@ helmCharts:
     valuesFile: values-loki.yaml
   - name: prometheus
     repo: https://prometheus-community.github.io/helm-charts
-    version: 25.21.0
+    version: 27.28.2
     releaseName: prometheus
     namespace: k8s-monitoring
     valuesFile: values-prometheus.yaml
