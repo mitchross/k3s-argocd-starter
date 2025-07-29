@@ -1,5 +1,7 @@
 alloy:
   enabled: true
+cluster:
+  name: k3s-nuc
 grafana:
   enabled: true
   ingress:
