@@ -11,7 +11,7 @@ resources:
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
-    version: 0.56.0 # update as needed
+    version: 0.51.4 # update as needed
     releaseName: victoria-metrics-operator
     namespace: victoria-metrics
     includeCRDs: true
