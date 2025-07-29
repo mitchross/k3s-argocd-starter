@@ -1,0 +1,13 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAlertmanager
+metadata:
+  name: demo
+  namespace: victoria-metrics
+spec:
+  configRawYaml: |
+    route:
+      receiver: 'demo-app'
+    receivers:
+    - name: 'demo-app'
+      webhook_configs:
+      - url: 'http://demo-app.default.svc:8080/alerting/webhook'

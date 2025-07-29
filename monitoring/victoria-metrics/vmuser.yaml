@@ -1,0 +1,26 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMUser
+metadata:
+  name: demo
+  namespace: victoria-metrics
+spec:
+  name: demo
+  username: demo
+  generatePassword: true
+  targetRefs:
+    - crd:
+        kind: VMSingle
+        name: demo
+        namespace: victoria-metrics
+      paths:
+        - "/vmui.*"
+        - "/prometheus/.*"
+    - crd:
+        kind: VMAlert
+        name: demo
+        namespace: victoria-metrics
+      paths:
+        - "/vmalert.*"
+        - "/api/v1/groups"
+        - "/api/v1/alert"
+        - "/api/v1/alerts"

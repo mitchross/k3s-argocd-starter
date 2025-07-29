@@ -1,0 +1,9 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAgent
+metadata:
+  name: demo
+  namespace: victoria-metrics
+spec:
+  selectAllByDefault: true
+  remoteWrite:
+    - url: "http://vmsingle-demo.victoria-metrics.svc:8429/api/v1/write"

@@ -1,0 +1,10 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMAuth
+metadata:
+  name: demo
+  namespace: victoria-metrics
+spec:
+  selectAllByDefault: true
+  ingress:
+    class_name: 'external' # Gateway API class
+    host: victoriametrics.vanillax.xyz

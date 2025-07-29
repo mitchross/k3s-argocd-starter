@@ -1,77 +1,17 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: victoriametrics-operator
-commonAnnotations:
-  argocd.argoproj.io/sync-wave: "0"
+namespace: victoria-metrics
 resources:
-  - namespace.yaml
   - vmsingle.yaml
-  - vlsingle.yaml
-  - vlagent.yaml
+  - vmagent.yaml
+  - vmalertmanager.yaml
   - vmalert.yaml
-  - vmalert-rules.yaml
-  - vmscrape.yaml
-  - httproute.yaml
+  - vmauth.yaml
+  - vmuser.yaml
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
-    version: 0.1.3
-    releaseName: vmo
-    namespace: victoriametrics-operator
+    version: 0.56.0 # update as needed
+    releaseName: victoria-metrics-operator
+    namespace: victoria-metrics
     includeCRDs: true
-    valuesInline:
-      # Enable admission webhooks for validation
-      admissionWebhooks:
-        enabled: true
-        certManager:
-          enabled: true
-      # Service account configuration
-      serviceAccount:
-        create: true
-        automountServiceAccountToken: true
-      # Operator configuration
-      image:
-        repository: victoriametrics/victoria-metrics-operator
-        tag: v0.37.0
-        pullPolicy: IfNotPresent
-      # Resource limits
-      resources:
-        limits:
-          cpu: 200m
-          memory: 256Mi
-        requests:
-          cpu: 100m
-          memory: 128Mi
-      # Service configuration
-      service:
-        type: ClusterIP
-        servicePort: 8080
-        webhookPort: 9443
-      # Pod configuration
-      podAnnotations: {}
-      podLabels: {}
-      # Security context
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        fsGroup: 1000
-      # Node selector
-      nodeSelector: {}
-      # Tolerations
-      tolerations: []
-      # Affinity
-      affinity: {}
-      # Topology spread constraints
-      topologySpreadConstraints: []
-      # Termination grace period
-      terminationGracePeriodSeconds: 30
-      # Watch namespaces (empty means watch all namespaces)
-      watchNamespaces: []
-      # Service monitor for self-monitoring
-      serviceMonitor:
-        enabled: true
-        vm: true
-        interval: "30s"
-        scrapeTimeout: "10s"
-        annotations: {}
-        extraLabels: {}
