@@ -14,6 +14,9 @@ destinations:
     url: http://tempo-distributor.k8s-monitoring.svc.cluster.local:4317
     tls:
       insecure: true
+externalServices:
+  prometheus:
+    host: http://prometheus-server.k8s-monitoring.svc.cluster.local
 collectors:
   events:
     enabled: true
