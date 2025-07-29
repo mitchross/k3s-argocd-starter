@@ -15,7 +15,7 @@ spec:
             type: PathPrefix
             value: /
       backendRefs:
-        - name: vmauth
+        - name: vmsingle
           namespace: victoria-metrics
-          port: 80
+          port: 8428
           weight: 1
