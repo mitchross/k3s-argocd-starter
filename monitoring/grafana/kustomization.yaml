@@ -8,4 +8,3 @@ resources:
   - pvc.yaml
   - httproute.yaml
   - secret.yaml
-  - grafana.yaml
