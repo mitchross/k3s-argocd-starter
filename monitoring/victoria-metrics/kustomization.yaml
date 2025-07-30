@@ -13,6 +13,12 @@ resources:
   - coredns-scrape.yaml
   - kube-controller-manager-scrape.yaml
   - kube-scheduler-scrape.yaml
+  - longhorn-scrape.yaml
+  - cilium-scrape.yaml
+  - node-exporter-scrape.yaml
+  - kube-state-metrics-scrape.yaml
+  - cert-manager-scrape.yaml
+  - vmsingle-scrape.yaml
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
