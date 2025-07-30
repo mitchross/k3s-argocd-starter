@@ -8,3 +8,15 @@ resources:
   - pvc.yaml
   - httproute.yaml
   - secret.yaml
+configMapGenerator:
+  - name: grafana-datasources
+    files:
+      - datasource.yaml
+  - name: grafana-dashboards-provider
+    files:
+      - dashboards.yaml
+  - name: grafana-dashboards
+    files:
+      - dashboards/victoriametrics.json
+generatorOptions:
+  disableNameSuffixHash: true
