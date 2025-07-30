@@ -8,6 +8,11 @@ resources:
   - vmauth.yaml
   - vmuser.yaml
   - httproute.yaml
+  - kubelet-scrape.yaml
+  - apiserver-scrape.yaml
+  - coredns-scrape.yaml
+  - kube-controller-manager-scrape.yaml
+  - kube-scheduler-scrape.yaml
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
