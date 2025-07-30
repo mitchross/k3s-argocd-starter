@@ -12,6 +12,7 @@ spec:
         revision: HEAD
         directories:
           - path: monitoring/victoria-metrics
+          - path: monitoring/grafana
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
