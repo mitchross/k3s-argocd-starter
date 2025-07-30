@@ -8,6 +8,6 @@ spec:
     matchLabels:
       app.kubernetes.io/name: vmsingle
   endpoints:
-    - port: 8428
+    - port: "8428"
       interval: 30s
       path: /metrics
