@@ -15,8 +15,8 @@ configMapGenerator:
   - name: grafana-dashboards-provider
     files:
       - dashboards.yaml
-  # - name: grafana-dashboards
-  #   files:
-  #     - dashboards/victoriametrics.json
+      # - name: grafana-dashboards
+      #   files:
+      #     - dashboards/victoriametrics.json
 generatorOptions:
   disableNameSuffixHash: true
