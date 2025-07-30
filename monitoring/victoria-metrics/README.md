@@ -24,6 +24,7 @@ This directory contains manifests for deploying the VictoriaMetrics Operator and
    - Adjust resource names, namespaces, or configuration as needed for your environment.
    - The manifests are based on the [official QuickStart guide](https://docs.victoriametrics.com/operator/quick-start/).
    - The HTTPRoute (`httproute.yaml`) is set up for the domain `victoriametrics.vanillax.xyz` and uses the internal gateway. Update the hostname or gateway reference as needed for your cluster.
+   - **Note:** The internal service name for VMSingle is `vmsingle-vmsingle.victoria-metrics.svc` (not `vmsingle.victoria-metrics.svc`). Use this in all remoteWrite/remoteRead URLs.
 
 ## Notes
 - All resources use the `victoria-metrics` namespace for clarity and consistency.

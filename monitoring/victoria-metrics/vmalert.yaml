@@ -5,11 +5,11 @@ metadata:
   namespace: victoria-metrics
 spec:
   datasource:
-    url: "http://vmsingle.victoria-metrics.svc:8429"
+    url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
   remoteWrite:
-    url: "http://vmsingle.victoria-metrics.svc:8429"
+    url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
   remoteRead:
-    url: "http://vmsingle.victoria-metrics.svc:8429"
+    url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
   notifier:
     url: "http://vmalertmanager.victoria-metrics.svc:9093"
   evaluationInterval: "10s"
