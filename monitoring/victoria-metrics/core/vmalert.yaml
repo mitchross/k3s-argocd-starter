@@ -6,11 +6,7 @@ metadata:
 spec:
   datasource:
     url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
-  remoteWrite:
-    url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
-  remoteRead:
-    url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429"
-  notifier:
-    url: "http://vmalertmanager.victoria-metrics.svc:9093"
+  notifiers:
+    - url: "http://vmalertmanager.victoria-metrics.svc:9093"
   evaluationInterval: "10s"
   selectAllByDefault: true
