@@ -43,15 +43,15 @@ spec:
           - CreateNamespace=true
           - ServerSideApply=true
           - RespectIgnoreDifferences=true
-        ignoreDifferences:
-          - group: ""
-            kind: Secret
-            name: victoria-metrics-operator-validation
-            namespace: victoria-metrics
-            jsonPointers:
-              - /data
-          - group: admissionregistration.k8s.io
-            kind: ValidatingWebhookConfiguration
-            name: victoria-metrics-operator-admission
-            jqPathExpressions:
-              - '.webhooks[]?.clientConfig.caBundle'
+      ignoreDifferences:
+        - group: ""
+          kind: Secret
+          name: victoria-metrics-operator-validation
+          namespace: victoria-metrics
+          jsonPointers:
+            - /data
+        - group: admissionregistration.k8s.io
+          kind: ValidatingWebhookConfiguration
+          name: victoria-metrics-operator-admission
+          jqPathExpressions:
+            - '.webhooks[]?.clientConfig.caBundle'
