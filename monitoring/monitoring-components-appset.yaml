@@ -13,6 +13,7 @@ spec:
         directories:
           - path: monitoring/victoria-metrics
           - path: monitoring/grafana
+          - path: monitoring/victorialogs
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'

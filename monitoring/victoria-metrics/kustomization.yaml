@@ -2,23 +2,28 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: victoria-metrics
 resources:
-  - vmsingle.yaml
-  - vmagent.yaml
-  - vmalert.yaml
-  - vmauth.yaml
-  - vmuser.yaml
+  # Core VictoriaMetrics CRs
+  - core/vmsingle.yaml
+  - core/vmagent.yaml
+  - core/vmalert.yaml
+  - core/vmauth.yaml
+  - core/vmuser.yaml
+  - core/vmrule.yaml
+  # Scrape configs
+  - scrapes/kubelet-scrape.yaml
+  - scrapes/apiserver-scrape.yaml
+  - scrapes/coredns-scrape.yaml
+  - scrapes/kube-controller-manager-scrape.yaml
+  - scrapes/kube-scheduler-scrape.yaml
+  - scrapes/longhorn-scrape.yaml
+  - scrapes/cilium-scrape.yaml
+  - scrapes/node-exporter-scrape.yaml
+  - scrapes/kube-state-metrics-scrape.yaml
+  - scrapes/cert-manager-scrape.yaml
+  - scrapes/vmsingle-scrape.yaml
+  - scrapes/etcd-scrape.yaml
+  # HTTPRoute
   - httproute.yaml
-  - kubelet-scrape.yaml
-  - apiserver-scrape.yaml
-  - coredns-scrape.yaml
-  - kube-controller-manager-scrape.yaml
-  - kube-scheduler-scrape.yaml
-  - longhorn-scrape.yaml
-  - cilium-scrape.yaml
-  - node-exporter-scrape.yaml
-  - kube-state-metrics-scrape.yaml
-  - cert-manager-scrape.yaml
-  - vmsingle-scrape.yaml
 helmCharts:
   - name: victoria-metrics-operator
     repo: https://victoriametrics.github.io/helm-charts/
@@ -26,3 +31,4 @@ helmCharts:
     releaseName: victoria-metrics-operator
     namespace: victoria-metrics
     includeCRDs: true
+    valuesFile: operator/values.yaml

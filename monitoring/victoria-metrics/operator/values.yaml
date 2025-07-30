@@ -1,0 +1,9 @@
+# VictoriaMetrics Operator Helm values for home lab
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+# Add more values as needed for your environment

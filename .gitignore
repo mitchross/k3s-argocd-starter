@@ -8,3 +8,9 @@ infrastructure/controllers/argocd/charts/*
 /monitoring/promtail/charts
 /monitoring/tempo/charts
 /monitoring/thanos/charts
+
+# Added by gh-memory-bank
+chatmodes/
+instructions/
+*/chatmodes/
+*/instructions/
