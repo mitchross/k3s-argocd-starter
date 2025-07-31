@@ -29,6 +29,14 @@ spec:
       kind: CustomResourceDefinition
     - group: "batch"
       kind: Job
+    - group: ""
+      kind: Namespace
+    - group: ""
+      kind: ServiceAccount
+    - group: "apps"
+      kind: StatefulSet
+    - group: "apps"
+      kind: Deployment
   namespaceResourceWhitelist:
     - group: ""
       kind: Deployment
@@ -42,6 +50,8 @@ spec:
       kind: Role
     - group: "rbac.authorization.k8s.io"
       kind: RoleBinding
+    - group: ""
+      kind: ServiceAccount
   roles:
     - name: admin
       description: Admin role for infrastructure project
