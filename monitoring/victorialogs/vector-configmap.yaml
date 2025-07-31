@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vector-config
+  namespace: victorialogs
+data:
+  vector.yaml: |
+    sources:
+      kubernetes_logs:
+        type: kubernetes_logs
+    sinks:
+      victorialogs:
+        type: vector
+        inputs: [kubernetes_logs]
+        address: "http://victorialogs.victorialogs.svc:9428/insert/logs"
+        encoding:
+          codec: json

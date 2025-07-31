@@ -21,71 +21,94 @@
   "panels": [
     {
       "datasource": "VictoriaMetrics",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
       "id": 1,
       "options": {},
-      "targets": [
-        {
-          "expr": "sum(kube_pod_info)",
-          "interval": "",
-          "legendFormat": "Total Pods",
-          "refId": "A"
-        }
-      ],
+      "targets": [{"expr": "sum(kube_node_info)", "legendFormat": "Total Nodes", "refId": "A"}],
+      "title": "Total Nodes",
+      "type": "stat"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+      "id": 2,
+      "options": {},
+      "targets": [{"expr": "sum(kube_pod_info)", "legendFormat": "Total Pods", "refId": "A"}],
       "title": "Total Pods",
       "type": "stat"
     },
     {
       "datasource": "VictoriaMetrics",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 8
-      },
-      "id": 2,
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+      "id": 3,
       "options": {},
-      "targets": [
-        {
-          "expr": "sum(kube_node_info)",
-          "interval": "",
-          "legendFormat": "Total Nodes",
-          "refId": "A"
-        }
-      ],
-      "title": "Total Nodes",
+      "targets": [{"expr": "sum(kube_pod_status_phase{phase=\"Running\"})", "legendFormat": "Running Pods", "refId": "A"}],
+      "title": "Running Pods",
+      "type": "stat"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+      "id": 4,
+      "options": {},
+      "targets": [{"expr": "sum(kube_pod_status_phase{phase=\"Pending\"})", "legendFormat": "Pending Pods", "refId": "A"}],
+      "title": "Pending Pods",
+      "type": "stat"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+      "id": 5,
+      "options": {},
+      "targets": [{"expr": "sum(node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / sum(node_memory_MemTotal_bytes) * 100", "legendFormat": "Memory Usage %", "refId": "A"}],
+      "title": "Cluster Memory Usage %",
+      "type": "gauge"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+      "id": 6,
+      "options": {},
+      "targets": [{"expr": "sum(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) / sum(rate(node_cpu_seconds_total[5m])) * 100", "legendFormat": "CPU Idle %", "refId": "A"}],
+      "title": "Cluster CPU Idle %",
+      "type": "gauge"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "id": 7,
+      "options": {},
+      "targets": [{"expr": "sum(node_filesystem_size_bytes{mountpoint=\"/\"}) - sum(node_filesystem_free_bytes{mountpoint=\"/\"})", "legendFormat": "Used Root FS (bytes)", "refId": "A"}],
+      "title": "Root Filesystem Used (bytes)",
+      "type": "stat"
+    },
+    {
+      "datasource": "VictoriaMetrics",
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+      "id": 8,
+      "options": {},
+      "targets": [{"expr": "sum(rate(node_network_receive_bytes_total[5m]))", "legendFormat": "Network In (bytes/s)", "refId": "A"}],
+      "title": "Network In (bytes/s)",
       "type": "stat"
     }
   ],
   "refresh": "5s",
   "schemaVersion": 27,
   "style": "dark",
-  "tags": [
-    "kubernetes"
-  ],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-1h",
-    "to": "now"
-  },
+  "tags": ["kubernetes"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
   "timepicker": {},
   "timezone": "browser",
   "title": "Kubernetes Cluster Overview",
   "uid": "k8s-cluster-overview",
-  "version": 1
+  "version": 2
 }

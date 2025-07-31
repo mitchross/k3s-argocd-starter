@@ -2,7 +2,13 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: victorialogs
 resources:
-  - deployment.yaml
-  - service.yaml
-  - httproute.yaml
+- deployment.yaml
+- service.yaml
+- httproute.yaml
+# Log shipping (Vector)
+- vector-configmap.yaml
+- vector-daemonset.yaml
+# Kubernetes event logging
+- eventrouter.yaml
+
 # Add more resources as needed (e.g., ConfigMap for log shipping)

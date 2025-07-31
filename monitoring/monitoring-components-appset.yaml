@@ -10,23 +10,24 @@ spec:
   # This is required because some components (like kube-state-metrics) must be deployed to special namespaces (e.g., kube-system), not just their folder name.
   # This approach prevents accidental misplacement of critical monitoring components and ensures clarity and maintainability.
   generators:
-    - list:
-        elements:
-          - path: monitoring/victoria-metrics
-            namespace: victoria-metrics
-            name: victoria-metrics
-          - path: monitoring/grafana
-            namespace: grafana
-            name: grafana
-          - path: monitoring/victorialogs
-            namespace: victorialogs
-            name: victorialogs
-          - path: monitoring/kube-state-metrics
-            namespace: kube-system
-            name: kube-state-metrics
-          - path: monitoring/node-exporter
-            namespace: monitoring
-            name: node-exporter
+  - list:
+      elements:
+      - path: monitoring/victoria-metrics
+        namespace: victoria-metrics
+        name: victoria-metrics
+      - path: monitoring/grafana
+        namespace: grafana
+        name: grafana
+      - path: monitoring/victorialogs
+        namespace: victorialogs
+        name: victorialogs
+        # Includes Vector log shipper and eventrouter for Kubernetes event logging
+      - path: monitoring/kube-state-metrics
+        namespace: kube-system
+        name: kube-state-metrics
+      - path: monitoring/node-exporter
+        namespace: monitoring
+        name: node-exporter
   template:
     metadata:
       name: 'monitoring-{{name}}'
@@ -54,18 +55,18 @@ spec:
             factor: 2
             maxDuration: 3m
         syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-          - RespectIgnoreDifferences=true
+        - CreateNamespace=true
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
       ignoreDifferences:
-        - group: ""
-          kind: Secret
-          name: victoria-metrics-operator-validation
-          namespace: victoria-metrics
-          jsonPointers:
-            - /data
-        - group: admissionregistration.k8s.io
-          kind: ValidatingWebhookConfiguration
-          name: victoria-metrics-operator-admission
-          jqPathExpressions:
-            - '.webhooks[]?.clientConfig.caBundle'
+      - group: ""
+        kind: Secret
+        name: victoria-metrics-operator-validation
+        namespace: victoria-metrics
+        jsonPointers:
+        - /data
+      - group: admissionregistration.k8s.io
+        kind: ValidatingWebhookConfiguration
+        name: victoria-metrics-operator-admission
+        jqPathExpressions:
+        - '.webhooks[]?.clientConfig.caBundle'

@@ -1,27 +1,38 @@
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VMServiceScrape
 metadata:
   name: etcd
   namespace: victoria-metrics
   labels:
-    release: victoria-metrics
+    # Add labels that VMAgent selector can discover
+    app.kubernetes.io/instance: victoria-metrics
 spec:
   selector:
     matchLabels:
       component: etcd
+      # For k3s, the etcd service is labeled with 'k8s-app'
+      # k8s-app: etcd
   namespaceSelector:
     matchNames:
       - kube-system
   endpoints:
     - port: etcd-metrics
       interval: 30s
+      # As per the article, VMAgent needs to connect via HTTPS with client certs
       scheme: https
       tlsConfig:
-        caFile: /etc/etcd/pki/ca.crt
-        certFile: /etc/etcd/pki/etcd-client.crt
-        keyFile: /etc/etcd/pki/etcd-client.key
+        # NOTE: Assumes a secret 'etcd-client-certs' exists in the 'victoria-metrics' namespace
+        # containing ca.crt, etcd-client.crt, and etcd-client.key.
+        # This secret must be created manually or via an automated process.
+        ca:
+          secret:
+            name: etcd-client-certs
+            key: ca.crt
+        cert:
+          secret:
+            name: etcd-client-certs
+            key: etcd-client.crt
+        keySecret:
+          name: etcd-client-certs
+          key: etcd-client.key
         insecureSkipVerify: true
-      bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
-      relabelings:
-        - sourceLabels: [__meta_kubernetes_pod_node_name]
-          targetLabel: node

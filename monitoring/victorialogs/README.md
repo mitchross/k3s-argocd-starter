@@ -15,8 +15,11 @@ This directory contains manifests for deploying VictoriaLogs for centralized log
      kubectl apply -k .
      ```
 2. **Configure Log Ingestion**
-   - Set up log shipping from workloads (e.g., using Fluent Bit, Vector, or VictoriaMetrics agent).
-   - Update scrape configs as needed for your environment.
+    - Log shipping is pre-configured using [Vector](https://vector.dev/):
+       - `vector-configmap.yaml` and `vector-daemonset.yaml` deploy a Vector DaemonSet to collect logs from all nodes and forward them to VictoriaLogs.
+       - Customize the Vector config as needed for your environment.
+    - Kubernetes event logging is enabled via `eventrouter.yaml` (events are sent to stdout and picked up by Vector).
+    - For Talos or custom log sources, extend the Vector config as needed.
 
 3. **Access Logs**
    - Use the VictoriaLogs UI or API for querying and troubleshooting.
@@ -24,3 +27,5 @@ This directory contains manifests for deploying VictoriaLogs for centralized log
 ## References
 - [VictoriaLogs Documentation](https://docs.victoriametrics.com/victorialogs/)
 - [Medium Article: Logging with VictoriaLogs](https://medium.com/itnext/kubernetes-monitoring-a-complete-solution-part-8-logging-with-victorialogs-f17c44461034)
+   - [Vector Docs](https://vector.dev/)
+   - [Kubernetes Eventrouter](https://github.com/heptiolabs/eventrouter)
