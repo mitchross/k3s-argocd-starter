@@ -1,4 +1,9 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: victoria-metrics-k8s-stack
+  name: victoria-logs
+  labels:
+    pod-security.kubernetes.io/enforce: privileged
+  annotations:
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+    linkerd.io/inject: enabled
