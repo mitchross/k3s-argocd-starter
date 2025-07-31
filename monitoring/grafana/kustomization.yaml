@@ -19,6 +19,7 @@ configMapGenerator:
     files:
       - dashboards/victoriametrics.json
       - dashboards/kubernetes-cluster.json
+      - dashboards/custom/22184_rev3.json
 
 generatorOptions:
   disableNameSuffixHash: true
