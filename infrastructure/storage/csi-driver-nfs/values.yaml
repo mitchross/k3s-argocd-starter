@@ -1,7 +1,7 @@
 
 driver:
   name: nfs.csi.k8s.io
-  replicas: 2
+  replicas: 1
 
 storageClasses:
 - name: nfs-csi

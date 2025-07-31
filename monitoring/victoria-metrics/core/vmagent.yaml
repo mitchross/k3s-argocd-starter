@@ -6,4 +6,4 @@ metadata:
 spec:
   selectAllByDefault: true
   remoteWrite:
-    - url: "http://vmsingle-vmsingle.victoria-metrics.svc:8429/api/v1/write"
+    - url: "http://vmsingle-vmsingle.victoria-metrics.svc:8428/api/v1/write"
