@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: grafana-pvc
-  namespace: grafana
+  name: victorialogs-pvc
+  namespace: victorialogs
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 5Gi
+      storage: 20Gi
   storageClassName: longhorn

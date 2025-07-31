@@ -5,10 +5,10 @@ resources:
 - deployment.yaml
 - service.yaml
 - httproute.yaml
-# # Log shipping (Vector) - Temporarily disabled
-# - vector-configmap.yaml
-# - vector-daemonset.yaml
-# - vector-rbac.yaml
+# Log shipping (Vector)
+- vector-configmap.yaml
+- vector-daemonset.yaml
+- vector-rbac.yaml
 # Kubernetes event logging
 - eventrouter.yaml
 

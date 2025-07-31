@@ -3,3 +3,16 @@ kind: VMSingle
 metadata:
   name: vmsingle
   namespace: victoria-metrics
+spec:
+  storage:
+    volumeMount:
+      name: vmsingle-storage
+      mountPath: /storage
+    volumeClaimTemplate:
+      spec:
+        storageClassName: longhorn
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 20Gi
