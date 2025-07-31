@@ -4,3 +4,4 @@ namespace: kube-system
 resources:
   - deployment.yaml
   - service.yaml
+  - ns.yaml

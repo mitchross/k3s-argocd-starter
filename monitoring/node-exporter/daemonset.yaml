@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: node-exporter
-  namespace: monitoring
+  namespace: node-exporter
   labels:
     app.kubernetes.io/name: node-exporter
 spec:
