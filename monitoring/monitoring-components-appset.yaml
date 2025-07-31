@@ -6,16 +6,33 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+# NOTE: The matrix generator is used here to allow explicit mapping of each monitoring component's path to its correct destination namespace.
+# This is required because kube-state-metrics and node-exporter must be deployed to kube-system and monitoring namespaces, not their folder names.
+# Without this, Argo CD would deploy to a namespace matching the folder name, which would break metrics collection and ServiceScrape selectors.
   generators:
-    - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
-        revision: HEAD
-        directories:
-          - path: monitoring/victoria-metrics
-          - path: monitoring/grafana
-          - path: monitoring/victorialogs
-          - path: monitoring/kube-state-metrics
-          - path: monitoring/node-exporter
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - path: monitoring/victoria-metrics
+                  namespace: victoria-metrics
+                - path: monitoring/grafana
+                  namespace: grafana
+                - path: monitoring/victorialogs
+                  namespace: victorialogs
+                - path: monitoring/kube-state-metrics
+                  namespace: kube-system
+                - path: monitoring/node-exporter
+                  namespace: monitoring
+          - git:
+              repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+              revision: HEAD
+              directories:
+                - path: monitoring/victoria-metrics
+                - path: monitoring/grafana
+                - path: monitoring/victorialogs
+                - path: monitoring/kube-state-metrics
+                - path: monitoring/node-exporter
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
@@ -31,7 +48,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: '{{namespace}}'
       syncPolicy:
         automated:
           selfHeal: true
