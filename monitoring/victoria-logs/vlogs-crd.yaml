@@ -1,0 +1,22 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VLogs
+metadata:
+  name: vlogs
+  namespace: monitoring
+spec:
+  retentionPeriod: "14d"
+  replicaCount: 1
+  resources:
+    requests:
+      cpu: 200m
+      memory: 512Mi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: longhorn
+        resources:
+          requests:
+            storage: 20Gi

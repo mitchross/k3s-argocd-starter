@@ -18,10 +18,10 @@ spec:
       - path: monitoring/grafana
         namespace: grafana
         name: grafana
-      - path: monitoring/victorialogs
-        namespace: victorialogs
-        name: victorialogs
-        # Includes Vector log shipper and eventrouter for Kubernetes event logging
+      - path: monitoring/victoria-logs
+        namespace: monitoring
+        name: victoria-logs
+        # Operator CRD-based VictoriaLogs (VLogs/VLAgent)
       - path: monitoring/kube-state-metrics
         namespace: kube-system
         name: kube-state-metrics
