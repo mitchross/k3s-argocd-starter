@@ -44,7 +44,7 @@ spec:
       serviceAccountName: eventrouter
       containers:
       - name: eventrouter
-        image: gcr.io/heptio-images/eventrouter:v0.4
+        image: ghcr.io/opsgenie/kubernetes-eventrouter:v0.4
         env:
         - name: ROUTER_OUTPUT
           value: "stdout"
