@@ -7,14 +7,14 @@ metadata:
     argocd.argoproj.io/sync-wave: "0"
 spec:
   generators:
-  - list:
-      elements:
+  - git:
+      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+      revision: HEAD
+      directories:
       - path: monitoring/kube-prometheus-stack
-        namespace: kube-prometheus-stack
-        name: kube-prometheus-stack
   template:
     metadata:
-      name: 'monitoring-{{name}}'
+      name: '{{path.basename}}'
       labels:
         type: monitoring
     spec:
@@ -24,14 +24,14 @@ spec:
           name: kustomize-build-with-helm
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         targetRevision: HEAD
-        path: monitoring/kube-prometheus-stack
+        path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{namespace}}'
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
-          selfHeal: true
           prune: true
+          selfHeal: true
         retry:
           limit: 5
           backoff:
@@ -41,4 +41,3 @@ spec:
         syncOptions:
         - CreateNamespace=true
         - ServerSideApply=true
-        - RespectIgnoreDifferences=true
