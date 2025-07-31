@@ -13,5 +13,3 @@ spec:
         resources:
           requests:
             storage: 5Gi
-  vlogs:
-    endpoint: http://vlogs:9428
