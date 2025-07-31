@@ -1,14 +1,5 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
+  "__inputs": [],
   "__elements": {},
   "__requires": [
     {
@@ -19,9 +10,9 @@
     },
     {
       "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
+      "id": "victoriametrics-datasource",
+      "name": "VictoriaMetrics",
+      "version": "0.8.0"
     },
     {
       "type": "panel",
@@ -40,12 +31,6 @@
       "id": "timeseries",
       "name": "Time series",
       "version": ""
-    },
-    {
-      "type": "datasource",
-      "id": "victoriametrics-datasource",
-      "name": "VictoriaMetrics",
-      "version": "0.8.0"
     }
   ],
   "annotations": {
@@ -85,11 +70,7 @@
       "type": "row"
     },
     {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
+  "datasource": "VictoriaMetrics",
       "fieldConfig": {
         "defaults": {
           "custom": {
@@ -246,12 +227,6 @@
       "pluginVersion": "11.3.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
-          "exemplar": false,
           "expr": "sum(certmanager_certificate_expiration_timestamp_seconds{exported_namespace=~\"$namespace\"} - time()) BY (name,exported_namespace)",
           "instant": true,
           "legendFormat": " {{exported_namespace}} / {{name}}",
@@ -271,11 +246,7 @@
       "type": "table"
     },
     {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
+  "datasource": "VictoriaMetrics",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -355,11 +326,6 @@
       "pluginVersion": "11.3.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
           "expr": "sum(certmanager_certificate_ready_status) BY (condition)",
           "legendFormat": "__auto",
           "range": true,
@@ -370,11 +336,7 @@
       "type": "timeseries"
     },
     {
-      "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "${datasource}"
-      },
+  "datasource": "VictoriaMetrics",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -456,11 +418,6 @@
       "pluginVersion": "11.3.0",
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
-          },
-          "editorMode": "code",
           "expr": "sum(certmanager_certificate_expiration_timestamp_seconds{exported_namespace=~\"$namespace\"} - time()) BY (name,exported_namespace)",
           "legendFormat": " {{exported_namespace}} / {{name}}",
           "range": true,
@@ -481,11 +438,7 @@
       "id": 20,
       "panels": [
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -564,11 +517,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -579,11 +527,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "mappings": [
@@ -642,11 +586,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(certmanager_http_acme_client_request_count)",
               "range": true,
               "refId": "A"
@@ -656,11 +595,7 @@
           "type": "stat"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -739,11 +674,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/directory\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -754,11 +684,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -837,11 +763,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/cert\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -852,10 +773,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -934,11 +852,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/new-acct\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -949,11 +862,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1032,11 +941,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/order\"}[2m])) BY (status)",
               "range": true,
               "refId": "A"
@@ -1046,11 +950,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1129,11 +1029,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/new-order\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -1144,11 +1039,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1227,11 +1118,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/authz-v3\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -1242,11 +1128,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1325,11 +1207,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/chall-v3\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -1340,11 +1217,7 @@
           "type": "timeseries"
         },
         {
-          "datasource": {
-            "default": false,
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
+      "datasource": "VictoriaMetrics",
           "fieldConfig": {
             "defaults": {
               "color": {
@@ -1423,11 +1296,6 @@
           "pluginVersion": "11.3.0",
           "targets": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
-              },
-              "editorMode": "code",
               "expr": "sum(rate(certmanager_http_acme_client_request_count{path=\"/acme/finalize\"}[2m])) BY (status)",
               "legendFormat": "__auto",
               "range": true,
@@ -1447,33 +1315,15 @@
   "templating": {
     "list": [
       {
-        "current": {},
-        "includeAll": false,
-        "label": "Datasource",
-        "name": "datasource",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "",
-        "type": "datasource"
-      },
-      {
         "allValue": ".*",
         "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${datasource}"
-        },
+        "datasource": "VictoriaMetrics",
         "definition": "label_values(certmanager_certificate_expiration_timestamp_seconds,exported_namespace)",
         "includeAll": true,
         "label": "Namespace",
         "name": "namespace",
         "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(certmanager_certificate_expiration_timestamp_seconds,exported_namespace)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
+        "query": "label_values(certmanager_certificate_expiration_timestamp_seconds,exported_namespace)",
         "refresh": 1,
         "regex": "",
         "type": "query"
@@ -1481,19 +1331,12 @@
       {
         "allValue": ".*",
         "current": {},
-        "datasource": {
-          "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
-        },
+        "datasource": "VictoriaMetrics",
         "definition": "label_values(certmanager_certificate_expiration_timestamp_seconds{exported_namespace=\"$namespace\"},name)",
         "includeAll": true,
         "name": "Certificate",
         "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values(certmanager_certificate_expiration_timestamp_seconds{exported_namespace=\"$namespace\"},name)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
+        "query": "label_values(certmanager_certificate_expiration_timestamp_seconds{exported_namespace=\"$namespace\"},name)",
         "refresh": 1,
         "regex": "",
         "type": "query"
