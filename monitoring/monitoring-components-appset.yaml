@@ -6,25 +6,27 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
-# NOTE: The matrix generator is used here to allow explicit mapping of each monitoring component's path to its correct destination namespace.
-# This is required because kube-state-metrics and node-exporter must be deployed to kube-system and monitoring namespaces, not their folder names.
-# Without this, Argo CD would deploy to a namespace matching the folder name, which would break metrics collection and ServiceScrape selectors.
   generators:
     - list:
         elements:
           - path: monitoring/victoria-metrics
             namespace: victoria-metrics
+            name: victoria-metrics
           - path: monitoring/grafana
             namespace: grafana
+            name: grafana
           - path: monitoring/victorialogs
             namespace: victorialogs
+            name: victorialogs
           - path: monitoring/kube-state-metrics
             namespace: kube-system
+            name: kube-state-metrics
           - path: monitoring/node-exporter
             namespace: monitoring
+            name: node-exporter
   template:
     metadata:
-      name: 'monitoring-{{path.basename}}'
+      name: 'monitoring-{{name}}'
       labels:
         type: monitoring
     spec:
