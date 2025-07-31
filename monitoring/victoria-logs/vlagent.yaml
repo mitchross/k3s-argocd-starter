@@ -13,3 +13,6 @@ spec:
         resources:
           requests:
             storage: 5Gi
+
+  remoteWrite:
+    url: http://vlogs:9428/insert/logs
