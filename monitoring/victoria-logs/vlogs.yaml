@@ -1,0 +1,16 @@
+apiVersion: operator.victoriametrics.com/v1beta1
+kind: VLogs
+metadata:
+  name: vlogs
+  namespace: victoria-metrics
+spec:
+  retentionPeriod: 30d
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: longhorn
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 20Gi
+  replicaCount: 1

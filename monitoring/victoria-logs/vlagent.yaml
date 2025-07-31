@@ -1,0 +1,17 @@
+apiVersion: operator.victoriametrics.com/v1
+kind: VLAgent
+metadata:
+  name: vlagent
+  namespace: victoria-metrics
+spec:
+  replicaCount: 1
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: longhorn
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+  vlogs:
+    endpoint: http://vlogs:9428
