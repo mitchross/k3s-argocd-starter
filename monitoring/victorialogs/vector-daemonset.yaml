@@ -17,7 +17,7 @@ spec:
       serviceAccountName: vector
       containers:
       - name: vector
-        image: vectordotdev/vector:0.40.0-alpine # Use a modern image from the new registry
+        image: ghcr.io/vectordotdev/vector:0.40.0-alpine # Switch to GHCR to resolve pull issues
         resources:
           limits:
             cpu: 100m
