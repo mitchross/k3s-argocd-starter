@@ -6,6 +6,9 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
+  # NOTE: We use a list generator here (instead of a git generator) to allow explicit mapping of each monitoring component's path to its correct destination namespace and application name.
+  # This is required because some components (like kube-state-metrics) must be deployed to special namespaces (e.g., kube-system), not just their folder name.
+  # This approach prevents accidental misplacement of critical monitoring components and ensures clarity and maintainability.
   generators:
     - list:
         elements:
