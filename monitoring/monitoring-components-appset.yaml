@@ -14,6 +14,8 @@ spec:
           - path: monitoring/victoria-metrics
           - path: monitoring/grafana
           - path: monitoring/victorialogs
+          - path: monitoring/kube-state-metrics
+          - path: monitoring/node-exporter
   template:
     metadata:
       name: 'monitoring-{{path.basename}}'
