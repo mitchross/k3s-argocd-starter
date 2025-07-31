@@ -1,13 +1,28 @@
-# Monitoring Stack Overview
+# Kube-Prometheus Stack
 
-This folder contains manifests and configuration for the full monitoring and logging stack for your k3s home lab, following best practices from the VictoriaMetrics and VictoriaLogs Medium articles.
+This folder contains the configuration for deploying the Kube-Prometheus Stack Helm chart for monitoring purposes, following best practices from the VictoriaMetrics and VictoriaLogs Medium articles.
 
 ## Components
-- **victoria-metrics/**: Metrics collection, storage, and alerting (Operator, VMSingle, VMAgent, VMAlert, VMRule, etc.)
-- **grafana/**: Visualization and dashboards for metrics (auto-provisioned for VictoriaMetrics)
-- **victorialogs/**: Centralized log collection and querying (VictoriaLogs)
+
+- **Prometheus**: Collects and stores metrics.
+- **Alertmanager**: Handles alerts.
+- **Grafana**: Visualizes metrics.
+- **Node Exporter**: Collects node-level metrics.
 - **kube-state-metrics/**: Exposes Kubernetes object state as metrics for cluster monitoring (deployed in kube-system)
-- **node-exporter/**: Exposes node-level metrics for all cluster nodes (deployed as DaemonSet in monitoring)
+- **victoria-metrics/**: Metrics collection, storage, and alerting (Operator, VMSingle, VMAgent, VMAlert, VMRule, etc.)
+- **victorialogs/**: Centralized log collection and querying (VictoriaLogs)
+
+## Setup
+
+1. Ensure the namespace `monitoring` exists.
+2. Apply the kustomization:
+   ```bash
+   kubectl apply -k .
+   ```
+
+## Configuration
+
+The `values.yaml` file is configured for a single-node setup.
 
 ## Usage
 - Deploy each component with Argo CD or Kustomize. The ApplicationSet is configured to deploy each component to the correct namespace automatically.

@@ -1,0 +1,116 @@
+# Reduce resource usage for a single-node cluster
+global:
+  rbac:
+    create: true
+
+prometheusOperator:
+  enabled: true
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+  admissionWebhooks:
+    enabled: false
+
+  tls:
+    enabled: false
+
+grafana:
+  enabled: true
+  adminPassword: "admin"
+  defaultDashboardsEnabled: true
+  persistence:
+    enabled: true
+    storageClassName: longhorn
+    accessModes:
+    - ReadWriteOnce
+    size: 1Gi
+  service:
+    type: ClusterIP
+  resources:
+    limits:
+      cpu: 250m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  additionalDataSources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus-operated.kube-prometheus-stack.svc:9090
+
+  dashboards:
+    default:
+      prometheus-stats:
+        gnetId: 2
+        revision: 2
+        datasource: Prometheus
+      node-exporter:
+        gnetId: 1860
+        revision: 22
+        datasource: Prometheus
+
+prometheus:
+  enabled: true
+  service:
+    type: ClusterIP
+  prometheusSpec:
+    retention: 7d
+    resources:
+      limits:
+        cpu: 250m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 2Gi
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 50m
+        memory: 64Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: longhorn
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 512Mi
+
+nodeExporter:
+  enabled: true
+  resources:
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 20m
+      memory: 32Mi
+
+kubeStateMetrics:
+  enabled: true
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi

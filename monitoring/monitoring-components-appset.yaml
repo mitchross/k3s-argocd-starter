@@ -6,28 +6,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "0"
 spec:
-  # NOTE: We use a list generator here (instead of a git generator) to allow explicit mapping of each monitoring component's path to its correct destination namespace and application name.
-  # This is required because some components (like kube-state-metrics) must be deployed to special namespaces (e.g., kube-system), not just their folder name.
-  # This approach prevents accidental misplacement of critical monitoring components and ensures clarity and maintainability.
   generators:
   - list:
       elements:
-      - path: monitoring/victoria-metrics
-        namespace: victoria-metrics
-        name: victoria-metrics
-      - path: monitoring/grafana
-        namespace: grafana
-        name: grafana
-      - path: monitoring/victoria-logs
-        namespace: monitoring
-        name: victoria-logs
-        # Operator CRD-based VictoriaLogs (VLogs/VLAgent)
-      - path: monitoring/kube-state-metrics
-        namespace: kube-system
-        name: kube-state-metrics
-      - path: monitoring/node-exporter
-        namespace: monitoring
-        name: node-exporter
+      - path: monitoring/kube-prometheus-stack
+        namespace: kube-prometheus-stack
+        name: kube-prometheus-stack
   template:
     metadata:
       name: 'monitoring-{{name}}'
@@ -40,7 +24,7 @@ spec:
           name: kustomize-build-with-helm
         repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         targetRevision: HEAD
-        path: '{{path}}'
+        path: monitoring/kube-prometheus-stack
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{namespace}}'
@@ -58,15 +42,3 @@ spec:
         - CreateNamespace=true
         - ServerSideApply=true
         - RespectIgnoreDifferences=true
-      ignoreDifferences:
-      - group: ""
-        kind: Secret
-        name: victoria-metrics-operator-validation
-        namespace: victoria-metrics
-        jsonPointers:
-        - /data
-      - group: admissionregistration.k8s.io
-        kind: ValidatingWebhookConfiguration
-        name: victoria-metrics-operator-admission
-        jqPathExpressions:
-        - '.webhooks[]?.clientConfig.caBundle'
