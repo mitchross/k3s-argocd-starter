@@ -20,6 +20,10 @@ spec:
     - group: ""
       kind: ClusterRoleBinding
     - group: "rbac.authorization.k8s.io"
+      kind: ClusterRole
+    - group: "rbac.authorization.k8s.io"
+      kind: ClusterRoleBinding
+    - group: "rbac.authorization.k8s.io"
       kind: Role
     - group: "rbac.authorization.k8s.io"
       kind: RoleBinding
@@ -52,6 +56,14 @@ spec:
       kind: RoleBinding
     - group: ""
       kind: ServiceAccount
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
+    - group: "batch"
+      kind: Job
+    - group: "gateway.networking.k8s.io"
+      kind: HTTPRoute
   roles:
     - name: admin
       description: Admin role for infrastructure project
@@ -100,6 +112,10 @@ spec:
       kind: Role
     - group: "rbac.authorization.k8s.io"
       kind: RoleBinding
+    - group: "apps"
+      kind: Deployment
+    - group: "apps"
+      kind: StatefulSet
   roles:
     - name: admin
       description: Admin role for applications project
@@ -138,6 +154,8 @@ spec:
       kind: Deployment
     - group: ""
       kind: ServiceAccount
+    - group: "apps"
+      kind: Deployment
   roles:
     - name: admin
       description: Admin role for monitoring project
