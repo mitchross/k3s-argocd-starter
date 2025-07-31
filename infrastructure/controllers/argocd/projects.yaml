@@ -6,16 +6,32 @@ metadata:
 spec:
   description: Core infrastructure components
   sourceRepos:
-    - '*' # In production, specify exact repo URLs
+    - https://github.com/mitchross/k3s-argocd-starter.git
   destinations:
-    - namespace: '*'
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+    - namespace: argocd
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: ""
+      kind: ClusterRole
+    - group: ""
+      kind: ClusterRoleBinding
+    - group: ""
+      kind: CustomResourceDefinition
+    - group: ""
+      kind: Namespace
   namespaceResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: Deployment
+    - group: ""
+      kind: ServiceAccount
   roles:
     - name: admin
       description: Admin role for infrastructure project
@@ -30,19 +46,40 @@ metadata:
 spec:
   description: User applications
   sourceRepos:
-    - '*' # In production, specify exact repo URLs
+    - https://github.com/mitchross/k3s-argocd-starter.git
   destinations:
-    - namespace: '*'
+    - namespace: app-*
       server: https://kubernetes.default.svc
-  # Restrict application projects from creating cluster-wide resources
   clusterResourceWhitelist:
     - group: cert-manager.io
       kind: ClusterIssuer
     - group: ""
       kind: Namespace
   namespaceResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: Deployment
+    - group: ""
+      kind: Pod
+    - group: ""
+      kind: ServiceAccount
+    - group: ""
+      kind: PersistentVolumeClaim
+    - group: "networking.k8s.io"
+      kind: Ingress
+    - group: "batch"
+      kind: Job
+    - group: "batch"
+      kind: CronJob
+    - group: "rbac.authorization.k8s.io"
+      kind: Role
+    - group: "rbac.authorization.k8s.io"
+      kind: RoleBinding
   roles:
     - name: admin
       description: Admin role for applications project
@@ -57,17 +94,30 @@ metadata:
 spec:
   description: Monitoring and observability components
   sourceRepos:
-    - '*' # In production, specify exact repo URLs
+    - https://github.com/mitchross/k3s-argocd-starter.git
   destinations:
-    - namespace: '*'
+    - namespace: kube-system
       server: https://kubernetes.default.svc
-  # Allow all cluster resources like infrastructure since monitoring needs similar privileges
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
   clusterResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: "monitoring.coreos.com"
+      kind: ServiceMonitor
+    - group: "monitoring.coreos.com"
+      kind: PodMonitor
+    - group: ""
+      kind: ServiceAccount
   namespaceResourceWhitelist:
-    - group: '*'
-      kind: '*'
+    - group: ""
+      kind: ConfigMap
+    - group: ""
+      kind: Secret
+    - group: ""
+      kind: Service
+    - group: ""
+      kind: Deployment
+    - group: ""
+      kind: ServiceAccount
   roles:
     - name: admin
       description: Admin role for monitoring project
