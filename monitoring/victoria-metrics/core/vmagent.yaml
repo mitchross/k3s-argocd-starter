@@ -1,9 +1,0 @@
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMAgent
-metadata:
-  name: vmagent
-  namespace: victoria-metrics
-spec:
-  selectAllByDefault: true
-  remoteWrite:
-    - url: "http://vmsingle-vmsingle.victoria-metrics.svc:8428/api/v1/write"

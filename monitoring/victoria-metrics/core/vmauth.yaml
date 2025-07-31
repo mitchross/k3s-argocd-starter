@@ -1,7 +1,0 @@
-apiVersion: operator.victoriametrics.com/v1beta1
-kind: VMAuth
-metadata:
-  name: vmauth
-  namespace: victoria-metrics
-spec:
-  selectAllByDefault: true
