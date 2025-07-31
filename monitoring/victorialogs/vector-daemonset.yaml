@@ -14,10 +14,10 @@ spec:
       labels:
         app: vector
     spec:
-      serviceAccountName: default
+      serviceAccountName: vector
       containers:
       - name: vector
-        image: timberio/vector:0.36.0-alpine
+        image: vectordotdev/vector:0.40.0-alpine # Use a modern image from the new registry
         resources:
           limits:
             cpu: 100m
@@ -28,8 +28,12 @@ spec:
         volumeMounts:
         - name: varlog
           mountPath: /var/log
+          readOnly: true
         - name: vector-config
           mountPath: /etc/vector/
+        - name: var-lib-kubelet-pods
+          mountPath: /var/lib/kubelet/pods
+          readOnly: true
         env:
         - name: VECTOR_CONFIG
           value: /etc/vector/vector.yaml
@@ -40,3 +44,6 @@ spec:
       - name: vector-config
         configMap:
           name: vector-config
+      - name: var-lib-kubelet-pods
+        hostPath:
+          path: /var/lib/kubelet/pods

@@ -4,10 +4,10 @@ This folder contains manifests and configuration for the full monitoring and log
 
 ## Components
 - **victoria-metrics/**: Metrics collection, storage, and alerting (Operator, VMSingle, VMAgent, VMAlert, VMRule, etc.)
-- **grafana/**: Visualization and dashboards for metrics and logs.
+- **grafana/**: Visualization and dashboards for metrics (auto-provisioned for VictoriaMetrics)
 - **victorialogs/**: Centralized log collection and querying (VictoriaLogs)
-- **kube-state-metrics/**: Exposes Kubernetes object state as metrics.
-- **node-exporter/**: Exposes node-level metrics for all cluster nodes.
+- **kube-state-metrics/**: Exposes Kubernetes object state as metrics for cluster monitoring (deployed in kube-system)
+- **node-exporter/**: Exposes node-level metrics for all cluster nodes (deployed as DaemonSet in monitoring)
 
 ## Usage
 - Deploy each component with Argo CD or Kustomize. The ApplicationSet is configured to deploy each component to the correct namespace automatically.

@@ -52,21 +52,26 @@ graph TD
     end
     
     subgraph "Infrastructure Components"
-        IAS --> Cilium
-        IAS --> Cloudflared
-        IAS --> Gateway
-        IAS --> OpenEBS
-        IAS --> CertManager
+        IAS --> N[Networking]
+        IAS --> S[Storage]
+        IAS --> C[Controllers]
+        
+        N --> Cilium
+        N --> Cloudflared
+        N --> Gateway
+        
+        S --> OpenEBS
+        
+        C --> CertManager
     end
     
     subgraph "Monitoring Stack"
-        MAS --> VictoriaMetrics
+        MAS --> Prometheus
         MAS --> Grafana
-        MAS --> VMAlert
+        MAS --> AlertManager
         MAS --> NodeExporter
-        MAS --> KubeStateMetrics
-        MAS --> VictoriaLogs
-        MAS --> VMAgent
+        MAS --> Loki
+        MAS --> Promtail
     end
     
     subgraph "User Applications"

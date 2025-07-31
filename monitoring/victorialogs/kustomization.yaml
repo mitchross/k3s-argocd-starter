@@ -8,6 +8,7 @@ resources:
 # Log shipping (Vector)
 - vector-configmap.yaml
 - vector-daemonset.yaml
+- vector-rbac.yaml
 # Kubernetes event logging
 - eventrouter.yaml
 
