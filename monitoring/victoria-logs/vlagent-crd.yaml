@@ -2,7 +2,7 @@ apiVersion: operator.victoriametrics.com/v1beta1
 kind: VLAgent
 metadata:
   name: vlagent
-  namespace: monitoring
+  namespace: victoria-metrics
 spec:
   config:
     - inputConfig: |
