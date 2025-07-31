@@ -6,4 +6,6 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
-# Add more values as needed for your environment
+# Ensure the operator watches all namespaces for CRDs (including VLogs, VLAgent, etc.)
+operator:
+  watchNamespace: ""
