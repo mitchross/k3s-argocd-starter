@@ -2264,8 +2264,8 @@ data:
         ]
       },
       "timezone": "browser",
-      "title": "Kubernetes / Views / K3s Cluster",
-      "uid": "1bI4P-xiz",
+      "title": "K3s Cluster Monitoring (Custom)",
+      "uid": "k3s-cluster-monitoring-custom",
       "version": 11,
       "weekStart": ""
     }
