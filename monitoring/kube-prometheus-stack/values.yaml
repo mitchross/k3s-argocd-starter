@@ -62,11 +62,11 @@ prometheus:
     retention: 7d
     resources:
       limits:
-        cpu: 250m
-        memory: 512Mi
+        cpu: 500m
+        memory: 1Gi
       requests:
-        cpu: 100m
-        memory: 256Mi
+        cpu: 200m
+        memory: 512Mi
     storageSpec:
       volumeClaimTemplate:
         spec:
