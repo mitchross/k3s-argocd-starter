@@ -35,7 +35,7 @@ data:
       "fiscalYearStartMonth": 0,
       "gnetId": 16450,
       "graphTooltip": 1,
-      "id": 777,
+      "id": null,
       "links": [],
       "liveNow": false,
       "panels": [
