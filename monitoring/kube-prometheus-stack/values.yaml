@@ -45,8 +45,7 @@ grafana:
       enabled: true
       label: grafana_dashboard
       labelValue: "1"
-      folder: /tmp/dashboards
-      searchNamespace: kube-prometheus-stack
+      searchNamespace: ALL
       provider:
         allowUiUpdates: true
         disableDelete: false
