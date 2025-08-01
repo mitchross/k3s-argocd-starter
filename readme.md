@@ -241,39 +241,34 @@ Update the argocd-secret secret with the new bcrypt hash.
 kubectl -n argocd patch secret argocd-secret -p '{"stringData": { "admin.password": "$2a$10$rgDBwhzr0ygDfH6scxkdddddx3cd612Cutw1Xu1X3a.kVrRq", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
 
-### 5. Monitoring Setup (Prometheus, VictoriaMetrics, Grafana, Loki, Kubecost)
+### 5. Monitoring Setup (kube-prometheus-stack with Custom Dashboards)
 
-The monitoring stack is deployed via Argo CD and provides a comprehensive, homelab-friendly observability solution. Each component is deployed as a separate ArgoCD Application in its own namespace (e.g., `prometheus`, `grafana`, `loki`, `victoriametrics`, `kubecost`, `promtail`).
+The monitoring stack uses kube-prometheus-stack Helm chart deployed via Argo CD, providing comprehensive Kubernetes and application monitoring with custom dashboard support.
 
-- **Metrics**: `Prometheus` and/or `VictoriaMetrics` (choose one or both) for collecting detailed time-series metrics.
-- **Visualization**: `Grafana` pre-configured with Prometheus, VictoriaMetrics, and Loki data sources, plus several default dashboards.
-- **Logging**: `Loki` for log aggregation, with `Promtail` as the agent.
-- **Cost Monitoring**: `Kubecost` for real-time cost visibility.
-- **Alerting**: `AlertManager` handles alerts from Prometheus.
+**Components Included:**
+- **Prometheus**: Metrics collection and storage with increased memory (1Gi) for cluster monitoring
+- **Grafana**: Visualization with custom dashboard auto-discovery via sidecar
+- **AlertManager**: Alert handling and routing
+- **Node Exporter**: Node-level metrics collection
+- **kube-state-metrics**: Kubernetes object state metrics
 
-Each component is managed as a separate ArgoCD Application. To add or remove components, edit `monitoring/monitoring-components-appset.yaml` and comment/uncomment the desired subfolders.
+**Custom Dashboard Management:**
+- Dashboard ConfigMaps are automatically discovered using `grafana_dashboard: "1"` labels
+- Stored in `monitoring/kube-prometheus-stack/dashboards/` directory
+- Includes pre-configured K3s cluster overview and community dashboards
+- Tagged with "custom" for easy identification in Grafana
 
 **Access URLs (after DNS/Gateway setup):**
-- **Grafana**: `https://grafana.yourdomain.xyz` (namespace: `grafana`, default: `admin` / `prom-operator`)
-- **Prometheus**: `https://prometheus.yourdomain.xyz` (namespace: `prometheus`)
-- **VictoriaMetrics**: `https://victoriametrics.yourdomain.xyz` (namespace: `victoriametrics`)
-- **AlertManager**: `https://alertmanager.yourdomain.xyz` (namespace: `prometheus`)
-- **Loki**: `https://loki.yourdomain.xyz` (namespace: `loki`)
-- **Kubecost**: `https://kubecost.yourdomain.xyz` (namespace: `kubecost`)
+- **Grafana**: `https://grafana.yourdomain.xyz` (default: `admin` / `admin`)
+- **Prometheus**: `https://prometheus.yourdomain.xyz`
+- **AlertManager**: `https://alertmanager.yourdomain.xyz`
 
-**Storage (default sizes):**
-- **Prometheus**: `5Gi`
-- **VictoriaMetrics**: `5Gi`
-- **Loki**: `2Gi`
-- **Grafana**: `2Gi`
-- **AlertManager**: `2Gi`
-- **Kubecost**: `2Gi`
+**Storage (with Longhorn):**
+- **Prometheus**: `2Gi` with 7-day retention
+- **Grafana**: `1Gi` for dashboards and config
+- **AlertManager**: `512Mi` for alert state
 
-**Default Credentials:**
-- **Grafana**: `admin` / `prom-operator` (change after first login)
-- **Other components**: No default auth (local access only)
-
-**For detailed usage, dashboards, and troubleshooting, see [`monitoring/README.md`](monitoring/README.md).**
+**For detailed dashboard management, see [`monitoring/kube-prometheus-stack/dashboards/README.md`](monitoring/kube-prometheus-stack/dashboards/README.md).**
 
 ---
 
@@ -368,15 +363,13 @@ kubectl apply -f infrastructure/infrastructure-components-appset.yaml -n argocd
 kubectl wait --for=condition=Available deployment -l type=infrastructure --all-namespaces --timeout=1800s
 
 # Deploy monitoring stack
-kubectl apply -f monitoring/argocd/projects/monitoring-project.yaml -n argocd
 kubectl apply -f monitoring/monitoring-components-appset.yaml -n argocd
 
 # Wait for monitoring components to initialize
-# This can take a few minutes as images are pulled and resources are provisioned.
-echo "Waiting for monitoring stack to become ready... (this may take a few minutes)"
-kubectl wait --for=condition=Available deployment --all -n monitoring --timeout=600s
-kubectl wait --for=condition=Ready statefulset --all -n monitoring --timeout=600s
-kubectl wait --for=jsonpath='{.status.numberReady}'=.status.desiredNumberScheduled daemonset --all -n monitoring --timeout=600s
+echo "Waiting for kube-prometheus-stack to become ready... (this may take a few minutes)"
+kubectl wait --for=condition=Available deployment -l app.kubernetes.io/name=grafana -n kube-prometheus-stack --timeout=600s
+kubectl wait --for=condition=Available deployment -l app.kubernetes.io/name=kube-state-metrics -n kube-prometheus-stack --timeout=600s
+kubectl wait --for=condition=Ready statefulset -l app.kubernetes.io/name=prometheus -n kube-prometheus-stack --timeout=600s
 
 # Deploy applications
 kubectl apply -f my-apps/myapplications-appset.yaml
@@ -391,7 +384,7 @@ kubectl get pods -A --sort-by=.metadata.creationTimestamp
 kubectl get applications -n argocd -o wide
 
 # Monitoring stack status
-kubectl get pods -n monitoring
+kubectl get pods -n kube-prometheus-stack
 
 # Certificate checks
 kubectl get certificates -A
@@ -452,17 +445,24 @@ kubectl describe CiliumL2AnnouncementPolicy -n kube-system
 
 **Monitoring Stack Issues:**
 ```bash
-# Check pod status in the monitoring namespace
-kubectl get pods -n monitoring
+# Check pod status in the kube-prometheus-stack namespace
+kubectl get pods -n kube-prometheus-stack
 
 # If pods are stuck, check the Argo CD UI for sync errors.
-# Look at the 'kube-prometheus-stack', 'loki', 'promtail', and 'blackbox-exporter' applications.
+# Look at the 'kube-prometheus-stack' application.
 
 # Describe a pod to see its events and find out why it's not starting
-kubectl describe pod <pod-name> -n monitoring
+kubectl describe pod <pod-name> -n kube-prometheus-stack
 
-# Check logs for a specific monitoring component (e.g., Grafana)
-kubectl logs -l app.kubernetes.io/name=grafana -n monitoring
+# Check logs for specific monitoring components
+kubectl logs -l app.kubernetes.io/name=grafana -n kube-prometheus-stack
+kubectl logs -l app.kubernetes.io/name=prometheus -n kube-prometheus-stack
+
+# Check Grafana sidecar for dashboard loading issues
+kubectl logs -l app.kubernetes.io/name=grafana -c grafana-sc-dashboard -n kube-prometheus-stack
+
+# Verify custom dashboard ConfigMaps are labeled correctly
+kubectl get configmaps -n kube-prometheus-stack -l grafana_dashboard=1
 ```
 
 **Critical L2 Note:**
