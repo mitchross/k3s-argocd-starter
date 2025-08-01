@@ -73,6 +73,24 @@ prometheus:
     type: ClusterIP
   prometheusSpec:
     retention: 7d
+    # Fix scraping timeouts and intervals to prevent broken pipe errors
+    scrapeInterval: 30s
+    scrapeTimeout: 10s
+    evaluationInterval: 30s
+    # Additional configuration to handle network issues
+    additionalScrapeConfigs:
+    - job_name: 'kubernetes-nodes'
+      kubernetes_sd_configs:
+      - role: node
+      scheme: http
+      metrics_path: /metrics
+      scrape_interval: 30s
+      scrape_timeout: 10s
+      relabel_configs:
+      - source_labels: [__address__]
+        regex: '(.*):10250'
+        target_label: __address__
+        replacement: '${1}:9100'
     resources:
       limits:
         cpu: 500m
@@ -110,6 +128,23 @@ alertmanager:
 
 nodeExporter:
   enabled: true
+  # Disable problematic collectors to prevent errors
+  extraArgs:
+    - --collector.disable-defaults
+    - --collector.cpu
+    - --collector.diskstats
+    - --collector.filesystem
+    - --collector.loadavg
+    - --collector.meminfo
+    - --collector.netdev
+    - --collector.stat
+    - --collector.time
+    - --collector.uname
+    - --collector.vmstat
+    - --collector.systemd
+    - --collector.processes
+    # Explicitly disable nfsd collector that's causing issues
+    - --no-collector.nfsd
   resources:
     limits:
       cpu: 50m
