@@ -116,12 +116,12 @@ nodeExporter:
   enabled: true
   # Fix: Disable problematic nfsd collector and add timeout handling
   extraArgs:
-    # Explicitly disable nfsd collector that's causing issues
-    - --no-collector.nfsd
-    # Add timeout handling for web requests
-    - --web.timeout=30s
-    # Reduce log verbosity for broken pipe errors  
-    - --log.level=warn
+  # Explicitly disable nfsd collector that's causing issues
+  - --no-collector.nfsd
+  # Add timeout handling for web requests
+  - --web.timeout=30s
+  # Reduce log verbosity for broken pipe errors  
+  - --log.level=warn
   resources:
     limits:
       cpu: 50m
