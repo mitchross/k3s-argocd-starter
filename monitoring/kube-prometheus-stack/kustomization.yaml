@@ -7,15 +7,8 @@ resources:
 - namespace.yaml
 - http-route-grafana.yaml
 - http-route-prometheus.yaml
-
-configMapGenerator:
-- name: custom-dashboards
-  files:
-  - dashboards/k3s-cluster-overview.json
-  - dashboards/16450_rev3.json
-  options:
-    labels:
-      grafana_dashboard: "1"
+- dashboards/k3s-cluster-overview-configmap.yaml
+- dashboards/dashboard-16450-configmap.yaml
 
 helmCharts:
 - name: kube-prometheus-stack

@@ -38,7 +38,7 @@ grafana:
     requests:
       cpu: 100m
       memory: 128Mi
-  
+
   # Enable sidecar for dashboard discovery
   sidecar:
     dashboards:
@@ -50,7 +50,7 @@ grafana:
         allowUiUpdates: true
         disableDelete: false
         foldersFromFilesStructure: false
-        
+
   additionalDataSources:
   - name: Prometheus
     type: prometheus
