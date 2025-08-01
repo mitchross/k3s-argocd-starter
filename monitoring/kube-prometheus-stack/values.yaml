@@ -87,7 +87,7 @@ prometheus:
       scrape_interval: 30s
       scrape_timeout: 10s
       relabel_configs:
-      - source_labels: [__address__]
+      - source_labels: [ __address__ ]
         regex: '(.*):10250'
         target_label: __address__
         replacement: '${1}:9100'
@@ -128,23 +128,10 @@ alertmanager:
 
 nodeExporter:
   enabled: true
-  # Disable problematic collectors to prevent errors
+  # Fix: Only disable the problematic nfsd collector, keep defaults
   extraArgs:
-    - --collector.disable-defaults
-    - --collector.cpu
-    - --collector.diskstats
-    - --collector.filesystem
-    - --collector.loadavg
-    - --collector.meminfo
-    - --collector.netdev
-    - --collector.stat
-    - --collector.time
-    - --collector.uname
-    - --collector.vmstat
-    - --collector.systemd
-    - --collector.processes
-    # Explicitly disable nfsd collector that's causing issues
-    - --no-collector.nfsd
+  # Explicitly disable nfsd collector that's causing issues
+  - --no-collector.nfsd
   resources:
     limits:
       cpu: 50m
