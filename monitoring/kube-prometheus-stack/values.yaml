@@ -77,20 +77,6 @@ prometheus:
     scrapeInterval: 30s
     scrapeTimeout: 10s
     evaluationInterval: 30s
-    # Additional configuration to handle network issues
-    additionalScrapeConfigs:
-    - job_name: 'kubernetes-nodes'
-      kubernetes_sd_configs:
-      - role: node
-      scheme: http
-      metrics_path: /metrics
-      scrape_interval: 30s
-      scrape_timeout: 10s
-      relabel_configs:
-      - source_labels: [ __address__ ]
-        regex: '(.*):10250'
-        target_label: __address__
-        replacement: '${1}:9100'
     resources:
       limits:
         cpu: 500m
@@ -128,10 +114,14 @@ alertmanager:
 
 nodeExporter:
   enabled: true
-  # Fix: Only disable the problematic nfsd collector, keep defaults
+  # Fix: Disable problematic nfsd collector and add timeout handling
   extraArgs:
-  # Explicitly disable nfsd collector that's causing issues
-  - --no-collector.nfsd
+    # Explicitly disable nfsd collector that's causing issues
+    - --no-collector.nfsd
+    # Add timeout handling for web requests
+    - --web.timeout=30s
+    # Reduce log verbosity for broken pipe errors  
+    - --log.level=warn
   resources:
     limits:
       cpu: 50m
