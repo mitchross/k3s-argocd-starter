@@ -194,7 +194,7 @@ data:
       ],
       "schemaVersion": 27,
       "style": "dark",
-      "tags": ["k3s", "kubernetes"],
+      "tags": ["k3s", "kubernetes", "custom"],
       "templating": {
         "list": []
       },

@@ -2134,7 +2134,8 @@ data:
       "tags": [
         "Kubernetes",
         "Prometheus",
-        "K3s"
+        "K3s",
+        "custom"
       ],
       "templating": {
         "list": [
