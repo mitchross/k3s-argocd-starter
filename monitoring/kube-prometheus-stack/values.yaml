@@ -38,6 +38,20 @@ grafana:
     requests:
       cpu: 100m
       memory: 128Mi
+  
+  # Enable sidecar for dashboard discovery
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: "1"
+      folder: /tmp/dashboards
+      searchNamespace: kube-prometheus-stack
+      provider:
+        allowUiUpdates: true
+        disableDelete: false
+        foldersFromFilesStructure: false
+        
   additionalDataSources:
   - name: Prometheus
     type: prometheus
