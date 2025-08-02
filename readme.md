@@ -465,6 +465,106 @@ kubectl logs -l app.kubernetes.io/name=grafana -c grafana-sc-dashboard -n kube-p
 kubectl get configmaps -n kube-prometheus-stack -l grafana_dashboard=1
 ```
 
+**Multi-Attach Volume Errors (ReadWriteOnce Issues):**
+```bash
+# PROBLEM: Multiple pods trying to mount the same ReadWriteOnce (RWO) volume
+# SYMPTOMS: Pods stuck in Init:0/2 or Pending state with multi-attach errors
+# COMMON CAUSE: ArgoCD rolling updates with Replace=true causing resource conflicts
+
+# Check for stuck pods and volume attachment issues
+kubectl get pods -A | grep -E "(Init|Pending|ContainerCreating)"
+kubectl get volumeattachments
+kubectl get pvc -A
+
+# Identify the problematic pod and PVC
+kubectl describe pod <stuck-pod-name> -n <namespace>
+
+# IMMEDIATE FIX: Force delete the stuck pod (temporary solution)
+kubectl delete pod <stuck-pod-name> -n <namespace> --force --grace-period=0
+
+# PERMANENT SOLUTION: Fix deployment strategies for RWO volumes
+# 1. Update ApplicationSet sync options (remove Replace=true)
+# 2. Set deployment strategy to 'Recreate' for apps using RWO volumes
+# 3. Add RespectIgnoreDifferences=true to prevent unnecessary syncs
+
+# Verify fixes are applied:
+# Check ApplicationSet sync options
+kubectl get applicationset -n argocd -o yaml | grep -A 10 syncOptions
+
+# Check deployment strategies for RWO volume users
+kubectl get deployment grafana -n kube-prometheus-stack -o jsonpath='{.spec.strategy.type}'
+kubectl get deployment proxitok-web -n proxitok -o jsonpath='{.spec.strategy.type}'
+kubectl get deployment homepage-dashboard -n homepage-dashboard -o jsonpath='{.spec.strategy.type}'
+kubectl get deployment redis -n searxng -o jsonpath='{.spec.strategy.type}'
+
+# All should return 'Recreate' for apps using persistent volumes
+```
+
+**Key Prevention Strategies:**
+- **Use `Recreate` deployment strategy** for any app with ReadWriteOnce volumes
+- **Remove `Replace=true`** from ArgoCD ApplicationSet sync options
+- **Add `RespectIgnoreDifferences=true`** to prevent unnecessary rolling updates
+- **Use `ApplyOutOfSyncOnly=true`** to only update resources that are actually out of sync
+
+**Specific Changes Made to Fix Multi-Attach Errors:**
+
+1. **ApplicationSet Sync Options Updated:**
+   ```yaml
+   # REMOVED from all ApplicationSets:
+   # - Replace=true  # This was causing resource deletion/recreation
+   
+   # ADDED to all ApplicationSets:
+   syncOptions:
+     - RespectIgnoreDifferences=true  # Prevents unnecessary syncs
+     - ApplyOutOfSyncOnly=true       # Only sync out-of-sync resources
+   ```
+
+2. **Deployment Strategy Changes for RWO Volume Apps:**
+   ```yaml
+   # monitoring/kube-prometheus-stack/values.yaml
+   grafana:
+     deploymentStrategy:
+       type: Recreate  # Added to prevent multi-attach during updates
+   
+   # my-apps/homepage-dashboard/deployment.yaml
+   spec:
+     strategy:
+       type: Recreate  # Added for RWO volume safety
+   
+   # my-apps/proxitok/deployment.yaml  
+   spec:
+     strategy:
+       type: Recreate  # Added for cache PVC
+   
+   # my-apps/searxng/redis.yaml
+   spec:
+     strategy:
+       type: Recreate  # Added for Redis data persistence
+   ```
+
+3. **Kustomize Patches Added:**
+   ```yaml
+   # monitoring/kube-prometheus-stack/kustomization.yaml
+   commonAnnotations:
+     argocd.argoproj.io/sync-options: "RespectIgnoreDifferences=true"
+   
+   patchesStrategicMerge:
+   - |-
+     apiVersion: apps/v1
+     kind: Deployment
+     metadata:
+       name: prometheus-grafana
+     spec:
+       strategy:
+         type: Recreate  # Kubernetes-level fallback
+   ```
+
+**Why These Changes Work:**
+- **`Recreate` vs `RollingUpdate`**: With ReadWriteOnce volumes, `RollingUpdate` tries to start new pods before old ones terminate, causing volume conflicts. `Recreate` ensures complete pod termination first.
+- **Removing `Replace=true`**: This ArgoCD option deletes and recreates all resources during sync, triggering unnecessary rolling updates and volume conflicts.
+- **`RespectIgnoreDifferences=true`**: Prevents ArgoCD from syncing minor differences that don't affect functionality, reducing unnecessary pod restarts.
+- **Sync Wave Ordering**: Monitoring components use sync wave "1" to deploy after infrastructure (wave "-2" and "0"), ensuring proper resource availability.
+
 **Critical L2 Note:**
 If LoadBalancer IPs aren't advertising properly:
 1. Verify physical interface name matches in CiliumL2AnnouncementPolicy
