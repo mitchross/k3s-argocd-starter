@@ -17,3 +17,6 @@ helmCharts:
   version: 75.15.1
   valuesFile: values.yaml
   includeCRDs: true
+
+commonAnnotations:
+  argocd.argoproj.io/sync-wave: "1"
