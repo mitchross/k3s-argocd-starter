@@ -125,7 +125,7 @@ echo -e "xt_socket\niptable_raw" | sudo tee /etc/modules-load.d/cilium.conf
 export SETUP_NODEIP=192.168.101.176  # Your node IP
 export SETUP_CLUSTERTOKEN=randomtokensecret12343  # Strong token
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.1+k3s1" \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.3+k3s1" \
   INSTALL_K3S_EXEC="--node-ip $SETUP_NODEIP \
   --disable=flannel,local-storage,metrics-server,servicelb,traefik \
   --flannel-backend='none' \
@@ -187,7 +187,7 @@ rm cilium-linux-${CLI_ARCH}.tar.gz*
 helm repo add cilium https://helm.cilium.io && helm repo update
 helm install cilium cilium/cilium -n kube-system \
   -f infrastructure/networking/cilium/values.yaml \
-  --version 1.17.3 \
+  --version 1.18.0 \
   --set operator.replicas=1
 
 # Validate installation
