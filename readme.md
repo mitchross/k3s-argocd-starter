@@ -150,7 +150,7 @@ export MASTER_IP=192.168.101.202  # IP of your master node
 export NODE_IP=192.168.101.203    # IP of THIS worker node
 export K3S_TOKEN=your-node-token # From master's node-token file
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.32.0+k3s1" \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.3+k3s1" \
   K3S_URL="https://$MASTER_IP:6443" \
   K3S_TOKEN=$K3S_TOKEN \
   INSTALL_K3S_EXEC="--node-ip $NODE_IP" sh -
@@ -220,8 +220,8 @@ ip a
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # Gateway API CRDs
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/standard-install.yaml
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.0/experimental-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
 
 # Argo CD Bootstrap
 kubectl create namespace argocd
