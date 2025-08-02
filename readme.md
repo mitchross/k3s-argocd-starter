@@ -542,22 +542,7 @@ kubectl get deployment redis -n searxng -o jsonpath='{.spec.strategy.type}'
        type: Recreate  # Added for Redis data persistence
    ```
 
-3. **Kustomize Patches Added:**
-   ```yaml
-   # monitoring/kube-prometheus-stack/kustomization.yaml
-   commonAnnotations:
-     argocd.argoproj.io/sync-options: "RespectIgnoreDifferences=true"
-   
-   patchesStrategicMerge:
-   - |-
-     apiVersion: apps/v1
-     kind: Deployment
-     metadata:
-       name: prometheus-grafana
-     spec:
-       strategy:
-         type: Recreate  # Kubernetes-level fallback
-   ```
+
 
 **Why These Changes Work:**
 - **`Recreate` vs `RollingUpdate`**: With ReadWriteOnce volumes, `RollingUpdate` tries to start new pods before old ones terminate, causing volume conflicts. `Recreate` ensures complete pod termination first.
