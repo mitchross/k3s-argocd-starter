@@ -20,3 +20,17 @@ helmCharts:
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "1"
+  # Prevent multi-attach errors during updates
+  argocd.argoproj.io/sync-options: "RespectIgnoreDifferences=true"
+
+# Add patch to ensure proper deployment strategy for Grafana
+patchesStrategicMerge:
+- |-
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: prometheus-grafana
+    namespace: kube-prometheus-stack
+  spec:
+    strategy:
+      type: Recreate
