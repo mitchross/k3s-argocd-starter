@@ -8,13 +8,13 @@ metadata:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
-        revision: HEAD
-        directories:
-          - path: my-apps/*
-          - exclude: true
-            path: my-apps/myapplications-appset.yaml
+  - git:
+      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
+      revision: HEAD
+      directories:
+      - path: my-apps/*
+      - exclude: true
+        path: my-apps/myapplications-appset.yaml
   template:
     metadata:
       # Changed from 'app-{{path.basename}}' to just '{{path.basename}}'
@@ -43,7 +43,7 @@ spec:
             factor: 2
             maxDuration: 3m
         syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-          - RespectIgnoreDifferences=true
-          - ApplyOutOfSyncOnly=true
+        - CreateNamespace=true
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
+        - ApplyOutOfSyncOnly=true

@@ -6,13 +6,13 @@ metadata:
     argocd.argoproj.io/sync-wave: "-2"
 spec:
   generators:
-    - git:
-        repoURL: https://github.com/mitchross/k3s-argocd-starter
-        revision: HEAD
-        directories:
-          - path: infrastructure/networking/*
-          - path: infrastructure/storage/*
-          - path: infrastructure/controllers/*
+  - git:
+      repoURL: https://github.com/mitchross/k3s-argocd-starter
+      revision: HEAD
+      directories:
+      - path: infrastructure/networking/*
+      - path: infrastructure/storage/*
+      - path: infrastructure/controllers/*
   template:
     metadata:
       name: '{{path.basename}}'
@@ -40,7 +40,7 @@ spec:
             factor: 2
             maxDuration: 3m
         syncOptions:
-          - CreateNamespace=true
-          - ServerSideApply=true
-          - RespectIgnoreDifferences=true
-          - ApplyOutOfSyncOnly=true
+        - CreateNamespace=true
+        - ServerSideApply=true
+        - RespectIgnoreDifferences=true
+        - ApplyOutOfSyncOnly=true

@@ -23,11 +23,11 @@ grafana:
   enabled: true
   adminPassword: "admin"
   defaultDashboardsEnabled: true
-  
+
   # Fix multi-attach errors by configuring deployment strategy
   deploymentStrategy:
     type: Recreate
-  
+
   persistence:
     enabled: true
     storageClassName: longhorn
