@@ -556,4 +556,30 @@ If LoadBalancer IPs aren't advertising properly:
 2. Check interface exists on all nodes: `ip link show dev enp1s0`
 3. Ensure Cilium pods are running: `kubectl get pods -n kube-system -l k8s-app=cilium`
 
+**Longhorn Volume Mount Issues:**
+```bash
+# PROBLEM: Volumes fail to mount with "device busy" or multipath conflicts
+# COMMON CAUSE: Linux multipath daemon interfering with Longhorn device management
+
+# Check if multipathd is running (often enabled by default on Ubuntu/Debian)
+systemctl status multipathd
+
+# SOLUTION: Disable multipath daemon on all nodes
+sudo systemctl disable --now multipathd
+
+# Verify it's stopped
+systemctl is-active multipathd  # Should return "inactive"
+
+# After disabling multipathd, restart kubelet to clear any cached device state
+sudo systemctl restart k3s  # For K3s
+# OR
+sudo systemctl restart kubelet  # For standard Kubernetes
+
+# Check Longhorn volume status after restart
+kubectl get volumes -n longhorn-system
+kubectl get pods -n longhorn-system
+
+# Reference: https://longhorn.io/kb/troubleshooting-volume-with-multipath/
+```
+
 All original comments, warnings, and TODOs preserved. Formatting optimized for readability while maintaining technical accuracy.
