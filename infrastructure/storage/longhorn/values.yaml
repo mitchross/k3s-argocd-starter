@@ -1,4 +1,6 @@
+# Optimized for 1-2 node cluster
 longhorn:
+  # CSI controller replicas - keep at 1 for small clusters
   replicas: 1
 
 csi:
@@ -13,20 +15,47 @@ csi:
 
 defaultSettings:
   defaultDataPath: "/var/lib/longhorn"
-  # Add this to force formatting even if device appears in use
+  # DATA replica count - this is what matters for your question
+  defaultDataLocality: "best-effort"
+  # For 2 nodes: use 1 replica (no redundancy but works)
+  # For 3+ nodes: use 2 replicas (redundancy with failure tolerance)
+  defaultClassReplicaCount: 1
+  # Force formatting to fix device busy errors
   mkfsExt4Parameters: "-F"
+  # Reduce resource usage for small clusters
+  guaranteedInstanceManagerCPU: 5  # Reduce from default 12%
+  # Allow scheduling on nodes with existing workloads
+  taintToleration: "node-role.kubernetes.io/control-plane:NoSchedule"
 
 preUpgradeChecker:
   jobEnabled: false
 
 persistence:
   defaultClass: true
-  defaultClassReplicaCount: 1
+  defaultClassReplicaCount: 1  # Data replicas per volume
   defaultFsType: ext4
-  # Change this to Delete so volumes are cleaned up properly
   reclaimPolicy: Delete
-  # Add mkfs options to force formatting
+  # Force mkfs to handle device busy issues
   defaultMkfsParams: "-F"
+
+# Resource limits for small clusters
+longhornManager:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+longhornDriver:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 ingress:
   enabled: false
