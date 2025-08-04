@@ -23,7 +23,7 @@ defaultSettings:
   # Force formatting to fix device busy errors
   mkfsExt4Parameters: "-F"
   # Reduce resource usage for small clusters
-  guaranteedInstanceManagerCPU: 5  # Reduce from default 12%
+  guaranteedInstanceManagerCPU: 5 # Reduce from default 12%
   # Allow scheduling on nodes with existing workloads
   taintToleration: "node-role.kubernetes.io/control-plane:NoSchedule"
 
@@ -32,7 +32,7 @@ preUpgradeChecker:
 
 persistence:
   defaultClass: true
-  defaultClassReplicaCount: 1  # Data replicas per volume
+  defaultClassReplicaCount: 1 # Data replicas per volume
   defaultFsType: ext4
   reclaimPolicy: Delete
   # Force mkfs to handle device busy issues
