@@ -12,6 +12,8 @@ prometheusOperator:
     requests:
       cpu: 100m
       memory: 128Mi
+  nodeSelector:
+    kubernetes.io/arch: amd64
 
   admissionWebhooks:
     enabled: false
@@ -23,6 +25,8 @@ grafana:
   enabled: true
   adminPassword: "admin"
   defaultDashboardsEnabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
 
   # Fix multi-attach errors by configuring deployment strategy
   deploymentStrategy:
@@ -77,6 +81,8 @@ prometheus:
   service:
     type: ClusterIP
   prometheusSpec:
+    nodeSelector:
+      kubernetes.io/arch: amd64
     retention: 7d
     # Fix scraping timeouts and intervals to prevent broken pipe errors
     scrapeInterval: 30s
@@ -101,6 +107,8 @@ prometheus:
 alertmanager:
   enabled: true
   alertmanagerSpec:
+    nodeSelector:
+      kubernetes.io/arch: amd64
     resources:
       limits:
         cpu: 100m
@@ -119,6 +127,8 @@ alertmanager:
 
 nodeExporter:
   enabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
   # Fix: Disable problematic nfsd collector and add timeout handling
   extraArgs:
   # Explicitly disable nfsd collector that's causing issues
@@ -137,6 +147,8 @@ nodeExporter:
 
 kubeStateMetrics:
   enabled: true
+  nodeSelector:
+    kubernetes.io/arch: amd64
   resources:
     limits:
       cpu: 100m
