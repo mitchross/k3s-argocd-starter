@@ -1,0 +1,17 @@
+#If you need it this is a demo for SMB storage 
+
+# apiVersion: kustomize.config.k8s.io/v1beta1
+# kind: Kustomization
+# namespace: csi-driver-smb
+# helmCharts:
+#   - name: csi-driver-smb
+#     repo: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+#     version: 1.18.0
+#     releaseName: csi-driver-smb
+#     includeCRDs: true
+#     namespace: csi-driver-smb
+#     valuesFile: values.yaml
+# resources:
+#   - namespace.yaml
+#   # - external-secret.yaml  # Example for reference: Demonstrates how to define a Secret for SMB credentials
+#   # - storage-class.yaml

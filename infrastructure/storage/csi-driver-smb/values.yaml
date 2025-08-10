@@ -1,0 +1,8 @@
+driver:
+  name: smb.csi.k8s.io
+  replicas: 2
+csiDriver:
+  name: smb.csi.k8s.io
+  attachRequired: false
+  fsGroupPolicy: File
+kubeletDir: /var/lib/kubelet
