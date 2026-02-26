@@ -79,7 +79,6 @@ graph TD
         AAS --> Web[Web Apps]
         AAS --> Other[Other Apps]
         
-        P --> ProxiTok
         P --> SearXNG
         P --> LibReddit
         
@@ -286,6 +285,13 @@ The ApplicationSet auto-discovers all directories under `monitoring/`. To add a 
 ### Design Philosophy: Frustration-Free Secrets
 To ensure this repository remains universal, incredibly simple, and frustration-free (especially for beginners or bare-metal users in 2026), secret management deliberately uses native Kubernetes Secrets rather than complex third-party tools like External Secrets Operator (ESO) or Sealed Secrets. This lowers the barrier to entry, avoids locking you into a specific workflow or requiring paid subscriptions, and lets you get a working cluster running reliably without extra friction.
 
+### Container Hardening Examples
+This repository serves as a learning tool for Kubernetes security best practices. The application manifests (such as `my-apps/searxng` and `my-apps/libreddit`) are explicitly hardened to demonstrate production-ready security. By examining these deployments, you will learn how to:
+- Drop unnecessary Linux capabilities (`drop: ["ALL"]`)
+- Prevent privilege escalation (`allowPrivilegeEscalation: false`)
+- Run containers as non-root users (`runAsNonRoot: true` and `runAsUser: 1000`)
+- Enforce read-only root filesystems where applicable.
+
 ### Cloudflare Integration
 
 You'll need to create two secrets for Cloudflare integration:
@@ -412,7 +418,6 @@ cilium connectivity test --all-flows
 - Grafana: `https://grafana.$DOMAIN`
 - Prometheus: `https://prometheus.$DOMAIN`
 - AlertManager: `https://alertmanager.$DOMAIN`
-- ProxiTok: `https://proxitok.$DOMAIN`
 - SearXNG: `https://search.$DOMAIN`
 - LibReddit: `https://reddit.$DOMAIN`
 
@@ -421,7 +426,7 @@ cilium connectivity test --all-flows
 | Category       | Components                          |
 |----------------|-------------------------------------|
 | **Monitoring** | Prometheus, Grafana, Loki, Tempo    |
-| **Privacy**    | ProxiTok, SearXNG, LibReddit        |
+| **Privacy**    | SearXNG, LibReddit                  |
 | **Infra**      | Cilium, Gateway API, Cloudflared    |
 | **Storage**    | Longhorn                            |
 | **Security**   | cert-manager, Argo CD Projects      |
@@ -505,7 +510,6 @@ kubectl get applicationset -n argocd -o yaml | grep -A 10 syncOptions
 
 # Check deployment strategies for RWO volume users
 kubectl get deployment grafana -n kube-prometheus-stack -o jsonpath='{.spec.strategy.type}'
-kubectl get deployment proxitok-web -n proxitok -o jsonpath='{.spec.strategy.type}'
 kubectl get deployment homepage-dashboard -n homepage-dashboard -o jsonpath='{.spec.strategy.type}'
 kubectl get deployment redis -n searxng -o jsonpath='{.spec.strategy.type}'
 
@@ -542,11 +546,6 @@ kubectl get deployment redis -n searxng -o jsonpath='{.spec.strategy.type}'
    spec:
      strategy:
        type: Recreate  # Added for RWO volume safety
-   
-   # my-apps/proxitok/deployment.yaml  
-   spec:
-     strategy:
-       type: Recreate  # Added for cache PVC
    
    # my-apps/searxng/redis.yaml
    spec:

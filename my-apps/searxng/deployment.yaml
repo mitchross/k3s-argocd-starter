@@ -20,9 +20,18 @@ spec:
         app.kubernetes.io/name: searxng
     spec:
       restartPolicy: Always
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 977
+        runAsGroup: 977
+        fsGroup: 977
       containers:
         - name: searxng
           image: searxng/searxng:2024.4.29-e45a7cc06
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           resources:
             requests:
               memory: 100M
