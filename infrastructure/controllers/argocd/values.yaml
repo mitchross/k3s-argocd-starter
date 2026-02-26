@@ -93,6 +93,8 @@ repoServer:
           name: cmp-tmp
 
 applicationSet:
+  # Chart 9.x changed default from 'sync' to '' - explicitly set for auto-sync
+  allowedScmProviders: []
   resources:
     requests:
       cpu: 50m

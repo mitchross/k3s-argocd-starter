@@ -1,4 +1,12 @@
 # Optimized for 1-2 node cluster
+# Longhorn v1.11.0 hotfix images for known regressions
+image:
+  longhorn:
+    instanceManager:
+      tag: v1.11.0-hotfix-1
+    manager:
+      tag: v1.11.0-hotfix-1
+
 longhorn:
   # CSI controller replicas - keep at 1 for small clusters
   replicas: 1

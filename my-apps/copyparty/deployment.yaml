@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: copyparty
+  namespace: copyparty
+  labels:
+    app: copyparty
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: copyparty
+  template:
+    metadata:
+      labels:
+        app: copyparty
+    spec:
+      containers:
+        - name: copyparty
+          image: copyparty/ac:latest
+          ports:
+            - name: http
+              containerPort: 3923
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: config
+              mountPath: /cfg/copyparty.conf
+              subPath: copyparty.conf
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: America/Detroit
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 2000m
+              memory: 1Gi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: copyparty-data
+        - name: config
+          configMap:
+            name: copyparty-config

@@ -1,0 +1,90 @@
+# ArgoCD metrics are handled by the argo-cd Helm chart's built-in ServiceMonitors
+# (enabled via per-component metrics.serviceMonitor.enabled in ArgoCD values.yaml)
+---
+# ServiceMonitor for Longhorn
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: longhorn-metrics
+  namespace: kube-prometheus-stack
+  labels:
+    app.kubernetes.io/name: longhorn
+    release: prometheus
+    prometheus: prometheus-kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      app: longhorn-manager
+  namespaceSelector:
+    matchNames:
+      - longhorn-system
+  endpoints:
+    - port: manager
+      interval: 30s
+      path: /metrics
+---
+# ServiceMonitor for Cilium
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cilium-metrics
+  namespace: kube-prometheus-stack
+  labels:
+    app.kubernetes.io/name: cilium
+    release: prometheus
+    prometheus: prometheus-kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      k8s-app: cilium
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: prometheus
+      interval: 30s
+      path: /metrics
+---
+# ServiceMonitor for Cilium Operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cilium-operator-metrics
+  namespace: kube-prometheus-stack
+  labels:
+    app.kubernetes.io/name: cilium-operator
+    release: prometheus
+    prometheus: prometheus-kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      name: cilium-operator
+  namespaceSelector:
+    matchNames:
+      - kube-system
+  endpoints:
+    - port: prometheus
+      interval: 30s
+      path: /metrics
+---
+# ServiceMonitor for Gateway API
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: gateway-api-metrics
+  namespace: kube-prometheus-stack
+  labels:
+    app.kubernetes.io/name: gateway-api
+    release: prometheus
+    prometheus: prometheus-kube-prometheus-stack-prometheus
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gateway
+  namespaceSelector:
+    matchNames:
+      - gateway
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics

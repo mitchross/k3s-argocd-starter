@@ -30,11 +30,11 @@ This starter kit provides a production-ready foundation for deploying applicatio
 
 ## 📋 Prerequisites
 
-- Kubernetes cluster (tested with K3s v1.32.0+k3s1)
+- Kubernetes cluster (tested with K3s v1.35.1+k3s1)
 - Linux host (ARM or x86) with:
-  - Storage support (OpenEBS works with ZFS or standard directories)
+  - Storage support (Longhorn - works with standard directories or dedicated disks)
   - NFS and CIFS support (optional)
-  - Open-iSCSI
+  - Open-iSCSI (required for Longhorn)
 - Cloudflare account (for DNS and Tunnel)
 - Local DNS setup (one of the following):
   - Local DNS server ([AdGuard Home setup guide](docs/adguard-home-setup.md))
@@ -60,7 +60,7 @@ graph TD
         N --> Cloudflared
         N --> Gateway
         
-        S --> OpenEBS
+        S --> Longhorn
         
         C --> CertManager
     end
@@ -71,7 +71,7 @@ graph TD
         MAS --> AlertManager
         MAS --> NodeExporter
         MAS --> Loki
-        MAS --> Promtail
+        MAS --> Tempo
     end
     
     subgraph "User Applications"
@@ -107,12 +107,14 @@ graph TD
 
 ### 1. System Setup
 ```bash
-# Essential packages (ZFS/NFS/iSCSI)
+# Essential packages for Longhorn storage
 sudo apt update && sudo apt install -y \
-  zfsutils-linux \
-  nfs-kernel-server \
-  cifs-utils \
-  open-iscsi  # Optional but recommended
+  open-iscsi \
+  nfs-common \
+  cifs-utils  # Optional - only if using SMB/CIFS shares
+
+# Enable and start iSCSI (required for Longhorn)
+sudo systemctl enable --now iscsid
 
 # Critical kernel modules for Cilium
 sudo modprobe iptable_raw xt_socket
@@ -125,7 +127,7 @@ echo -e "xt_socket\niptable_raw" | sudo tee /etc/modules-load.d/cilium.conf
 export SETUP_NODEIP=192.168.101.176  # Your node IP
 export SETUP_CLUSTERTOKEN=randomtokensecret12343  # Strong token
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.3+k3s1" \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.35.1+k3s1" \
   INSTALL_K3S_EXEC="--node-ip $SETUP_NODEIP \
   --disable=flannel,local-storage,metrics-server,servicelb,traefik \
   --flannel-backend='none' \
@@ -150,7 +152,7 @@ export MASTER_IP=192.168.101.202  # IP of your master node
 export NODE_IP=192.168.101.203    # IP of THIS worker node
 export K3S_TOKEN=your-node-token # From master's node-token file
 
-curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.33.3+k3s1" \
+curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="v1.35.1+k3s1" \
   K3S_URL="https://$MASTER_IP:6443" \
   K3S_TOKEN=$K3S_TOKEN \
   INSTALL_K3S_EXEC="--node-ip $NODE_IP" sh -
@@ -187,7 +189,7 @@ rm cilium-linux-${CLI_ARCH}.tar.gz*
 helm repo add cilium https://helm.cilium.io && helm repo update
 helm install cilium cilium/cilium -n kube-system \
   -f infrastructure/networking/cilium/values.yaml \
-  --version 1.18.0 \
+  --version 1.19.1 \
   --set operator.replicas=1
 
 # Validate installation
@@ -220,8 +222,8 @@ ip a
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # Gateway API CRDs
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/experimental-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/standard-install.yaml
+kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.4.1/experimental-install.yaml
 
 # Argo CD Bootstrap
 kubectl create namespace argocd
@@ -235,20 +237,23 @@ kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server -
 ARGO_PASS=$(kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d)
 echo "Initial Argo CD password: $ARGO_PASS"
 
-#Generate a New Password:
-Use a bcrypt hash generator tool (such as https://www.browserling.com/tools/bcrypt) to create a new bcrypt hash for the password.
-Update the argocd-secret secret with the new bcrypt hash.
-kubectl -n argocd patch secret argocd-secret -p '{"stringData": { "admin.password": "$2a$10$rgDBwhzr0ygDfH6scxkdddddx3cd612Cutw1Xu1X3a.kVrRq", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
+# Generate a New Password:
+# Use a bcrypt hash generator (e.g. https://www.browserling.com/tools/bcrypt)
+# Then update the argocd-secret secret with your new bcrypt hash:
+kubectl -n argocd patch secret argocd-secret \
+  -p '{"stringData": { "admin.password": "<YOUR_BCRYPT_HASH>", "admin.passwordMtime": "'$(date +%FT%T%Z)'" }}'
 ```
 
-### 5. Monitoring Setup (kube-prometheus-stack with Custom Dashboards)
+### 5. Monitoring Setup (Prometheus + Grafana + Loki + Tempo)
 
 The monitoring stack uses kube-prometheus-stack Helm chart deployed via Argo CD, providing comprehensive Kubernetes and application monitoring with custom dashboard support.
 
 **Components Included:**
-- **Prometheus**: Metrics collection and storage with increased memory (1Gi) for cluster monitoring
+- **Prometheus**: Metrics collection and storage (10Gi, 7-day retention)
 - **Grafana**: Visualization with custom dashboard auto-discovery via sidecar
-- **AlertManager**: Alert handling and routing
+- **AlertManager**: Alert handling and routing with severity-based receivers
+- **Loki**: Log aggregation (SingleBinary mode, 7-day retention)
+- **Tempo**: Distributed tracing (72h retention)
 - **Node Exporter**: Node-level metrics collection
 - **kube-state-metrics**: Kubernetes object state metrics
 
@@ -264,17 +269,22 @@ The monitoring stack uses kube-prometheus-stack Helm chart deployed via Argo CD,
 - **AlertManager**: `https://alertmanager.yourdomain.xyz`
 
 **Storage (with Longhorn):**
-- **Prometheus**: `2Gi` with 7-day retention
+- **Prometheus**: `10Gi` with 7-day retention
 - **Grafana**: `1Gi` for dashboards and config
 - **AlertManager**: `512Mi` for alert state
+- **Loki**: `5Gi` with 7-day retention
+- **Tempo**: `2Gi` with 72h retention
 
 **For detailed dashboard management, see [`monitoring/kube-prometheus-stack/dashboards/README.md`](monitoring/kube-prometheus-stack/dashboards/README.md).**
 
 ---
 
-To add or remove monitoring components, edit `monitoring/monitoring-components-appset.yaml` and comment/uncomment the desired subfolders. Each component is managed as a separate ArgoCD Application in its own namespace.
+The ApplicationSet auto-discovers all directories under `monitoring/`. To add a component, create a new directory with a `kustomization.yaml`. To remove one, delete its directory. Each component is managed as a separate ArgoCD Application in its own namespace.
 
 ## 🔒 Security Setup
+
+### Design Philosophy: Frustration-Free Secrets
+To ensure this repository remains universal, incredibly simple, and frustration-free (especially for beginners or bare-metal users in 2026), secret management deliberately uses native Kubernetes Secrets rather than complex third-party tools like External Secrets Operator (ESO) or Sealed Secrets. This lowers the barrier to entry, avoids locking you into a specific workflow or requiring paid subscriptions, and lets you get a working cluster running reliably without extra friction.
 
 ### Cloudflare Integration
 
@@ -385,6 +395,8 @@ kubectl get applications -n argocd -o wide
 
 # Monitoring stack status
 kubectl get pods -n kube-prometheus-stack
+kubectl get pods -n loki
+kubectl get pods -n tempo
 
 # Certificate checks
 kubectl get certificates -A
@@ -408,10 +420,10 @@ cilium connectivity test --all-flows
 
 | Category       | Components                          |
 |----------------|-------------------------------------|
-| **Monitoring** | Prometheus, Grafana, Loki, Promtail |
+| **Monitoring** | Prometheus, Grafana, Loki, Tempo    |
 | **Privacy**    | ProxiTok, SearXNG, LibReddit        |
 | **Infra**      | Cilium, Gateway API, Cloudflared    |
-| **Storage**    | OpenEBS                             |
+| **Storage**    | Longhorn                            |
 | **Security**   | cert-manager, Argo CD Projects      |
 
 ## 🤝 Contributing
@@ -581,5 +593,3 @@ kubectl get pods -n longhorn-system
 
 # Reference: https://longhorn.io/kb/troubleshooting-volume-with-multipath/
 ```
-
-All original comments, warnings, and TODOs preserved. Formatting optimized for readability while maintaining technical accuracy.

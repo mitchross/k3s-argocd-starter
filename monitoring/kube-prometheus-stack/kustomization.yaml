@@ -4,22 +4,30 @@ kind: Kustomization
 namespace: kube-prometheus-stack
 
 resources:
-- namespace.yaml
-- http-route-grafana.yaml
-- http-route-prometheus.yaml
-- dashboards/k3s-cluster-overview-configmap.yaml
-- dashboards/dashboard-16450-configmap.yaml
+  - namespace.yaml
+  - http-route-grafana.yaml
+  - http-route-prometheus.yaml
+  - http-route-alertmanager.yaml
+  - custom-alerts.yaml
+  - custom-servicemonitors.yaml
+  - longhorn-alerts.yaml
+  - network-policy.yaml
+  - dashboards/k3s-cluster-overview-configmap.yaml
+  - dashboards/dashboard-16450-configmap.yaml
+
+# Strategic merge patches to handle resource conflicts
+patchesStrategicMerge:
+  - alertmanager-config.yaml
 
 helmCharts:
-- name: kube-prometheus-stack
-  releaseName: prometheus
-  repo: https://prometheus-community.github.io/helm-charts
-  version: 79.1.1
-  valuesFile: values.yaml
-  includeCRDs: true
+  - name: kube-prometheus-stack
+    releaseName: prometheus
+    repo: https://prometheus-community.github.io/helm-charts
+    version: 82.4.1
+    namespace: kube-prometheus-stack
+    valuesFile: values.yaml
+    includeCRDs: true
 
 commonAnnotations:
   argocd.argoproj.io/sync-wave: "1"
-  # Prevent multi-attach errors during updates
   argocd.argoproj.io/sync-options: "RespectIgnoreDifferences=true"
-

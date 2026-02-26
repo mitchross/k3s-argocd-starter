@@ -17,8 +17,6 @@ spec:
       labels:
         app.kubernetes.io/name: libreddit
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: vanillax-nuc
       securityContext:
         runAsNonRoot: true
         runAsUser: 1000
@@ -26,8 +24,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: libreddit
-          image: quay.io/redlib/redlib:latest
-          imagePullPolicy: Always
+          image: ghcr.io/mitchross/redlib:sha-0935fa0
           envFrom:
             - configMapRef:
                 name: libreddit-env

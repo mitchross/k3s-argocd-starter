@@ -1,0 +1,23 @@
+tempo:
+  storage:
+    trace:
+      backend: local
+      local:
+        path: /var/tempo/traces
+      wal:
+        path: /var/tempo/wal
+  retention: 72h
+  resources:
+    requests:
+      cpu: 25m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+persistence:
+  enabled: true
+  storageClassName: longhorn
+  size: 2Gi
+  accessModes:
+    - ReadWriteOnce
