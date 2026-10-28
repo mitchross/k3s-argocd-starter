@@ -3,6 +3,8 @@
   extends: [
     'config:recommended',
   ],
+  automerge: false,
+  timezone: 'America/Detroit',
   prHourlyLimit: 3,
   enabledManagers: [
     'helm-values',
@@ -35,6 +37,20 @@
   },
   packageRules: [
     {
+      description: 'Group routine updates weekly per Application; later rules preserve protected groups.',
+      matchUpdateTypes: ['minor', 'patch', 'digest', 'pin', 'pinDigest'],
+      groupName: 'weekly {{{replace "^((?:infrastructure/[^/]+/[^/]+|(?:my-apps|monitoring|apps)/[^/]+))(?:/.*)?$" "$1" packageFileDir}}} updates',
+      // Override inherited monorepo slugs with the rendered Application group name.
+      groupSlug: '{{groupName}}',
+      schedule: ['* 0-5 * * 1'],
+    },
+    {
+      description: 'Keep infrastructure upgrades separate from routine updates.',
+      matchPackageNames: ['cilium', 'longhorn', 'kube-prometheus-stack', 'argo-cd', 'cloudnative-pg', 'ghcr.io/cloudnative-pg/postgresql', 'ghcr.io/siderolabs/installer', 'ghcr.io/siderolabs/kubelet'],
+      groupName: 'weekly {{{replace "^((?:infrastructure/[^/]+/[^/]+|(?:my-apps|monitoring|apps)/[^/]+))(?:/.*)?$" "$1" packageFileDir}}} {{depName}} updates',
+      groupSlug: '{{groupName}}',
+    },
+    {
       matchUpdateTypes: [
         'minor',
         'patch',
@@ -45,8 +61,8 @@
         'kustomize',
         'argocd',
       ],
-      automerge: true,
-      automergeType: 'branch',
+      automerge: false,
+      automergeType: 'pr',
     },
     {
       matchUpdateTypes: [
@@ -60,6 +76,13 @@
       ],
       automerge: false,
       prCreation: 'immediate',
+    },
+    {
+      description: 'Review major upgrades separately from routine updates and each other.',
+      matchUpdateTypes: ['major'],
+      groupName: null,
+      groupSlug: null,
+      automerge: false,
     },
   ],
   ignorePaths: [
