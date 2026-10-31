@@ -14,3 +14,7 @@ chatmodes/
 instructions/
 */chatmodes/
 */instructions/
+
+# Agent-managed worktrees (Claude Code, Hermes)
+.claude/worktrees/
+.worktrees/
