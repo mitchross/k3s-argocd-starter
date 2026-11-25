@@ -7,7 +7,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/mitchross/k3s-argocd-starter
+      repoURL: https://github.com/mitchross/k3s-argocd-starter.git
       revision: HEAD
       directories:
       - path: infrastructure/networking/*
@@ -23,7 +23,7 @@ spec:
       source:
         plugin:
           name: kustomize-build-with-helm
-        repoURL: https://github.com/mitchross/k3s-argocd-starter
+        repoURL: https://github.com/mitchross/k3s-argocd-starter.git
         targetRevision: HEAD
         path: '{{path}}'
       destination:
